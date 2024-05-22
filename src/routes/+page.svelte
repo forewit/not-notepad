@@ -3,6 +3,8 @@
    * TODO:
    * - add slash commands
    * - create the theme colors/sizing variables
+   * - fix coloring of scrollbar buttons
+   * - fix SVGs in general on iOS (removing svg transforms)
    */
   import { afterUpdate, onMount } from "svelte";
   import * as gestures from "$lib/modules/gestures";
@@ -489,7 +491,6 @@
   }
   #text::-webkit-scrollbar {
     width: 5px;
-    color: white;
     /**add margin top and bottom*/
     margin-inline: 0.5rem;
   }
