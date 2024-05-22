@@ -79,7 +79,8 @@ TIP: use +layout.svelte to subscribe to auth updates and keep the Svelte Store u
 
 
 #### Setup service-worker and page caching
-(see [Demos](https://github.com/forewit/demos) repo for an examples)
+(see [Demos](https://github.com/forewit/demos) repo for example of a manifest.json and service-worker.js for page caching)
+
 1. create service worker: /src/service-worker.js 
 2. create manifest: /static/manifest.json
 3. update /src/app.html to include the manifest:
