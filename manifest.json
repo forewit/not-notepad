@@ -1,0 +1,18 @@
+{
+    "name": "Not Notepad",
+    "short_name": "Not Notepad",
+    "description": "Definitely not a notepad",
+    "start_url": "/not-notepad/",
+    "scope": "/not-notepad/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "icons": [
+        {
+            "src": "images/field_512.png.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ]
+}
