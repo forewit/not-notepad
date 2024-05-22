@@ -1,4 +1,5 @@
 # not-notepad
+Definitely not a clone of Mircrosoft Notepad.
 
 ## Initial Setup
 #### Setup svelte static site
