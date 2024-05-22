@@ -14,7 +14,7 @@ const config = {
 		adapter: adapter(),
 		appDir: 'app',
 		paths: {
-			base: process.env.NODE_ENV === "production" ? "/demos" : "",
+			base: process.env.NODE_ENV === "production" ? "/not-notepad" : "",
 		}
 	}
 };

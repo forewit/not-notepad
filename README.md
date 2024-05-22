@@ -90,5 +90,5 @@ TIP: use +layout.svelte to subscribe to auth updates and keep the Svelte Store u
     <head>
         ... 
         <!-- add the following line -->
-		<link rel="manifest" href="/demos/manifest.json" />
+		<link rel="manifest" href="/YOUR_GITHUB_REPO/manifest.json" />
 ```
