@@ -26,6 +26,12 @@ const config = {
 }
 ```
 
+3. add the following to /src/+layout.ts (or create the file):
+```ts
+export const prerender = true;
+export const trailingSlash = "always";
+```
+
 #### Setup deploy to gh-pages
 
 1. Install gh-pages
