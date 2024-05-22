@@ -9,7 +9,7 @@
     "theme_color": "#ffffff",
     "icons": [
         {
-            "src": "images/field_512.png.png",
+            "src": "images/field_512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
