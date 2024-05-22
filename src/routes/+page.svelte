@@ -17,7 +17,7 @@
   let tabsOrder: string[] = [];
   let activeTabID: string | null = null;
   $: activeTab = tabs.find((tab) => tab.id == activeTabID) || {
-    text: "NEW TAB",
+    text: "Click the ➕ above to create a new tab.",
   };
   let tabsElm: HTMLDivElement;
   let dragElm: HTMLElement;
