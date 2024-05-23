@@ -6,7 +6,7 @@
  * right-click
  * double-click
  * longclick
- * longclick-release (only triggered if mouse did not move longclick)
+ * longclick-release (only triggered if mouse did not move after longclick)
  * 
  * left-click-drag-start
  * left-click-dragging
@@ -29,7 +29,7 @@
  * tap
  * doubletap
  * longpress
- * longpress-release
+ * longpress-release (only triggered if touch did not move after longpress)
  * 
  * touch-drag-start
  * touch-dragging
@@ -206,8 +206,9 @@ const wheelHandler = (e: WheelEvent) => {
 
 const contextmenuHandler = (e: Event) => {
     // right-clicks are handled by the mouseup handler
-    //e.preventDefault();
-    //e.stopPropagation();
+    // TODO: add option to disable this
+    e.preventDefault();
+    e.stopPropagation();
 }
 
 const mousedownHandler = (e: MouseEvent) => {
