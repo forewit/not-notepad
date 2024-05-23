@@ -350,7 +350,7 @@
     --editor-font-family: "Consolas", monospace;
     --default-font-family: "Segoe UI", sans-serif;
     --slight-transparent: rgba(120, 120, 120, 0.1);
-    --tab-radius: 8px;
+    --tab-radius: 10px;
 
     height: 100%;
     display: grid;
@@ -554,8 +554,7 @@
     opacity: 0.8;
   }
   .tab-bar-btn svg {
-    font-size: 12px;
-    width: 0.8em;
+    width: 10px;
     color: var(--highlight-color);
   }
 
