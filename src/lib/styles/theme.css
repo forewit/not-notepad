@@ -1,0 +1,22 @@
+:root {
+  /* General */
+  --slight-transparent: rgba(120, 120, 120, 0.1);
+  --default-font: "Segoe UI", sans-serif;
+  --ui-color: #9f9f9f; /* scrollbar, badges, etc.*/
+
+  /* Toolbar */
+  --toolbar-background-color: #000e0f;
+  --tab-background-color: #000e0f;
+  --tab-hover-color: #0c1919;
+  --tab-active-color: #272727;
+  --tab-text-color: #cfcfcf;
+  --tab-font-size: 14px;
+
+  --tab-radius: 10px;
+
+  /* Editor */
+  --editor-text-color: #fff;
+  --editor-background-color: #272727;
+  --editor-font-family: "Consolas", monospace;
+  --editor-font-size: 12px;
+}
