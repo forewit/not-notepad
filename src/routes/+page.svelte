@@ -191,6 +191,7 @@
       case "left-click-drag-start":
       case "longclick":
       case "longpress":
+        e.detail.event.preventDefault();
         dragStartHandler(e);
         break;
       case "left-click-dragging":
@@ -211,8 +212,8 @@
         break;
       case "double-click":
       case "double-tap":
-        renameTab(e.target as HTMLElement);
-        break;
+        renameTab(e.target as HTMLElement); 
+        break;   
     }
   };
 
