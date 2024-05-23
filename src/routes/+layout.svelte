@@ -1,3 +1,8 @@
+<script>
+ import "$lib/styles/normalize.css";
+ import "$lib/styles/reset.css";
+</script>
+
 <svelte:head>
   <meta
     name="viewport"
@@ -12,7 +17,7 @@
 </div>
 
 <style>
-  .container {
+.container {
     /* make fullscreen */
     position: fixed;
     top: 0;
@@ -26,15 +31,5 @@
     position: absolute;
     width: 100%;
     height: 100%;
-  }
-
-  :global(*) {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  :global(html, body) {
-    background: var(--global-background);
-    margin: 0;
   }
 </style>
