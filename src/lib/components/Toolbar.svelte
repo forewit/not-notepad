@@ -69,7 +69,7 @@
     padding-inline: var(--tab-radius);
   }
 
-  @supports (-webkit-scrollbar: height) {
+  @supports selector(::-webkit-scrollbar-thumb) {
     .tabs {
       margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
     } 
