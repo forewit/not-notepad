@@ -98,6 +98,7 @@
     background-color: transparent;
     margin-block: auto 6px;
     margin-inline: 9px 0;
+    padding: none;
     white-space: nowrap;
     outline: none;
     border: none;

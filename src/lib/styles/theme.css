@@ -2,6 +2,7 @@
   /* General */
   --slight-transparent: rgba(120, 120, 120, 0.1);
   --default-font: "Segoe UI", sans-serif;
+  --default-line-height: 1.5;
   --ui-color: #9f9f9f; /* scrollbar, badges, etc.*/
 
   /* Toolbar */
@@ -11,7 +12,6 @@
   --tab-active-color: #272727;
   --tab-text-color: #cfcfcf;
   --tab-font-size: 14px;
-
   --tab-radius: 10px;
 
   /* Editor */

@@ -37,7 +37,7 @@
   </div>
 
   <div class="buttons">
-    <Button url="/images/svg/plus.svg" onClick={newTab}></Button>
+    <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
   </div>
 </div>
 
