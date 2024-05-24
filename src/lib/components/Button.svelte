@@ -34,6 +34,6 @@
   .icon {
     background-color: var(--ui-color);
     width: 10px;
-    height: 10px;
+    aspect-ratio: 1;
   }
 </style>

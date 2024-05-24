@@ -1,6 +1,8 @@
 # not-notepad
 Definitely not a clone of Mircrosoft Notepad.
 
+Icons: https://www.svgrepo.com/collection/wolf-kit-solid-glyph-icons/
+
 ## Initial Setup
 #### Setup svelte static site
 1. install svelte and the static adapter
