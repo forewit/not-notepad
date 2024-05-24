@@ -1,4 +1,8 @@
 <script lang="ts">
+    /**
+     * TODO:
+     * - scrollbar on the top instead of the bottom
+    */
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
@@ -59,5 +63,9 @@
     display: flex;
     gap: 2px;
     padding-inline: var(--tab-radius);
+  }
+
+  .tabs::-webkit-scrollbar {
+
   }
 </style>

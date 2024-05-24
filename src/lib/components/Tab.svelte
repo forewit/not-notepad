@@ -1,4 +1,7 @@
 <script lang="ts">
+  /**
+   * TODO:
+   */
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Button from "$lib/components/Button.svelte";
@@ -97,7 +100,7 @@
     color: var(--tab-text-color);
     background-color: transparent;
 
-    appearance: none;
+    padding: 0 !important;
     margin-block: auto 6px;
     margin-inline: 9px 0;
     white-space: nowrap;
