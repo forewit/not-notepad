@@ -1,7 +1,4 @@
 <script lang="ts">
-  /**
-   * TODO:
-   */
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Button from "$lib/components/Button.svelte";

@@ -12,7 +12,6 @@
 <style>
   #editor {
     display: grid;
-    grid-template-columns: 1fr 5px; /*spacing for scrollbar*/
     background-color: var(--editor-background-color);
   }
   #text {
@@ -22,18 +21,20 @@
     color: var(--editor-text-color);
     background-color: var(--editor-background-color);
 
-    padding: 1em;
     border: none;
     outline: none;
+
+    padding: 1em;
+    margin-right: 0.2em;
   }
   #text::-webkit-scrollbar {
-    width: 0.3rem;
+    width: var(--editor-scrollbar-size);
   }
   #text::-webkit-scrollbar-thumb {
-    background-color: var(--ui-color-dark);
+    background-color: var(--editor-scrollbar-color);
     border-radius: 100vw;
   }
   #text::-webkit-scrollbar-button {
-    height: 0.6rem;
+    height: calc(2 * var(--editor-scrollbar-size));
   }
 </style>

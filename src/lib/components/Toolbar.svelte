@@ -1,8 +1,4 @@
 <script lang="ts">
-  /**
-   * TODO:
-   * -
-   */
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
@@ -59,8 +55,8 @@
   }
 
   .separator {
-    background-color: var(--menubar-background-color);
-    height: var(--scrollbar-size);
+    background-color: var(--tab-active-color);
+    height: var(--toolbar-scrollbar-size);
   }
 
   .tabs {
@@ -72,17 +68,17 @@
     gap: 2px;
     padding-inline: var(--tab-radius);
 
-    margin-bottom: -0.3rem;
+    margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
   }
 
   .tabs::-webkit-scrollbar {
-    height: 0.3rem;
+    height: var(--toolbar-scrollbar-size);
   }
   .tabs::-webkit-scrollbar-thumb {
-    background-color: var(--ui-color-dark);
+    background-color: var(--toolbar-scrollbar-color);
     border-radius: 100vw;
   }
   .tabs::-webkit-scrollbar-button {
-    width: 0.3rem;
+    width: var(--toolbar-scrollbar-size);
   }
 </style>
