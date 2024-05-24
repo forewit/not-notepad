@@ -69,12 +69,17 @@
     padding-inline: var(--tab-radius);
   }
 
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
   @supports selector(::-webkit-scrollbar-thumb) {
     .tabs {
       margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
-    } 
+    }
     .tabs::-webkit-scrollbar {
       height: var(--toolbar-scrollbar-size);
+      display: block;
     }
     .tabs::-webkit-scrollbar-thumb {
       background-color: var(--toolbar-scrollbar-color);
