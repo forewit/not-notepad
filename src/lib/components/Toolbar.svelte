@@ -4,32 +4,43 @@
   import Tab from "$lib/components/Tab.svelte";
   import Button from "$lib/components/Button.svelte";
 
-  export let tabs: Tab[];
-  export let activeTabID: string;
-
   interface Tab {
     id: string;
     title: string;
   }
 
-  const closeTab = (id: string) => {
-    tabs = tabs.filter((tab) => tab.id != id);
-  };
+  export let tabs: Tab[];
+  export let activeTabID: string;
+
+  let tabsOrder: string[] = tabs.map((tab) => tab.id);
+  let tabsElm;
 
   const newTab = () => {
     let newID = Date.now().toString();
-    tabs.push({ id: newID, title: "Untitled"});
+    tabs.push({ id: newID, title: "Untitled" });
+    tabsOrder.push(newID);
     tabs = tabs; // force reactivity
+    setActiveTab(newID);
+  };
+
+  const closeTab = (id: string) => {
+    tabs = tabs.filter((tab) => tab.id != id);
+    tabsOrder = tabsOrder.filter((tab) => tab != id);
   };
 
   const setActiveTab = (id: string) => {
     activeTabID = id;
+    setTimeout(() => {
+      tabsElm.querySelector(".tab.active").scrollIntoView({
+        behavior: "smooth",
+      });
+    });
   };
 </script>
 
 <div>
   <div class="toolbar">
-    <div class="tabs">
+    <div class="tabs" bind:this={tabsElm}>
       {#each tabs as tab}
         <Tab
           bind:title={tab.title}
