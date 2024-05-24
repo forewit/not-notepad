@@ -1,4 +1,8 @@
 <script lang="ts">
+  /**
+   * TODO:
+   * - add a menu bar
+  */
   import "$lib/styles/theme.css";
   import Toolbar from "$lib/components/Toolbar.svelte";
   import Editor from "$lib/components/Editor.svelte";

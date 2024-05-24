@@ -22,18 +22,18 @@
     color: var(--editor-text-color);
     background-color: var(--editor-background-color);
 
-    padding: 10px;
+    padding: 1em;
     border: none;
     outline: none;
   }
   #text::-webkit-scrollbar {
-    width: 5px;
+    width: 0.3rem;
   }
   #text::-webkit-scrollbar-thumb {
     background-color: var(--ui-color);
     border-radius: 100vw;
   }
   #text::-webkit-scrollbar-button {
-    height: 10px;
+    height: 0.6rem;
   }
 </style>

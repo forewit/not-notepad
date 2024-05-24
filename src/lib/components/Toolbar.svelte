@@ -1,8 +1,8 @@
 <script lang="ts">
-    /**
-     * TODO:
-     * - scrollbar on the top instead of the bottom
-    */
+  /**
+   * TODO:
+   * - 
+   */
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
@@ -13,6 +13,8 @@
     text: string;
   }
   let tabs: Tab[] = [
+    { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
+    { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
     { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
   ];
   let activeTabID: string;
@@ -28,24 +30,29 @@
   };
 </script>
 
-<div class="toolbar">
-  <div class="tabs">
-    {#each tabs as tab}
-      <Tab
-        bind:title={tab.title}
-        selected={activeTabID === tab.id}
-        onClose={() => closeTab(tab.id)}
-        onSelect={() => (activeTabID = tab.id)}
-      />
-    {/each}
-  </div>
-
-  <div class="buttons">
-    <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
-  </div>
+<div class="container">
+    <div class="toolbar">
+        <div class="tabs">
+          {#each tabs as tab}
+            <Tab
+              bind:title={tab.title}
+              selected={activeTabID === tab.id}
+              onClose={() => closeTab(tab.id)}
+              onSelect={() => (activeTabID = tab.id)}
+            />
+          {/each}
+        </div>
+      
+        <div class="buttons">
+          <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
+        </div>
+      </div>
 </div>
 
+
 <style>
+    .container {
+    }
   .toolbar {
     background-color: var(--toolbar-background-color);
     display: grid;
@@ -58,14 +65,24 @@
   .tabs {
     overscroll-behavior-inline: contain;
     position: relative;
-    overflow-x: auto;
+    overflow-x: scroll;
     max-width: max-content;
     display: flex;
     gap: 2px;
     padding-inline: var(--tab-radius);
+
+    padding-bottom: 0.3rem;
+    margin-bottom: -0.6rem;
   }
 
   .tabs::-webkit-scrollbar {
-
+    height: 0.3rem;
+  }
+  .tabs::-webkit-scrollbar-thumb {
+    background-color: var(--ui-color);
+    border-radius: 100vw;
+  }
+  .tabs::-webkit-scrollbar-button {
+    width: 0.3rem;
   }
 </style>

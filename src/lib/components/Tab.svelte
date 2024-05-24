@@ -49,7 +49,11 @@
   * {
     user-select: none;
   }
+  .tab::selection {
+    background-color: transparent;
+  }
   .tab {
+    outline-offset: -2px;
     background-color: var(--tab-background-color);
     border-top-left-radius: var(--tab-radius);
     border-top-right-radius: var(--tab-radius);
