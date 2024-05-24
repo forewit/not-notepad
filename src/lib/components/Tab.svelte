@@ -3,23 +3,17 @@
   import { base } from "$app/paths";
   import Button from "$lib/components/Button.svelte";
 
-  export let title = "Untitled";
-  export let active = false;
-  export let onClose = () => {
-    console.warn("Button: onClose not implemented");
-  };
-  export let onClick = () => {
-    console.warn("Button: onClick not implemented");
-  };
+  export let title = "";
+  export let selected = false;
+  export let onClose = () => {};
+  export let onSelect = () => {};
 
   const dragStartHandle = (e: DragEvent) => {
     console.log("dragstart");
   };
-
   const dragOverHandle = (e: DragEvent) => {
     console.log("dragover");
   };
-
   const dragEndHandle = (e: DragEvent) => {
     console.log("dragend");
   };
@@ -28,10 +22,10 @@
 </script>
 
 <button
-  class:active
+  class:selected
   class="tab"
   on:dblclick|self={inputElm.select()}
-  on:click|self={onClick}
+  on:click|self={onSelect}
   on:dragstart|self={dragStartHandle}
   on:dragover|self={dragOverHandle}
   on:dragend|self={dragEndHandle}
@@ -68,10 +62,10 @@
   .tab:hover {
     background-color: var(--tab-hover-color);
   }
-  .tab.active {
+  .tab.selected {
     background-color: var(--tab-active-color);
   }
-  .tab.active:before {
+  .tab.selected:before {
     content: "";
     pointer-events: none;
     position: absolute;
@@ -84,7 +78,7 @@
     box-shadow: 0 var(--tab-radius) 0 0 var(--tab-active-color);
     z-index: 1;
   }
-  .tab.active:after {
+  .tab.selected:after {
     content: "";
     pointer-events: none;
     position: absolute;

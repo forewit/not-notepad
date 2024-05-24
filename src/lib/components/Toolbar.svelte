@@ -11,6 +11,7 @@
   let tabs: Tab[] = [
     { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
   ];
+  let activeTabID: string;
 
   const closeTab = (id: string) => {
     tabs = tabs.filter((tab) => tab.id != id);
@@ -26,7 +27,12 @@
 <div class="toolbar">
   <div class="tabs">
     {#each tabs as tab}
-      <Tab title={tab.title} onClose={() => closeTab(tab.id)} />
+      <Tab
+        bind:title={tab.title}
+        selected={activeTabID === tab.id}
+        onClose={() => closeTab(tab.id)}
+        onSelect={() => (activeTabID = tab.id)}
+      />
     {/each}
   </div>
 
