@@ -1,7 +1,7 @@
 <script lang="ts">
   /**
    * TODO:
-   * - 
+   * -
    */
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
@@ -13,8 +13,6 @@
     text: string;
   }
   let tabs: Tab[] = [
-    { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
-    { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
     { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
   ];
   let activeTabID: string;
@@ -30,29 +28,27 @@
   };
 </script>
 
-<div class="container">
-    <div class="toolbar">
-        <div class="tabs">
-          {#each tabs as tab}
-            <Tab
-              bind:title={tab.title}
-              selected={activeTabID === tab.id}
-              onClose={() => closeTab(tab.id)}
-              onSelect={() => (activeTabID = tab.id)}
-            />
-          {/each}
-        </div>
-      
-        <div class="buttons">
-          <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
-        </div>
-      </div>
+<div>
+  <div class="toolbar">
+    <div class="tabs">
+      {#each tabs as tab}
+        <Tab
+          bind:title={tab.title}
+          selected={activeTabID === tab.id}
+          onClose={() => closeTab(tab.id)}
+          onSelect={() => (activeTabID = tab.id)}
+        />
+      {/each}
+    </div>
+
+    <div class="buttons">
+      <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
+    </div>
+  </div>
+  <div class="separator"></div>
 </div>
 
-
 <style>
-    .container {
-    }
   .toolbar {
     background-color: var(--toolbar-background-color);
     display: grid;
@@ -60,6 +56,11 @@
 
     align-items: end;
     height: 3rem;
+  }
+
+  .separator {
+    background-color: var(--menubar-background-color);
+    height: var(--scrollbar-size);
   }
 
   .tabs {
@@ -71,15 +72,14 @@
     gap: 2px;
     padding-inline: var(--tab-radius);
 
-    padding-bottom: 0.3rem;
-    margin-bottom: -0.6rem;
+    margin-bottom: -0.3rem;
   }
 
   .tabs::-webkit-scrollbar {
     height: 0.3rem;
   }
   .tabs::-webkit-scrollbar-thumb {
-    background-color: var(--ui-color);
+    background-color: var(--ui-color-dark);
     border-radius: 100vw;
   }
   .tabs::-webkit-scrollbar-button {

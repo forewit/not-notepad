@@ -61,10 +61,11 @@
     position: relative;
     display: grid;
     grid-template-columns: 1fr auto;
+    align-items: center;
 
     min-width: 80px;
     width: 140px;
-    height: 30px;
+    height: 32px;
   }
   .tab:hover {
     background-color: var(--tab-hover-color);
@@ -105,7 +106,6 @@
     background-color: transparent;
 
     padding: 0 !important;
-    margin-block: auto 6px;
     margin-inline: 9px 0;
     white-space: nowrap;
     outline: none;

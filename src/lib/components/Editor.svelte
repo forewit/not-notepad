@@ -30,7 +30,7 @@
     width: 0.3rem;
   }
   #text::-webkit-scrollbar-thumb {
-    background-color: var(--ui-color);
+    background-color: var(--ui-color-dark);
     border-radius: 100vw;
   }
   #text::-webkit-scrollbar-button {
