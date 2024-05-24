@@ -96,13 +96,13 @@
     font-size: var(--tab-font-size);
     color: var(--tab-text-color);
     background-color: transparent;
+
+    appearance: none;
     margin-block: auto 6px;
     margin-inline: 9px 0;
-    padding: none;
     white-space: nowrap;
     outline: none;
     border: none;
-
     pointer-events: none;
     overflow: hidden;
   }

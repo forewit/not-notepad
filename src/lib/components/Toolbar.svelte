@@ -52,6 +52,7 @@
   }
 
   .tabs {
+    overscroll-behavior-inline: contain;
     position: relative;
     overflow-x: auto;
     max-width: max-content;
