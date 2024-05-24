@@ -39,6 +39,7 @@
     tabsOrder = tabsOrder.filter((tab) => tab != id);
     setActiveTab(tabsOrder[Math.min(tabIndex, tabsOrder.length - 1)]);
 
+    // TODO: fix this
     lockTabWidth = tabsElm.children[tabIndex].clientWidth;
     console.log(lockTabWidth)
     debouncedClosingTabs();
