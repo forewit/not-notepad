@@ -67,18 +67,21 @@
     display: flex;
     gap: 2px;
     padding-inline: var(--tab-radius);
-
-    margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
   }
 
-  .tabs::-webkit-scrollbar {
-    height: var(--toolbar-scrollbar-size);
-  }
-  .tabs::-webkit-scrollbar-thumb {
-    background-color: var(--toolbar-scrollbar-color);
-    border-radius: 100vw;
-  }
-  .tabs::-webkit-scrollbar-button {
-    width: var(--toolbar-scrollbar-size);
+  @supports (-webkit-scrollbar: height) {
+    .tabs {
+      margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
+    } 
+    .tabs::-webkit-scrollbar {
+      height: var(--toolbar-scrollbar-size);
+    }
+    .tabs::-webkit-scrollbar-thumb {
+      background-color: var(--toolbar-scrollbar-color);
+      border-radius: 100vw;
+    }
+    .tabs::-webkit-scrollbar-button {
+      width: var(--toolbar-scrollbar-size);
+    }
   }
 </style>
