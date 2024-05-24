@@ -1,4 +1,6 @@
 <script lang="ts">
+  // TODO: implement tab re-ordering
+
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
@@ -14,6 +16,38 @@
 
   let tabsOrder: string[] = tabs.map((tab) => tab.id);
   let tabsElm;
+  let lockTabWidth = 0;
+
+  const debounce = (func: Function, timeout = 300) => {
+    //@ts-ignore
+    let timer;
+    //@ts-ignore
+    return (...args) => {
+      //@ts-ignore
+      clearTimeout(timer);
+      //@ts-ignore
+      timer = setTimeout(() => {
+        //@ts-ignore
+        func.apply(this, args);
+      }, timeout);
+    };
+  };
+
+  const closeTab = (id: string) => {
+    let tabIndex = tabsOrder.indexOf(id);
+    tabs = tabs.filter((tab) => tab.id != id);
+    tabsOrder = tabsOrder.filter((tab) => tab != id);
+    setActiveTab(tabsOrder[Math.min(tabIndex, tabsOrder.length - 1)]);
+
+    lockTabWidth = tabsElm.children[tabIndex].clientWidth;
+    console.log(lockTabWidth)
+    debouncedClosingTabs();
+  };
+  const debouncedClosingTabs = debounce(() => {
+    console.log(lockTabWidth)
+
+    lockTabWidth = 0;
+  }, 700);
 
   const newTab = () => {
     let newID = Date.now().toString();
@@ -23,15 +57,10 @@
     setActiveTab(newID);
   };
 
-  const closeTab = (id: string) => {
-    tabs = tabs.filter((tab) => tab.id != id);
-    tabsOrder = tabsOrder.filter((tab) => tab != id);
-  };
-
   const setActiveTab = (id: string) => {
     activeTabID = id;
     setTimeout(() => {
-      tabsElm.querySelector(".tab.active").scrollIntoView({
+      tabsElm.querySelector(".tab.active")?.scrollIntoView({
         behavior: "smooth",
       });
     });
@@ -47,6 +76,7 @@
           active={activeTabID == tab.id}
           onClose={() => closeTab(tab.id)}
           onClick={() => setActiveTab(tab.id)}
+          bind:lockWidth={lockTabWidth}
         />
       {/each}
     </div>

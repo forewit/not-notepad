@@ -7,6 +7,13 @@
   export let active = false;
   export let onClose = () => {};
   export let onClick = () => {};
+  export let lockWidth: number;
+
+  // when lockWidth changes, update the width of the tab
+  $: if (lockWidth > 0 && tabElm) {
+    tabElm.setProperty("--lock-width", `${lockWidth}px`);
+    console.warn(lockWidth);
+  } // TODO: fix this
 
   const dragStartHandle = (e: DragEvent) => {
     console.log("dragstart");
@@ -19,10 +26,12 @@
   };
 
   let inputElm;
+  let tabElm;
 </script>
 
 <button
   class:active
+  class:lockWidth={lockWidth>0}
   class="tab"
   on:dblclick|self={inputElm.select()}
   on:click|self={onClick}
@@ -126,5 +135,9 @@
   }
   .tab input:focus {
     pointer-events: all;
+  }
+
+  .tab.lockWidth {
+    max-width: var(--lock-width) !important;
   }
 </style>
