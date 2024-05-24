@@ -4,9 +4,9 @@
   import Button from "$lib/components/Button.svelte";
 
   export let title = "";
-  export let selected = false;
+  export let active = false;
   export let onClose = () => {};
-  export let onSelect = () => {};
+  export let onClick = () => {};
 
   const dragStartHandle = (e: DragEvent) => {
     console.log("dragstart");
@@ -22,15 +22,15 @@
 </script>
 
 <button
-  class:selected
+  class:active
   class="tab"
   on:dblclick|self={inputElm.select()}
-  on:click|self={onSelect}
+  on:click|self={onClick}
   on:dragstart|self={dragStartHandle}
   on:dragover|self={dragOverHandle}
   on:dragend|self={dragEndHandle}
 >
-  <!-- select on doubleclick -->
+  <div class="divider"></div>
   <input
     bind:this={inputElm}
     bind:value={title}
@@ -46,9 +46,23 @@
   * {
     user-select: none;
   }
-  .tab::selection {
-    background-color: transparent;
+  .divider {
+    position: absolute;
+    bottom: 9px;
+    left: -2px;
+    width: 2px;
+    height: 12px;
+    border-radius: 1px;
+    background-color: var(--tab-active-color);
   }
+  .tab:first-child .divider,
+  .tab.active .divider,
+  .tab:hover .divider,
+  .tab.active + .tab .divider,
+  .tab:hover + .tab .divider {
+    display: none;
+  }
+
   .tab {
     outline-offset: -2px;
     background-color: var(--tab-background-color);
@@ -57,7 +71,7 @@
 
     position: relative;
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
 
     min-width: 80px;
@@ -67,10 +81,10 @@
   .tab:hover {
     background-color: var(--tab-hover-color);
   }
-  .tab.selected {
+  .tab.active {
     background-color: var(--tab-active-color);
   }
-  .tab.selected:before {
+  .tab.active:before {
     content: "";
     pointer-events: none;
     position: absolute;
@@ -83,7 +97,7 @@
     box-shadow: 0 var(--tab-radius) 0 0 var(--tab-active-color);
     z-index: 1;
   }
-  .tab.selected:after {
+  .tab.active:after {
     content: "";
     pointer-events: none;
     position: absolute;

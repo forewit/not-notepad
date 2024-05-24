@@ -1,7 +1,7 @@
 <script lang="ts">
   import "$lib/styles/theme.css";
 
-  export let text = "";
+  export let text: string;
 </script>
 
 <div id="editor">
@@ -35,6 +35,6 @@
     border-radius: 100vw;
   }
   #text::-webkit-scrollbar-button {
-    height: calc(2 * var(--editor-scrollbar-size));
+    height: 0.6rem;
   }
 </style>

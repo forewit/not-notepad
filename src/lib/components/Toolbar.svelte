@@ -4,14 +4,13 @@
   import Tab from "$lib/components/Tab.svelte";
   import Button from "$lib/components/Button.svelte";
 
+  export let tabs: Tab[];
+  export let activeTabID: string;
+
   interface Tab {
+    id: string;
     title: string;
-    text: string;
   }
-  let tabs: Tab[] = [
-    { id: Date.now().toString(), title: "Tab 1", text: "Tab 1" },
-  ];
-  let activeTabID: string;
 
   const closeTab = (id: string) => {
     tabs = tabs.filter((tab) => tab.id != id);
@@ -19,8 +18,12 @@
 
   const newTab = () => {
     let newID = Date.now().toString();
-    tabs.push({ id: newID, title: "Untitled", text: "" });
+    tabs.push({ id: newID, title: "Untitled"});
     tabs = tabs; // force reactivity
+  };
+
+  const setActiveTab = (id: string) => {
+    activeTabID = id;
   };
 </script>
 
@@ -30,9 +33,9 @@
       {#each tabs as tab}
         <Tab
           bind:title={tab.title}
-          selected={activeTabID === tab.id}
+          active={activeTabID == tab.id}
           onClose={() => closeTab(tab.id)}
-          onSelect={() => (activeTabID = tab.id)}
+          onClick={() => setActiveTab(tab.id)}
         />
       {/each}
     </div>
@@ -86,7 +89,7 @@
       border-radius: 100vw;
     }
     .tabs::-webkit-scrollbar-button {
-      width: var(--toolbar-scrollbar-size);
+      width: 0.15rem;
     }
   }
 </style>
