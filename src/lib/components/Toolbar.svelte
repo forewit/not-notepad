@@ -15,8 +15,8 @@
   export let activeTabID: string;
 
   let tabsOrder: string[] = tabs.map((tab) => tab.id);
-  let tabsElm;
-  let lockTabWidth = 0;
+  let tabsElm: HTMLElement;
+  let lockMaxWidth = 0;
 
   const debounce = (func: Function, timeout = 300) => {
     //@ts-ignore
@@ -35,19 +35,19 @@
 
   const closeTab = (id: string) => {
     let tabIndex = tabsOrder.indexOf(id);
+
+    lockMaxWidth = tabsElm.children[0].clientWidth;
+    debouncedClosingTabs();
+
     tabs = tabs.filter((tab) => tab.id != id);
     tabsOrder = tabsOrder.filter((tab) => tab != id);
     setActiveTab(tabsOrder[Math.min(tabIndex, tabsOrder.length - 1)]);
-
-    // TODO: fix this
-    lockTabWidth = tabsElm.children[tabIndex].clientWidth;
-    console.log(lockTabWidth)
-    debouncedClosingTabs();
   };
-  const debouncedClosingTabs = debounce(() => {
-    console.log(lockTabWidth)
 
-    lockTabWidth = 0;
+  // TODO: Implement
+  const debouncedClosingTabs = debounce(() => {
+    console.log("debounced closing tabs...");
+    lockMaxWidth = 0;
   }, 700);
 
   const newTab = () => {
@@ -60,6 +60,7 @@
 
   const setActiveTab = (id: string) => {
     activeTabID = id;
+    if (lockMaxWidth > 0) return;
     setTimeout(() => {
       tabsElm.querySelector(".tab.active")?.scrollIntoView({
         behavior: "smooth",
@@ -74,10 +75,10 @@
       {#each tabs as tab}
         <Tab
           bind:title={tab.title}
+          bind:lockMaxWidth
           active={activeTabID == tab.id}
           onClose={() => closeTab(tab.id)}
           onClick={() => setActiveTab(tab.id)}
-          bind:lockWidth={lockTabWidth}
         />
       {/each}
     </div>
@@ -118,7 +119,7 @@
     display: none;
   }
 
-  @supports selector(::-webkit-scrollbar-thumb) {
+  @supports selector(-webkit-scrollbar-thumb) {
     .tabs {
       margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
     }
