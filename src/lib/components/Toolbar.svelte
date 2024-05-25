@@ -119,7 +119,7 @@
     display: none;
   }
 
-  @supports selector(-webkit-scrollbar-thumb) {
+  @supports (scrollbar-width: thin) {
     .tabs {
       margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
     }
