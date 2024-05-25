@@ -141,7 +141,7 @@
     display: none;
   }
 
-  .tab:not(.active, :hover) :global(button) {
+  /* .tab:not(.active, :hover) :global(button) {
     display: none;
-  }
+  } */
 </style>
