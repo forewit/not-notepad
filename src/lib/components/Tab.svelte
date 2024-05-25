@@ -5,7 +5,6 @@
 
   export let title = "";
   export let active = false;
-  export let hidden = false;
   export let onClose = () => {};
   export let onClick = () => {};
   export let lockMaxWidth = 0;
@@ -22,10 +21,9 @@
   bind:this={tabElm}
   class:lockMaxWidth={lockMaxWidth > 0}
   class:active
-  class:hidden
   class="tab"
   on:dblclick|self={() => inputElm.select()}
-  on:click|self={onClick}
+  on:click={onClick}
 >
   <div class="divider"></div>
   <input
@@ -56,9 +54,7 @@
   .tab.active .divider,
   .tab:hover .divider,
   .tab.active + .tab .divider,
-  .tab:hover + .tab .divider,
-  .tab.hidden .divider,
-  .tab.hidden + .tab .divider {
+  .tab:hover + .tab .divider {
     display: none;
   }
 
@@ -131,17 +127,8 @@
     max-width: var(--max-width);
   }
 
-  .tab.hidden {
-    background-color: var(--tab-background-color);
-  }
-  .tab.hidden::before,
-  .tab.hidden::after,
-  .tab.hidden input,
-  .tab.hidden :global(button) {
+  /* TODO: this is causing iOS to trigger :hover instead of clicks */
+  .tab:not(.active, :hover) :global(button) {
     display: none;
   }
-
-  /* .tab:not(.active, :hover) :global(button) {
-    display: none;
-  } */
 </style>

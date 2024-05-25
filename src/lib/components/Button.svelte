@@ -5,7 +5,7 @@
   export let url = "";
 </script>
 
-<button on:click={onClick} >
+<button on:click|stopPropagation={onClick} >
   <!-- svg from url -->
   <div
     class="icon"

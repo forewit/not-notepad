@@ -41,7 +41,10 @@
 
     tabs = tabs.filter((tab) => tab.id != id);
     tabsOrder = tabsOrder.filter((tab) => tab != id);
-    setActiveTab(tabsOrder[Math.min(tabIndex, tabsOrder.length - 1)]);
+
+    if (activeTabID == id) {
+      setActiveTab(tabsOrder[Math.min(tabIndex, tabsOrder.length - 1)]);
+    }
   };
 
   const debouncedClosingTabs = debounce(() => {
