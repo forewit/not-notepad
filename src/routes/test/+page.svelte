@@ -7,7 +7,7 @@
     {
       id: Date.now().toString(),
       title: "Hello 👋",
-      text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.2",
+      text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.3",
     },
   ];
   let activeTabID = tabs[0].id;

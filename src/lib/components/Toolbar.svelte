@@ -44,7 +44,6 @@
     setActiveTab(tabsOrder[Math.min(tabIndex, tabsOrder.length - 1)]);
   };
 
-  // TODO: Implement
   const debouncedClosingTabs = debounce(() => {
     console.log("debounced closing tabs...");
     lockMaxWidth = 0;
@@ -67,6 +66,10 @@
       });
     });
   };
+
+  const tabDragStart = () => {
+    console.log("tab drag start");
+  }
 </script>
 
 <div>
@@ -79,6 +82,7 @@
           active={activeTabID == tab.id}
           onClose={() => closeTab(tab.id)}
           onClick={() => setActiveTab(tab.id)}
+          onDragStart={tabDragStart}
         />
       {/each}
     </div>

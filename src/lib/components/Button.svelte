@@ -5,7 +5,7 @@
   export let url = "";
 </script>
 
-<button on:click={onClick}>
+<button on:click={onClick} >
   <!-- svg from url -->
   <div
     class="icon"
@@ -35,5 +35,8 @@
     background-color: var(--ui-color);
     width: 10px;
     aspect-ratio: 1;
+  }
+  .hidden {
+    display: none;
   }
 </style>

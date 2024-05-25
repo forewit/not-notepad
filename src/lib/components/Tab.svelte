@@ -5,23 +5,18 @@
 
   export let title = "";
   export let active = false;
+  export let hidden = false;
   export let onClose = () => {};
   export let onClick = () => {};
+  export let onDragStart = (e: DragEvent) => {};
   export let lockMaxWidth = 0;
 
   $: if (tabElm && lockMaxWidth > 0) {
     tabElm.style.setProperty("--max-width", `${lockMaxWidth}px`);
   }
-
-  const dragStartHandle = (e: DragEvent) => {
-    console.log("dragstart");
-  };
-  const dragOverHandle = (e: DragEvent) => {
-    console.log("dragover");
-  };
-  const dragEndHandle = (e: DragEvent) => {
-    console.log("dragend");
-  };
+  const dragStartHandler = (e: DragEvent) => {
+    onDragStart(e);
+  }
 
   let inputElm: HTMLInputElement;
   let tabElm: HTMLElement;
@@ -31,12 +26,12 @@
   bind:this={tabElm}
   class:lockMaxWidth={lockMaxWidth > 0}
   class:active
+  class:hidden
   class="tab"
   on:dblclick|self={() => inputElm.select()}
   on:click|self={onClick}
-  on:dragstart|self={dragStartHandle}
-  on:dragover|self={dragOverHandle}
-  on:dragend|self={dragEndHandle}
+  on:dragstart|self={dragStartHandler}
+  draggable="true"
 >
   <div class="divider"></div>
   <input
@@ -67,7 +62,9 @@
   .tab.active .divider,
   .tab:hover .divider,
   .tab.active + .tab .divider,
-  .tab:hover + .tab .divider {
+  .tab:hover + .tab .divider,
+  .tab.hidden .divider,
+  .tab.hidden + .tab .divider {
     display: none;
   }
 
@@ -138,5 +135,19 @@
 
   .tab.lockMaxWidth {
     max-width: var(--max-width);
+  }
+
+  .tab.hidden {
+    background-color: var(--tab-background-color);
+  }
+  .tab.hidden::before,
+  .tab.hidden::after,
+  .tab.hidden input,
+  .tab.hidden :global(button) {
+    display: none;
+  }
+
+  .tab:not(.active, :hover) :global(button) {
+    display: none;
   }
 </style>
