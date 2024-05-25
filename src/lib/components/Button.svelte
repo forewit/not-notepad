@@ -36,7 +36,4 @@
     width: 10px;
     aspect-ratio: 1;
   }
-  .hidden {
-    display: none;
-  }
 </style>

@@ -8,14 +8,10 @@
   export let hidden = false;
   export let onClose = () => {};
   export let onClick = () => {};
-  export let onDragStart = (e: DragEvent) => {};
   export let lockMaxWidth = 0;
 
   $: if (tabElm && lockMaxWidth > 0) {
     tabElm.style.setProperty("--max-width", `${lockMaxWidth}px`);
-  }
-  const dragStartHandler = (e: DragEvent) => {
-    onDragStart(e);
   }
 
   let inputElm: HTMLInputElement;
@@ -30,8 +26,6 @@
   class="tab"
   on:dblclick|self={() => inputElm.select()}
   on:click|self={onClick}
-  on:dragstart|self={dragStartHandler}
-  draggable="true"
 >
   <div class="divider"></div>
   <input

@@ -66,10 +66,6 @@
       });
     });
   };
-
-  const tabDragStart = () => {
-    console.log("tab drag start");
-  }
 </script>
 
 <div>
@@ -82,7 +78,6 @@
           active={activeTabID == tab.id}
           onClose={() => closeTab(tab.id)}
           onClick={() => setActiveTab(tab.id)}
-          onDragStart={tabDragStart}
         />
       {/each}
     </div>
