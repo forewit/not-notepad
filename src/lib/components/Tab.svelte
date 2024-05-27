@@ -129,6 +129,6 @@
 
   /* TODO: this is causing iOS to trigger :hover instead of clicks */
   .tab:not(.active, :hover) :global(button) {
-    visibility: hidden;
+    width: 0.01px;
   }
 </style>
