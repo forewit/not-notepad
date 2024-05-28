@@ -11,14 +11,13 @@
   let inputElm: HTMLInputElement;
 </script>
 
-<div class="tab-container">
+<div class="container">
   <button
     class="tab"
     class:active
     on:dblclick|self={() => inputElm.select()}
     on:click={onClick}
   >
-    <div class="divider"></div>
     <input
       bind:this={inputElm}
       bind:value={title}
@@ -38,29 +37,9 @@
     user-select: none;
   }
 
-  .tab-container {
+  .container {
     container-name: tab;
     container-type: inline-size;
-  }
-
-  .divider {
-    position: absolute;
-    bottom: 9px;
-    left: -2px;
-    width: 2px;
-    height: 12px;
-    border-radius: 1px;
-    z-index: 999;
-    background-color: var(--tab-active-color);
-    transition: opacity 0.2s;
-  }
-
-  .tab:first-child .divider,
-  .tab.active .divider,
-  .tab:hover .divider,
-  .tab.active + .tab .divider,
-  .tab:hover + .tab .divider {
-    opacity: 0;
   }
 
   .tab {
@@ -70,10 +49,10 @@
 
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto;
     align-items: center;
     height: 100%;
-    margin-block: 4px
+    margin-block: 4px;
   }
   .tab:hover {
     background-color: var(--tab-hover-color);
@@ -137,12 +116,12 @@
     pointer-events: all;
   }
 
-   @container tab (width < 60px) {
+  @container tab (width < 60px) {
     .tab:not(.active) .close-button {
       width: 0;
     }
     .tab:not(.active) input {
       margin-inline: 6px;
     }
-  } 
+  }
 </style>

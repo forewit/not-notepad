@@ -25,11 +25,9 @@ export const tabsHandlers = {
             return curr;
         })
     },
-    setActiveTab: (index: number) => {
+    setActiveIndex: (index: number) => {
         tabsStore.update(curr => {
-            // check if index is out of bounds
-            if (index < 0 || index >= curr.tabs.length) return curr;
-            curr.activeIndex = index;
+            curr.activeIndex =  (index < 0 || index >= curr.tabs.length) ? 0 : index;
             return curr;
         })
     }

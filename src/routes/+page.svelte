@@ -4,19 +4,15 @@
   import Editor from "$lib/components/Editor.svelte";
   import { tabsStore, tabsHandlers } from "$lib/stores/tabsStore";
 
-
   tabsHandlers.newTab({
     title: "Hello 👋",
-    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.11",
-  })
-
-  let text = $tabsStore.tabs[$tabsStore.activeIndex].text || "Click the ➕ above to create a new tab.";
-
+    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.13",
+  });
 </script>
 
 <div class="container">
   <Toolbar />
-  <Editor bind:text={text} />
+  <Editor bind:text={$tabsStore.tabs[$tabsStore.activeIndex].text} />
 </div>
 
 <style>

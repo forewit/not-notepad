@@ -5,25 +5,60 @@
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
   import Button from "$lib/components/Button.svelte";
-  import { flip } from "svelte/animate";
-  // import { expoInOut } from "svelte/easing";
   import { tabsStore, tabsHandlers } from "$lib/stores/tabsStore";
+  import { quadIn, quadOut } from "svelte/easing";
+
+
+  function expandIn(root: HTMLElement) {
+    let rect = root.getBoundingClientRect();
+    return {
+      duration: 120,
+      easing: quadOut,
+      css: (t: number) => `max-width: ${rect.width * t}px;`,
+    };
+  }
+  function expandOut(root: HTMLElement) {
+    let rect = root.getBoundingClientRect();
+    root.querySelector(".tab")?.classList.remove("active");
+    return {
+      duration: 80,
+      easing: quadIn,
+      css: (t: number) => `max-width: ${rect.width * t}px;`,
+    };
+  }
 
   function setActiveTab(index: number) {
-    tabsHandlers.setActiveTab(index);
-    // scroll
+    tabsHandlers.setActiveIndex(index);
+    // TODO: scroll to the active tab
   }
+
+  function closeTab(index: number) {
+    // TODO: decide what to do when the last tab is closed
+    if ($tabsStore.tabs.length == 1) return;
+    tabsHandlers.removeTab(index);
+  }
+
+  // TODO: lock width until mouse moved (ignore touches)
+  let lockMaxWidth = 0;
 </script>
 
 <div>
   <div class="toolbar">
     <div class="tabs">
       {#each $tabsStore.tabs as tab, i (tab)}
-        <div class="tab-container">
+        <div
+          class="tab-container"
+          in:expandIn
+          out:expandOut
+          on:introstart={() => {
+          }}
+          on:outroend={() => {
+          }}
+        >
           <Tab
             bind:title={$tabsStore.tabs[i].title}
             active={$tabsStore.activeIndex == i}
-            onClose={() => tabsHandlers.removeTab(i)}
+            onClose={() => closeTab(i)}
             onClick={() => setActiveTab(i)}
           />
         </div>
@@ -54,8 +89,13 @@
   }
 
   .buttons {
-margin-bottom: 4px;
-margin-left: -4px;
+    margin-bottom: 4px;
+    margin-left: -4px;
+  }
+
+  .tab-container {
+    width: var(--tab-max-width);
+    min-width: 40px;
   }
 
   .tabs {
@@ -89,7 +129,5 @@ margin-left: -4px;
     }
   }
 
-  .tab-container {
-    width: var(--tab-max-width);
-  }
+
 </style>
