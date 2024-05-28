@@ -2,24 +2,21 @@
   import "$lib/styles/theme.css";
   import Toolbar from "$lib/components/Toolbar.svelte";
   import Editor from "$lib/components/Editor.svelte";
+  import { tabsStore, tabsHandlers } from "$lib/stores/tabsStore";
 
-  let tabs = [
-    {
-      id: Date.now().toString(),
-      title: "Hello 👋",
-      text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.9",
-    },
-  ];
-  let activeTabID = tabs[0].id;
 
-  $: activeTab = tabs.find((tab) => tab.id == activeTabID) || {
-    text: "Click the ➕ above to create a new tab.",
-  };
+  tabsHandlers.newTab({
+    title: "Hello 👋",
+    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.11",
+  })
+
+  let text = $tabsStore.tabs[$tabsStore.activeIndex].text || "Click the ➕ above to create a new tab.";
+
 </script>
 
 <div class="container">
-  <Toolbar bind:tabs bind:activeTabID />
-  <Editor bind:text={activeTab.text} />
+  <Toolbar />
+  <Editor bind:text={text} />
 </div>
 
 <style>

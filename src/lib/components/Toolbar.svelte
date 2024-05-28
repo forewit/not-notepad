@@ -5,88 +5,34 @@
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
   import Button from "$lib/components/Button.svelte";
+  import { flip } from "svelte/animate";
+  // import { expoInOut } from "svelte/easing";
+  import { tabsStore, tabsHandlers } from "$lib/stores/tabsStore";
 
-  interface Tab {
-    id: string;
-    title: string;
+  function setActiveTab(index: number) {
+    tabsHandlers.setActiveTab(index);
+    // scroll
   }
-
-  export let tabs: Tab[];
-  export let activeTabID: string;
-
-  let tabsOrder: string[] = tabs.map((tab) => tab.id);
-  let tabsElm: HTMLElement;
-  let lockMaxWidth = 0;
-
-  const debounce = (func: Function, timeout = 300) => {
-    //@ts-ignore
-    let timer;
-    //@ts-ignore
-    return (...args) => {
-      //@ts-ignore
-      clearTimeout(timer);
-      //@ts-ignore
-      timer = setTimeout(() => {
-        //@ts-ignore
-        func.apply(this, args);
-      }, timeout);
-    };
-  };
-
-  const closeTab = (id: string) => {
-    let tabIndex = tabsOrder.indexOf(id);
-
-    lockMaxWidth = tabsElm.children[0].clientWidth;
-    debouncedClosingTabs();
-
-    tabs = tabs.filter((tab) => tab.id != id);
-    tabsOrder = tabsOrder.filter((tab) => tab != id);
-
-    if (activeTabID == id) {
-      setActiveTab(tabsOrder[Math.min(tabIndex, tabsOrder.length - 1)]);
-    }
-  };
-
-  const debouncedClosingTabs = debounce(() => {
-    console.log("debounced closing tabs...");
-    lockMaxWidth = 0;
-  }, 700);
-
-  const newTab = () => {
-    let newID = Date.now().toString();
-    tabs.push({ id: newID, title: "Untitled" });
-    tabsOrder.push(newID);
-    tabs = tabs; // force reactivity
-    setActiveTab(newID);
-  };
-
-  const setActiveTab = (id: string) => {
-    activeTabID = id;
-    if (lockMaxWidth > 0) return;
-    setTimeout(() => {
-      tabsElm.querySelector(".tab.active")?.scrollIntoView({
-        behavior: "smooth",
-      });
-    });
-  };
 </script>
 
 <div>
   <div class="toolbar">
-    <div class="tabs" bind:this={tabsElm}>
-      {#each tabs as tab}
-        <Tab
-          bind:title={tab.title}
-          bind:lockMaxWidth
-          active={activeTabID == tab.id}
-          onClose={() => closeTab(tab.id)}
-          onClick={() => setActiveTab(tab.id)}
-        />
+    <div class="tabs">
+      {#each $tabsStore.tabs as tab, i (tab)}
+        <div class="tab-container">
+          <Tab
+            bind:title={$tabsStore.tabs[i].title}
+            active={$tabsStore.activeIndex == i}
+            onClose={() => tabsHandlers.removeTab(i)}
+            onClick={() => setActiveTab(i)}
+          />
+        </div>
       {/each}
     </div>
 
     <div class="buttons">
-      <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
+      <Button url="{base}/images/svg/plus.svg" onClick={tabsHandlers.newTab}
+      ></Button>
     </div>
   </div>
   <div class="separator"></div>
@@ -107,13 +53,18 @@
     height: var(--toolbar-scrollbar-size);
   }
 
+  .buttons {
+margin-bottom: 4px;
+margin-left: -4px;
+  }
+
   .tabs {
     overscroll-behavior-inline: contain;
     position: relative;
     overflow-x: scroll;
     max-width: max-content;
     display: flex;
-    gap: 2px;
+    gap: 5px;
     padding-inline: var(--tab-radius);
   }
 
@@ -136,5 +87,9 @@
     .tabs::-webkit-scrollbar-button {
       width: 0.15rem;
     }
+  }
+
+  .tab-container {
+    width: var(--tab-max-width);
   }
 </style>

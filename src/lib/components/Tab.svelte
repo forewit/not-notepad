@@ -7,40 +7,42 @@
   export let active = false;
   export let onClose = () => {};
   export let onClick = () => {};
-  export let lockMaxWidth = 0;
-
-  $: if (tabElm && lockMaxWidth > 0) {
-    tabElm.style.setProperty("--max-width", `${lockMaxWidth}px`);
-  }
 
   let inputElm: HTMLInputElement;
-  let tabElm: HTMLElement;
 </script>
 
-<button
-  bind:this={tabElm}
-  class:lockMaxWidth={lockMaxWidth > 0}
-  class:active
-  class="tab"
-  on:dblclick|self={() => inputElm.select()}
-  on:click={onClick}
->
-  <div class="divider"></div>
-  <input
-    bind:this={inputElm}
-    bind:value={title}
-    autocorrect="off"
-    autocomplete="off"
-    spellcheck="false"
-    type="text"
-  />
-  <Button url="{base}/images/svg/cancel.svg" onClick={onClose}></Button>
-</button>
+<div class="tab-container">
+  <button
+    class="tab"
+    class:active
+    on:dblclick|self={() => inputElm.select()}
+    on:click={onClick}
+  >
+    <div class="divider"></div>
+    <input
+      bind:this={inputElm}
+      bind:value={title}
+      autocorrect="off"
+      autocomplete="off"
+      spellcheck="false"
+      type="text"
+    />
+    <div class="close-button">
+      <Button url="{base}/images/svg/cancel.svg" onClick={onClose}></Button>
+    </div>
+  </button>
+</div>
 
 <style>
   * {
     user-select: none;
   }
+
+  .tab-container {
+    container-name: tab;
+    container-type: inline-size;
+  }
+
   .divider {
     position: absolute;
     bottom: 9px;
@@ -48,62 +50,64 @@
     width: 2px;
     height: 12px;
     border-radius: 1px;
+    z-index: 999;
     background-color: var(--tab-active-color);
+    transition: opacity 0.2s;
   }
+
   .tab:first-child .divider,
   .tab.active .divider,
   .tab:hover .divider,
   .tab.active + .tab .divider,
   .tab:hover + .tab .divider {
-    display: none;
+    opacity: 0;
   }
 
   .tab {
     outline-offset: -2px;
     background-color: var(--tab-background-color);
-    border-top-left-radius: var(--tab-radius);
-    border-top-right-radius: var(--tab-radius);
+    border-radius: var(--tab-radius);
 
     position: relative;
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-
-    min-width: 80px;
-    width: 140px;
-    height: 32px;
+    height: 100%;
+    margin-block: 4px
   }
   .tab:hover {
     background-color: var(--tab-hover-color);
   }
+
   .tab.active {
+    transition: background-color 0s;
     background-color: var(--tab-active-color);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: 0;
+    padding-bottom: 4px;
   }
-  .tab.active:before {
+  .tab::after,
+  .tab::before {
     content: "";
+    opacity: 0;
     pointer-events: none;
     position: absolute;
     bottom: 0;
     width: var(--tab-radius);
     height: calc(2 * var(--tab-radius));
+    background-color: transparent;
+    box-shadow: 0 var(--tab-radius) 0 0 var(--tab-active-color);
+  }
+  .tab.active::before {
+    opacity: 1;
     left: calc(var(--tab-radius) * -1);
     border-bottom-right-radius: 100vw;
-    background-color: transparent;
-    box-shadow: 0 var(--tab-radius) 0 0 var(--tab-active-color);
-    z-index: 1;
   }
-  .tab.active:after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    bottom: 0;
-    width: var(--tab-radius);
-    height: calc(2 * var(--tab-radius));
+  .tab.active::after {
+    opacity: 1;
     right: calc(var(--tab-radius) * -1);
     border-bottom-left-radius: 100vw;
-    background-color: transparent;
-    box-shadow: 0 var(--tab-radius) 0 0 var(--tab-active-color);
-    z-index: 1;
   }
   .tab input {
     font-family: var(--default-font);
@@ -119,16 +123,26 @@
     pointer-events: none;
     overflow: hidden;
   }
+  .tab input::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background-color: pink;
+    z-index: 2;
+  }
   .tab input:focus {
     pointer-events: all;
   }
 
-  .tab.lockMaxWidth {
-    max-width: var(--max-width);
-  }
-
-  /* TODO: this is causing iOS to trigger :hover instead of clicks */
-  .tab:not(.active, :hover) :global(button) {
-    width: 0.01px;
-  }
+   @container tab (width < 60px) {
+    .tab:not(.active) .close-button {
+      width: 0;
+    }
+    .tab:not(.active) input {
+      margin-inline: 6px;
+    }
+  } 
 </style>

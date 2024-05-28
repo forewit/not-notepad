@@ -16,6 +16,7 @@
   --tab-text-color: #cfcfcf;
   --tab-font-size: 14px;
   --tab-radius: 10px;
+  --tab-max-width: 140px;
 
   /* Editor */
   --editor-text-color: #fff;

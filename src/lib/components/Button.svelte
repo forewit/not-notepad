@@ -5,7 +5,7 @@
   export let url = "";
 </script>
 
-<button on:click|stopPropagation={onClick} >
+<button on:click|stopPropagation={onClick}>
   <!-- svg from url -->
   <div
     class="icon"
@@ -16,14 +16,15 @@
 
 <style>
   button {
-    width: 28px;
+    width: 22px;
     height: 22px;
     margin: 4px;
-    border-radius: 4px;
+    border-radius: 50%;
 
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background-color 0.2s;
   }
   button:hover {
     background-color: var(--slight-transparent);
