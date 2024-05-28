@@ -8,7 +8,6 @@
   import { tabsStore, tabsHandlers } from "$lib/stores/tabsStore";
   import { quadIn, quadOut } from "svelte/easing";
 
-
   function expandIn(root: HTMLElement) {
     let rect = root.getBoundingClientRect();
     return {
@@ -32,28 +31,53 @@
     // TODO: scroll to the active tab
   }
 
+  const debounce = (func: Function, timeout = 300) => {
+    //@ts-ignore
+    let timer;
+    //@ts-ignore
+    return (...args) => {
+      //@ts-ignore
+      clearTimeout(timer);
+      //@ts-ignore
+      timer = setTimeout(() => {
+        //@ts-ignore
+        func.apply(this, args);
+      }, timeout);
+    };
+  };
+
+  const debouncedClosingTabs = debounce(() => {
+    lockWidth = 0;
+  }, 1000);
+
   function closeTab(index: number) {
     // TODO: decide what to do when the last tab is closed
     if ($tabsStore.tabs.length == 1) return;
+
+    if (index < $tabsStore.tabs.length - 1) {
+      lockWidth = tabsContainer.children[0].clientWidth;
+      tabsContainer.style.setProperty("--lock-width", `${lockWidth}px`);
+      debouncedClosingTabs();
+    }
+
     tabsHandlers.removeTab(index);
   }
 
   // TODO: lock width until mouse moved (ignore touches)
-  let lockMaxWidth = 0;
+  let toolbar: HTMLDivElement;
+  let tabsContainer: HTMLDivElement;
+  let lockWidth = 0;
 </script>
 
 <div>
-  <div class="toolbar">
-    <div class="tabs">
+  <div class="toolbar" bind:this={toolbar}>
+    <div class="tabs" bind:this={tabsContainer}>
       {#each $tabsStore.tabs as tab, i (tab)}
         <div
           class="tab-container"
+          class:lockMaxWidth={lockWidth > 0}
           in:expandIn
           out:expandOut
-          on:introstart={() => {
-          }}
-          on:outroend={() => {
-          }}
         >
           <Tab
             bind:title={$tabsStore.tabs[i].title}
@@ -94,8 +118,12 @@
   }
 
   .tab-container {
-    width: var(--tab-max-width);
+    width: 140px;
     min-width: 40px;
+  }
+  .tab-container.lockMaxWidth {
+    /* transition: width 80ms ease-out; */
+    width: var(--lock-width);
   }
 
   .tabs {
@@ -128,6 +156,4 @@
       width: 0.15rem;
     }
   }
-
-
 </style>
