@@ -2,7 +2,7 @@
   import "$lib/styles/theme.css";
   import Toolbar from "$lib/components/Toolbar.svelte";
   import Editor from "$lib/components/Editor.svelte";
-  import { tabsStore, tabsHandlers } from "$lib/stores/tabsStore";
+  import { tabsStore, tabsHandlers } from "../lib/stores/tabsStore";
 
   tabsHandlers.newTab({
     title: "Hello 👋",

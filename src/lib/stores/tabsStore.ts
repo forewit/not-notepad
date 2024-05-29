@@ -11,9 +11,10 @@ export const tabsStore = writable({
 });
 
 export const tabsHandlers = {
-    newTab: ({title = "Untitled", text = ""} = {}) => {
+    newTab: ({ title = "Untitled", text = "" } = {}) => {
+
         tabsStore.update(curr => {
-            curr.tabs.push({title, text});
+            curr.tabs.push({ title, text });
             curr.activeIndex = curr.tabs.length - 1;
             return curr;
         })
@@ -27,10 +28,20 @@ export const tabsHandlers = {
     },
     setActiveIndex: (index: number) => {
         tabsStore.update(curr => {
-            curr.activeIndex =  (index < 0 || index >= curr.tabs.length) ? 0 : index;
+            curr.activeIndex = (index < 0 || index >= curr.tabs.length) ? 0 : index;
             return curr;
         })
+    },
+    swapTabs: (index1: number, index2: number, callback?: () => void) => {
+        tabsStore.update(curr => {
+            const temp = curr.tabs[index1];
+            curr.tabs[index1] = curr.tabs[index2];
+            curr.tabs[index2] = temp;
+            if (curr.activeIndex == index1) curr.activeIndex = index2;
+            else if (curr.activeIndex == index2) curr.activeIndex = index1;
+            return curr;
+        })
+        if (callback) callback();
     }
 };
-
 

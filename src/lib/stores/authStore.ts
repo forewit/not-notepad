@@ -1,6 +1,6 @@
 import { signInWithEmailAndPassword, signOut, type User} from "firebase/auth";
 import { writable } from "svelte/store";
-import { auth } from "../lib/firebase/firebase.client";
+import { auth } from "$lib/firebase/firebase.client";
 
 
 export type UserData = {
