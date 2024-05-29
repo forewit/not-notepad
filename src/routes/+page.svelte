@@ -6,7 +6,7 @@
 
   tabsHandlers.newTab({
     title: "Hello 👋",
-    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.14",
+    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.15",
   });
 </script>
 

@@ -6,75 +6,64 @@
   import Tab from "$lib/components/Tab.svelte";
   import Button from "$lib/components/Button.svelte";
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";
-  import { quadIn, quadOut } from "svelte/easing";
+  import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
+
+  const SWAP_DURATION_MS = 200;//200;
+  const EXPAND_IN_DURATION_MS = 120;//120;
+  const EXPAND_OUT_DURATION_MS = 80;//80;
+
+  let tabsElm: HTMLDivElement;
+  let lockWidth = 0;
+
+
+  const debounce = (func: Function, timeout = 300) => {
+    //@ts-ignore
+    let timer;
+    //@ts-ignore
+    return (...args) => {
+      //@ts-ignore
+      clearTimeout(timer);
+      //@ts-ignore
+      timer = setTimeout(() => {
+        //@ts-ignore
+        func.apply(this, args);
+      }, timeout);
+    };
+  };
+  
+  function debounce_leading(func: Function, timeout = 300) {
+    //@ts-ignore
+    let timer;
+    //@ts-ignore
+    return (...args) => {
+      //@ts-ignore
+      if (!timer) {
+        //@ts-ignore
+        func.apply(this, args);
+      }
+      //@ts-ignore
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = undefined;
+      }, timeout);
+    };
+  }
 
   function expandIn(root: HTMLElement) {
     let rect = root.getBoundingClientRect();
     return {
-      duration: 120,
-      easing: quadOut,
-      css: (t: number) => `max-width: ${rect.width * t}px;`,
+      duration: EXPAND_IN_DURATION_MS,
+      easing: cubicOut,
+      css: (t: number) => `width: ${rect.width * t}px;`,
     };
   }
   function expandOut(root: HTMLElement) {
     let rect = root.getBoundingClientRect();
     root.querySelector(".tab")?.classList.remove("active");
     return {
-      duration: 80,
-      easing: quadIn,
-      css: (t: number) => `max-width: ${rect.width * t}px;`,
-    };
-  }
-
-  interface SwapParams {
-    delay?: number;
-    duration?: number | ((len: number) => number);
-    easing?: (t: number) => number;
-    index?: number;
-  }
-
-  function swap(
-    node: HTMLElement,
-    { from, to }: { from: DOMRect; to: DOMRect },
-    params: SwapParams = {}
-  ) {
-    console.log(params.index);
-    const style = getComputedStyle(node);
-    const transform = style.transform === "none" ? "" : style.transform;
-    const [ox, oy] = style.transformOrigin.split(" ").map(parseFloat);
-    const dx = from.left + (from.width * ox) / to.width - (to.left + ox);
-    const dy = from.top + (from.height * oy) / to.height - (to.top + oy);
-    const {
-      delay = 0,
-      duration = (d) => Math.sqrt(d) * 120,
-      easing = quadOut,
-    } = params;
-    return {
-      delay,
-      duration:
-        typeof duration === "function"
-          ? duration(Math.sqrt(dx * dx + dy * dy))
-          : duration,
-      easing,
-      css: (t: number, u: number) => {
-        const x = u * dx;
-        const y = u * dy;
-        const sx = t + (u * from.width) / to.width;
-        const sy = t + (u * from.height) / to.height;
-        return `transform: ${transform} translate(${x}px, ${y}px) scale(${sx}, ${sy});`;
-      },
-    };
-  }
-
-  function foo(node: HTMLElement) {
-    // the node has been mounted in the DOM
-    //console.log("created", node);
-
-    return {
-      destroy() {
-        // the node has been removed from the DOM
-        //console.log("destroyed", node);
-      },
+      duration: EXPAND_OUT_DURATION_MS,
+      easing: cubicIn,
+      css: (t: number) => `width: ${rect.width * t}px;`,
     };
   }
 
@@ -91,22 +80,7 @@
     });
   }
 
-  const debounce = (func: Function, timeout = 300) => {
-    //@ts-ignore
-    let timer;
-    //@ts-ignore
-    return (...args) => {
-      //@ts-ignore
-      clearTimeout(timer);
-      //@ts-ignore
-      timer = setTimeout(() => {
-        //@ts-ignore
-        func.apply(this, args);
-      }, timeout);
-    };
-  };
-
-  const debouncedClosingTabs = debounce(() => {
+  const resetLockWidth = debounce(() => {
     lockWidth = 0;
   }, 1000);
 
@@ -117,26 +91,55 @@
     if (index < $tabsStore.tabs.length - 1) {
       lockWidth = tabsElm.children[0].clientWidth;
       tabsElm.style.setProperty("--lock-width", `${lockWidth}px`);
-      debouncedClosingTabs();
+      resetLockWidth();
     }
 
     tabsHandlers.removeTab(index);
   }
 
-  let tabsElm: HTMLDivElement;
-  let lockWidth = 0;
+  const swap = debounce_leading(
+    (index1: number, index2: number) => {
+      const node1 = tabsElm.children[index1] as HTMLElement;
+      const node2 = tabsElm.children[index2] as HTMLElement;
+      const rect1 = node1.getBoundingClientRect();
+      const rect2 = node2.getBoundingClientRect();
 
-  function test() {
-    tabsHandlers.swapTabs(0, 1, () => {
-      console.log("swapped");
-    });
-  }
+      function animateSwap(node: HTMLElement, from: DOMRect, to: DOMRect) {
+        const style = getComputedStyle(node);
+        const transform = style.transform === "none" ? "" : style.transform;
+        const [ox, oy] = style.transformOrigin.split(" ").map(parseFloat);
+        const dx = from.left + (from.width * ox) / to.width - (to.left + ox);
+        const previousCssText = node.style.cssText;
+
+        node.style.cssText += `transform: ${transform} translateX(${dx}px);`;
+        setTimeout(() => {
+          node.style.cssText =
+            previousCssText +
+            `transition: transform ${SWAP_DURATION_MS}ms ease-in-out;transform: ${transform} translateX(0);`;
+          setTimeout(() => {
+            node.style.cssText = previousCssText;
+          }, SWAP_DURATION_MS);
+        });
+      }
+
+      tabsHandlers.swapTabs(index1, index2, () => {
+        animateSwap(node1, rect1, rect2);
+        animateSwap(node2, rect2, rect1);
+      });
+    },
+    SWAP_DURATION_MS
+  );
 </script>
 
 <div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="toolbar" on:click|self={test}>
+  <div
+    class="toolbar"
+    on:click|self={() => {
+      swap(0, 1);
+    }}
+  >
     <div class="tabs" bind:this={tabsElm}>
       {#each $tabsStore.tabs as tab, i (tab)}
         <div
@@ -144,7 +147,6 @@
           class:lockMaxWidth={lockWidth > 0}
           in:expandIn
           out:expandOut
-          use:foo
         >
           <Tab
             bind:title={$tabsStore.tabs[i].title}
