@@ -7,6 +7,7 @@
   export let active = false;
   export let onClose = () => {};
   export let onClick = () => {};
+  export let onMousedown = (e: MouseEvent) => {};
 
   let inputElm: HTMLInputElement;
 </script>
@@ -17,6 +18,7 @@
     class:active
     on:dblclick|self={() => inputElm.select()}
     on:click={onClick}
+    on:mousedown|self ={onMousedown}
   >
     <input
       bind:this={inputElm}

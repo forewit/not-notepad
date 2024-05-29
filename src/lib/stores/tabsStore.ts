@@ -8,6 +8,7 @@ interface Tab {
 export const tabsStore = writable({
     tabs: [] as Tab[],
     activeIndex: 0,
+    placeholderIndex: -1
 });
 
 export const tabsHandlers = {
@@ -32,6 +33,12 @@ export const tabsHandlers = {
             return curr;
         })
     },
+    setPlaceholderIndex: (index?: number) => {
+        tabsStore.update(curr => {
+            curr.placeholderIndex = (index === undefined || index < 0 || index >= curr.tabs.length) ? -1 : index;
+            return curr;
+        })
+    },
     swapTabs: (index1: number, index2: number, callback?: () => void) => {
         tabsStore.update(curr => {
             const temp = curr.tabs[index1];
@@ -39,6 +46,8 @@ export const tabsHandlers = {
             curr.tabs[index2] = temp;
             if (curr.activeIndex == index1) curr.activeIndex = index2;
             else if (curr.activeIndex == index2) curr.activeIndex = index1;
+            if (curr.placeholderIndex == index1) curr.placeholderIndex = index2;
+            else if (curr.placeholderIndex == index2) curr.placeholderIndex = index1;
             return curr;
         })
         if (callback) callback();

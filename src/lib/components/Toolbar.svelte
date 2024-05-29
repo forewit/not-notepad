@@ -7,10 +7,13 @@
   import Button from "$lib/components/Button.svelte";
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";
   import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
+  import { onMount } from "svelte";
+  import type { MouseEventHandler } from "svelte/elements";
 
   const SWAP_DURATION_MS = 200; //200;
   const EXPAND_IN_DURATION_MS = 120; //120;
   const EXPAND_OUT_DURATION_MS = 80; //80;
+  const MIN_DRAG_DISTANCE = 20;
 
   let tabsElm: HTMLDivElement;
   let lockWidth = 0;
@@ -29,24 +32,6 @@
       }, timeout);
     };
   };
-
-  function debounce_leading(func: Function, timeout = 300) {
-    //@ts-ignore
-    let timer;
-    //@ts-ignore
-    return (...args) => {
-      //@ts-ignore
-      if (!timer) {
-        //@ts-ignore
-        func.apply(this, args);
-      }
-      //@ts-ignore
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = undefined;
-      }, timeout);
-    };
-  }
 
   function expandIn(root: HTMLElement) {
     let rect = root.getBoundingClientRect();
@@ -96,7 +81,7 @@
     tabsHandlers.removeTab(index);
   }
 
-  function animateSwap(node: HTMLElement, from: DOMRect, to: DOMRect) {
+  function animateX(node: HTMLElement, from: DOMRect, to: DOMRect) {
     const style = getComputedStyle(node);
     const transform = style.transform === "none" ? "" : style.transform;
     const [ox, oy] = style.transformOrigin.split(" ").map(parseFloat);
@@ -127,10 +112,65 @@
     console.log("swapping " + index1 + " and " + index2);
 
     tabsHandlers.swapTabs(index1, index2, () => {
-      animateSwap(node1, rect1, rect2);
-      animateSwap(node2, rect2, rect1);
+      animateX(node1, rect1, rect2);
+      animateX(node2, rect2, rect1);
     });
   };
+
+  let startPosition: [number, number] | null = null;
+  let draggedTabIndex = -1;
+  let clonedElm: HTMLElement | null = null;
+  let dragging = false;
+
+  function mousedownHandler(e: MouseEvent, index: number) {
+    if (!e.target) return;
+    window.addEventListener("mousemove", dragHandler);
+    window.addEventListener("mouseup", stopDragging);
+    window.addEventListener("blur", stopDragging);
+
+    tabsHandlers.setActiveIndex(index);
+    clonedElm = (e.target as HTMLElement).cloneNode(true) as HTMLElement;
+    startPosition = [e.clientX, e.clientY];
+    draggedTabIndex = index;
+  }
+
+  function dragHandler(e: MouseEvent) {
+    if (dragging) {
+      // do something
+      console.log("weee!!!!");
+
+      // TODO: update transform on dragged elment
+    } else {
+      if (startPosition === null) return;
+
+      let distance = Math.hypot(
+        startPosition[0] - e.clientX,
+        startPosition[1] - e.clientY
+      );
+
+      if (distance < MIN_DRAG_DISTANCE) return;
+      dragging = true;
+      tabsHandlers.setPlaceholderIndex(draggedTabIndex);
+      tabsHandlers.setActiveIndex(draggedTabIndex);
+      console.log("dragging tab: ", $tabsStore.placeholderIndex);
+    }
+  }
+
+  function stopDragging() {
+    window.removeEventListener("mousemove", dragHandler);
+    window.removeEventListener("mouseup", stopDragging);
+    window.removeEventListener("blur", stopDragging);
+
+    startPosition = null;
+    if (!dragging) return;
+
+    if (clonedElm !== null) clonedElm.remove();
+    clonedElm = null;
+    dragging = false;
+    draggedTabIndex = -1;
+    tabsHandlers.setPlaceholderIndex();
+    console.log("stop dragging");
+  }
 </script>
 
 <div>
@@ -150,12 +190,22 @@
           in:expandIn
           out:expandOut
         >
-          <Tab
-            bind:title={$tabsStore.tabs[i].title}
-            active={$tabsStore.activeIndex == i}
-            onClose={() => closeTab(i)}
-            onClick={() => handleClickingOnTab(i)}
-          />
+          {#if $tabsStore.placeholderIndex == i}
+            <div
+              class="tab-container placeholder"
+              class:lockMaxWidth={lockWidth > 0}
+              in:expandIn
+              out:expandOut
+            ></div>
+          {:else}
+            <Tab
+              bind:title={$tabsStore.tabs[i].title}
+              active={$tabsStore.activeIndex == i}
+              onClose={() => closeTab(i)}
+              onClick={() => handleClickingOnTab(i)}
+              onMousedown={(e) => mousedownHandler(e, i)}
+            />
+          {/if}
         </div>
       {/each}
     </div>
