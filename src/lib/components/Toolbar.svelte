@@ -8,13 +8,12 @@
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";
   import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
 
-  const SWAP_DURATION_MS = 200;//200;
-  const EXPAND_IN_DURATION_MS = 120;//120;
-  const EXPAND_OUT_DURATION_MS = 80;//80;
+  const SWAP_DURATION_MS = 200; //200;
+  const EXPAND_IN_DURATION_MS = 120; //120;
+  const EXPAND_OUT_DURATION_MS = 80; //80;
 
   let tabsElm: HTMLDivElement;
   let lockWidth = 0;
-
 
   const debounce = (func: Function, timeout = 300) => {
     //@ts-ignore
@@ -30,7 +29,7 @@
       }, timeout);
     };
   };
-  
+
   function debounce_leading(func: Function, timeout = 300) {
     //@ts-ignore
     let timer;
@@ -97,38 +96,41 @@
     tabsHandlers.removeTab(index);
   }
 
-  const swap = debounce_leading(
-    (index1: number, index2: number) => {
-      const node1 = tabsElm.children[index1] as HTMLElement;
-      const node2 = tabsElm.children[index2] as HTMLElement;
-      const rect1 = node1.getBoundingClientRect();
-      const rect2 = node2.getBoundingClientRect();
+  function animateSwap(node: HTMLElement, from: DOMRect, to: DOMRect) {
+    const style = getComputedStyle(node);
+    const transform = style.transform === "none" ? "" : style.transform;
+    const [ox, oy] = style.transformOrigin.split(" ").map(parseFloat);
+    const dx = from.left + (from.width * ox) / to.width - (to.left + ox);
 
-      function animateSwap(node: HTMLElement, from: DOMRect, to: DOMRect) {
-        const style = getComputedStyle(node);
-        const transform = style.transform === "none" ? "" : style.transform;
-        const [ox, oy] = style.transformOrigin.split(" ").map(parseFloat);
-        const dx = from.left + (from.width * ox) / to.width - (to.left + ox);
-        const previousCssText = node.style.cssText;
+    let start: number;
 
-        node.style.cssText += `transform: ${transform} translateX(${dx}px);`;
-        setTimeout(() => {
-          node.style.cssText =
-            previousCssText +
-            `transition: transform ${SWAP_DURATION_MS}ms ease-in-out;transform: ${transform} translateX(0);`;
-          setTimeout(() => {
-            node.style.cssText = previousCssText;
-          }, SWAP_DURATION_MS);
-        });
+    function step(timeStamp: number) {
+      if (start === undefined) start = timeStamp;
+      const u = 1 - cubicInOut((timeStamp - start) / SWAP_DURATION_MS);
+
+      if (u > 0) {
+        node.style.cssText = `transform: ${transform} translateX(${dx * u}px);`;
+        requestAnimationFrame(step);
+      } else {
+        node.style.cssText = "";
       }
+    }
 
-      tabsHandlers.swapTabs(index1, index2, () => {
-        animateSwap(node1, rect1, rect2);
-        animateSwap(node2, rect2, rect1);
-      });
-    },
-    SWAP_DURATION_MS
-  );
+    requestAnimationFrame(step);
+  }
+
+  const swap = (index1: number, index2: number) => {
+    const node1 = tabsElm.children[index1] as HTMLElement;
+    const node2 = tabsElm.children[index2] as HTMLElement;
+    const rect1 = node1.getBoundingClientRect();
+    const rect2 = node2.getBoundingClientRect();
+    console.log("swapping " + index1 + " and " + index2);
+
+    tabsHandlers.swapTabs(index1, index2, () => {
+      animateSwap(node1, rect1, rect2);
+      animateSwap(node2, rect2, rect1);
+    });
+  };
 </script>
 
 <div>
