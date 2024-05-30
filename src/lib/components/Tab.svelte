@@ -18,7 +18,7 @@
     class:active
     on:dblclick|self={() => inputElm.select()}
     on:click={onClick}
-    on:mousedown|self ={onMousedown}
+    on:mousedown|self={onMousedown}
   >
     <input
       bind:this={inputElm}
@@ -42,6 +42,8 @@
   .container {
     container-name: tab;
     container-type: inline-size;
+    height: 100%;
+    display: flex;
   }
 
   .tab {
@@ -49,12 +51,12 @@
     background-color: var(--tab-background-color);
     border-radius: var(--tab-radius);
 
+    min-width: 0;
     position: relative;
     display: grid;
+    margin-bottom: var(--tab-gaps);
     grid-template-columns: 1fr auto;
     align-items: center;
-    height: 100%;
-    margin-block: 4px;
   }
   .tab:hover {
     background-color: var(--tab-hover-color);
@@ -66,7 +68,7 @@
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     margin-bottom: 0;
-    padding-bottom: 4px;
+    padding-bottom: var(--tab-gaps);
   }
   .tab::after,
   .tab::before {
@@ -104,26 +106,22 @@
     pointer-events: none;
     overflow: hidden;
   }
-  .tab input::before {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    background-color: pink;
-    z-index: 2;
-  }
   .tab input:focus {
     pointer-events: all;
   }
 
   @container tab (width < 60px) {
     .tab:not(.active) .close-button {
-      width: 0;
+      display: none;
     }
     .tab:not(.active) input {
       margin-inline: 6px;
+    }
+  }
+  /* this should only happen during the tab opening animation */
+  @container tab (width < 38px) {
+    .tab .close-button {
+      display: none;
     }
   }
 </style>

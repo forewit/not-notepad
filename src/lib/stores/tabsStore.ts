@@ -12,13 +12,14 @@ export const tabsStore = writable({
 });
 
 export const tabsHandlers = {
-    newTab: ({ title = "Untitled", text = "" } = {}) => {
-
+    newTab: (options?:{ title?: string, text?: string, callback?: () => void }) => {
+        const { title ="Untitled", text = "", callback = () => {} } = options || {};
         tabsStore.update(curr => {
             curr.tabs.push({ title, text });
             curr.activeIndex = curr.tabs.length - 1;
             return curr;
         })
+        callback();
     },
     removeTab: (index: number) => {
         tabsStore.update(curr => {
@@ -39,7 +40,7 @@ export const tabsHandlers = {
             return curr;
         })
     },
-    swapTabs: (index1: number, index2: number, callback?: () => void) => {
+    swapTabs: (index1: number, index2: number, callback = () => { }) => {
         tabsStore.update(curr => {
             const temp = curr.tabs[index1];
             curr.tabs[index1] = curr.tabs[index2];
@@ -50,7 +51,7 @@ export const tabsHandlers = {
             else if (curr.placeholderIndex == index2) curr.placeholderIndex = index1;
             return curr;
         })
-        if (callback) callback();
+        callback();
     }
 };
 
