@@ -1,6 +1,6 @@
 import { cubicInOut } from "svelte/easing";
 
-interface AnimateOptions {
+interface AnimateCSSOptions {
   duration?: number;
   easing?: (t: number) => number;
   onEnd?: () => void;
@@ -9,7 +9,7 @@ interface AnimateOptions {
 }
 
 // TODO: maybe stop this from blowing away the initial inline css?
-const animateCSS = (element: HTMLElement, options: AnimateOptions) => {
+export const animateCSS = (element: HTMLElement, options: AnimateCSSOptions) => {
   const { duration = 300, easing = cubicInOut, onEnd = () => { }, onStep = () => { }, css } = options;
 
   let start: number;
@@ -30,4 +30,29 @@ const animateCSS = (element: HTMLElement, options: AnimateOptions) => {
   requestAnimationFrame(step);
 }
 
-export default animateCSS
+
+interface AnimateSimpleOptions {
+  duration?: number;
+  easing?: (t: number) => number;
+  onEnd?: () => void;
+  onStep?: (t: number, u: number) => void;
+}
+
+
+export const animateSimple =(options: AnimateSimpleOptions) =>{
+  const { duration = 300, easing = cubicInOut, onEnd = () => { }, onStep = () => { } } = options;
+  let start: number;
+  function step(timeStamp: number) {
+    if (start === undefined) start = timeStamp;
+    const t = easing((timeStamp - start) / duration);
+    const u = 1 - t;
+    if (t < 1) {
+      onStep(t, u);
+      requestAnimationFrame(step);
+    } else {
+      onEnd();
+    }
+  }
+  requestAnimationFrame(step);
+}
+

@@ -8,11 +8,11 @@
   import Button from "$lib/components/Button.svelte";
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";
   import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
-  import animateCSS from "$lib/modules/animateCSS";
+  import {animateCSS} from "$lib/modules/animate";
 
   const SWAP_DURATION_MS = 200; //200;
-  const TAB_IN_DURATION_MS = 120; //120;
-  const TAB_OUT_DURATION_MS = 120; //80;
+  const TAB_IN_DURATION_MS = 200; //200;
+  const TAB_OUT_DURATION_MS = 200; //200;
   const TAB_RESIZE_DELAY_MS = 1600; //1600
   const MIN_DRAG_DISTANCE = 12; //12
 
@@ -42,14 +42,18 @@
 
   function newTab() {
     tabsHandlers.newTab();
+
+    setTimeout(() => {
+      tabsElm.scrollLeft = tabsElm.scrollWidth;
+    });
   }
 
   function animateTabOpening(element: HTMLElement) {
     animateCSS(element, {
       duration: TAB_IN_DURATION_MS,
-      easing: cubicOut,
+      easing: cubicInOut,
       css: (t: number, u: number) => {
-        return `width: ${t * 140}px; min-width: 0;`;
+        return `transform: scaleX(${t}); transform-origin: left;`;
       },
     });
   }
@@ -73,19 +77,22 @@
       unlockWidth();
     }
 
-    if (index == $tabsStore.activeIndex) {
-      tabsHandlers.setActiveIndex(index-1);
+    if (index == $tabsStore.tabs.length-1) {
+      tabsHandlers.setActiveIndex(index - 1);
+    } else if (index == $tabsStore.activeIndex) {
+      tabsHandlers.setActiveIndex(index + 1);
     }
 
-    let width = tabsElm.children[0].clientWidth;
+    let width = tabsElm.children[0].getBoundingClientRect().width;
+    console.log(width)
     animateCSS(tabsElm.children[index] as HTMLElement, {
       duration: TAB_OUT_DURATION_MS,
-      easing: cubicOut,
+      easing: cubicInOut,
       css: (t: number, u: number) => {
-        return `width: ${width * u}px; min-width: 0; margin-left: calc(${-t} * var(--tab-gaps));`;
+        return `transform: scaleX(${u}); transform-origin: left;`//`width: ${width * u}px; min-width: 0px; margin-left: calc(${-t} * var(--tab-gaps));`;
       },
       onEnd: () => {
-        tabsHandlers.removeTab( index );
+        tabsHandlers.removeTab(index);
       },
     });
   }

@@ -42,7 +42,7 @@
   .container {
     container-name: tab;
     container-type: inline-size;
-    height: 100%;
+    height: 100%; 
     display: flex;
   }
 
@@ -118,7 +118,7 @@
       margin-inline: 6px;
     }
   }
-  /* this should only happen during the tab opening animation */
+  /* this should only happen during the tab opening/closing animation */
   @container tab (width < 38px) {
     .tab .close-button {
       display: none;

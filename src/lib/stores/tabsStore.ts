@@ -12,8 +12,8 @@ export const tabsStore = writable({
 });
 
 export const tabsHandlers = {
-    newTab: (options?:{ title?: string, text?: string, callback?: () => void }) => {
-        const { title ="Untitled", text = "", callback = () => {} } = options || {};
+    newTab: (options?: { title?: string, text?: string, callback?: () => void }) => {
+        const { title = "Untitled", text = "", callback = () => { } } = options || {};
         tabsStore.update(curr => {
             curr.tabs.push({ title, text });
             curr.activeIndex = curr.tabs.length - 1;
@@ -24,13 +24,16 @@ export const tabsHandlers = {
     removeTab: (index: number) => {
         tabsStore.update(curr => {
             curr.tabs.splice(index, 1);
-            curr.activeIndex = Math.min(curr.activeIndex, curr.tabs.length - 1);
+            if (index == curr.activeIndex - 1) curr.activeIndex = Math.max(0, index);
+            else curr.activeIndex = Math.min(curr.activeIndex, curr.tabs.length - 1);
             return curr;
         })
     },
     setActiveIndex: (index: number) => {
         tabsStore.update(curr => {
-            curr.activeIndex = (index < 0 || index >= curr.tabs.length) ? 0 : index;
+            if (index < 0) curr.activeIndex = 0;
+            else if (index >= curr.tabs.length) curr.activeIndex = curr.tabs.length - 1;
+            else curr.activeIndex = index;
             return curr;
         })
     },
