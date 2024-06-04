@@ -12,7 +12,7 @@
   import { animateCSS, animateSimple } from "$lib/modules/animate";
 
   const SWAP_DURATION_MS = 200; //200;
-  const MIN_DRAG_DISTANCE = 12; //12
+  const MIN_DRAG_DISTANCE = 1; //12
   const TAB_MAX_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
   const TAB_ANIMATION_DURATION = 160; //160
@@ -64,7 +64,7 @@
           tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
         else
           tabsElm.style.gridTemplateColumns = `repeat(${$tabsStore.tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
-          tabsElm.scrollLeft = tabsElm.scrollWidth;
+        tabsElm.scrollLeft = tabsElm.scrollWidth;
       },
       onEnd: () => {
         tabsElm.style.gridTemplateColumns = "";
@@ -81,14 +81,16 @@
       duration: TAB_ANIMATION_DURATION,
       easing: cubicInOut,
       onStep: (t: number, u: number) => {
-        tabsElm.style.setProperty("--tab-max-width", `${lockWidth + t * (targetWidth - lockWidth)}px`);
+        tabsElm.style.setProperty(
+          "--tab-max-width",
+          `${lockWidth + t * (targetWidth - lockWidth)}px`
+        );
       },
       onEnd: () => {
         tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
       },
     });
   }, TAB_RESIZE_DELAY);
-
 
   function closeTab(index: number) {
     // TODO: decide what to do when the last tab is closed
@@ -149,18 +151,22 @@
 
   let startPosition: [number, number] | null = null;
   let draggedTabIndex = -1;
-  let clonedElm: HTMLElement;
+  let original: HTMLElement;
+  let clone: HTMLElement;
   let dragging = false;
   let draggingOutside = false;
   let offsetX = 0;
   let offsetY = 0;
   let toolbarContainerElm: HTMLElement;
 
-  function drag(x: number, y: number) {
+  function draggingTab(x: number, y: number) {
     console.log("weee!!!!");
-    // check if it's inside the toolbar
-    let toolbarRect = toolbarContainerElm.getBoundingClientRect();
+    //TODO: set the cloned element's position
+    clone.style.left = `${x + offsetX}px`;
+    clone.style.bottom = "0";
 
+    // check if you are dragging outside the toolbar
+    let toolbarRect = toolbarContainerElm.getBoundingClientRect();
     if (
       x < toolbarRect.left ||
       x > toolbarRect.right ||
@@ -168,58 +174,51 @@
       y > toolbarRect.bottom
     ) {
       if (!draggingOutside) {
-        // then set the draggable property to true
-        // and set the position of the cloned element
-        // to the current mouse position
-        clonedElm.style.cssText = ``;
-        clonedElm.addEventListener("dragstart", dragstartHandler);
-        clonedElm.dispatchEvent(new Event("dragstart"));
+        // TODO: trigger drag and drop events
+        clone.addEventListener("dragstart", dragstartHandler);
+        clone.dispatchEvent(new Event("dragstart"));
       }
 
+      // dragging outside the toolbar
+      clone.style.bottom = `${-y + offsetY}px`;
       draggingOutside = true;
       return;
     }
 
-    if (draggingOutside) {
-    }
-
     draggingOutside = false;
-
-    // then loop through each tab to see if it's
-    // overlapping and swap it with the draggedTabIndex
-    // return
-
-    // not,
+    // TODO: check if tabs should be swapped
   }
 
   function dragstartHandler(e: DragEvent) {
-    console.log("dragstart");
-    if (!e.dataTransfer || !clonedElm) return;
+    console.warn("drag events not implemented");
+    if (!e.dataTransfer || !clone) return;
 
-    e.dataTransfer?.setDragImage(clonedElm, 0, 0);
-    e.dataTransfer?.setData("text/plain", clonedElm.id);
-
-    e.preventDefault();
+    //TODO: figure out how to manually trigger drag events
   }
 
   function mousedownHandler(e: MouseEvent, index: number) {
     if (!e.target) return;
-    let tabElm = e.target as HTMLElement;
     window.addEventListener("mousemove", mousemoveHandler);
     window.addEventListener("mouseup", mouseupHandler);
     window.addEventListener("blur", mouseupHandler);
 
     tabsHandlers.setActiveIndex(index);
-    clonedElm = tabElm.cloneNode(true) as HTMLElement;
+
+    original = e.target as HTMLElement;
+    const rect = original.getBoundingClientRect();
     startPosition = [e.clientX, e.clientY];
-    offsetX = tabElm.getBoundingClientRect().left - e.clientX;
-    offsetY = tabElm.getBoundingClientRect().top - e.clientY;
+    offsetX = rect.left - e.clientX;
+    offsetY = rect.bottom - e.clientY;
+    clone.style.width = `${rect.width}px`;
+    clone.style.height = `${rect.height}px`;
+    clone.style.left = `${e.clientX + offsetX}px`;
+    clone.style.bottom = "0";
     draggedTabIndex = index;
   }
 
   function mousemoveHandler(e: MouseEvent) {
     if (dragging) {
-      drag(e.clientX, e.clientY);
+      draggingTab(e.clientX, e.clientY);
       return;
     }
     if (startPosition === null) return;
@@ -233,9 +232,6 @@
     dragging = true;
     tabsHandlers.setPlaceholderIndex(draggedTabIndex);
     tabsHandlers.setActiveIndex(draggedTabIndex);
-
-    clonedElm.classList.add("cloned-tab");
-    e.preventDefault();
     console.log("dragging tab: ", draggedTabIndex);
   }
 
@@ -248,6 +244,7 @@
     draggingOutside = false;
     draggedTabIndex = -1;
     offsetX = 0;
+    offsetY = 0;
     tabsHandlers.setPlaceholderIndex();
     console.log("stop dragging");
   }
@@ -259,23 +256,20 @@
   <div class="toolbar">
     <div class="tabs" bind:this={tabsElm}>
       {#each $tabsStore.tabs as tab, i (tab)}
-        {#if $tabsStore.placeholderIndex == i}
-          <div bind:this={tabElms[i]} class="tab-container placeholder"></div>
-        {:else}
-          <div
-            bind:this={tabElms[i]}
-            class="tab-container"
-            use:animateTabOpening
-          >
-            <Tab
-              bind:title={$tabsStore.tabs[i].title}
-              active={$tabsStore.activeIndex == i}
-              onClose={() => closeTab(i)}
-              onClick={() => selectTab(i)}
-              onMousedown={(e) => mousedownHandler(e, i)}
-            />
-          </div>
-        {/if}
+        <div
+          bind:this={tabElms[i]}
+          class="tab-container"
+          class:placeholder={$tabsStore.placeholderIndex == i}
+          use:animateTabOpening
+        >
+          <Tab
+            bind:title={$tabsStore.tabs[i].title}
+            active={$tabsStore.activeIndex == i}
+            onClose={() => closeTab(i)}
+            onClick={() => selectTab(i)}
+            onMousedown={(e) => mousedownHandler(e, i)}
+          />
+        </div>
       {/each}
     </div>
 
@@ -288,20 +282,17 @@
         }}
       ></Button>
     </div>
+    <div bind:this={clone} class="clone" class:dragging>
+      <Tab title={"title"} active={true} />
+    </div>
   </div>
   <div class="separator"></div>
-  {#if dragging}
-    <div
-      bind:this={clonedElm}
-      draggable="true"
-      class="cloned-tab tab-container"
-    ></div>
-  {/if}
 </div>
 
 <style>
   .toolbar {
     background-color: var(--toolbar-background-color);
+    position: relative;
     display: grid;
     grid-template-columns: auto 1fr;
 
@@ -327,7 +318,6 @@
     grid-auto-flow: column;
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
 
-    position: relative;
     overflow-x: scroll;
     padding-inline: var(--tab-radius);
   }
@@ -355,9 +345,18 @@
 
   .tab-container {
     height: 36px;
+    padding-inline: calc(var(--tab-gaps) / 2);
+  }
+  .tab-container.placeholder {
+    content-visibility: hidden;
   }
 
-  .cloned-tab {
+  .clone {
     position: absolute;
+    display: none;
+    z-index: 1;
+  }
+  .clone.dragging {
+    display: block;
   }
 </style>
