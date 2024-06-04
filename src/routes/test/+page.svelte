@@ -1,17 +1,22 @@
 <script lang="ts">
   import { cubicInOut } from "svelte/easing";
-  import { animateSimple, animateCSS } from "$lib/modules/animate";
+  import { animateSimple } from "$lib/modules/animate";
   import { onMount } from "svelte";
 
-  const TAB_MAX_WIDTH = 140; // also update in .tab css
-  const TAB_MIN_WIDTH = 70; // also update in .tab css
-  const TAB_ANIMATION_DURATION = 1000;
-  const TAB_RESIZE_DELAY = 3000;
+  const TAB_MAX_WIDTH = 140;
+  const TAB_MIN_WIDTH = 70;
+  const TAB_ANIMATION_DURATION = 160;
+  const TAB_RESIZE_DELAY = 1600;
 
-  let tabs: string[] = [];
+  let tabs: string[] = ["test", "test"];
   let tabElms: HTMLElement[] = [];
   let tabsElm: HTMLElement;
   let lockWidth = 0;
+
+  onMount(() => {
+    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+    tabsElm.style.setProperty("--tab-min-width", `${TAB_MIN_WIDTH}px`);
+  });
 
   const debounce = (func: Function, timeout = 300) => {
     //@ts-ignore
@@ -27,41 +32,46 @@
       }, timeout);
     };
   };
-  function debounce_leading(func: Function, timeout = 300) {
-    //@ts-ignore
-    let timer;
-    //@ts-ignore
-    return (...args) => {
-      //@ts-ignore
-      if (!timer) {
-        //@ts-ignore
-        func.apply(this, args);
-      }
-      //@ts-ignore
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = undefined;
-      }, timeout);
-    };
-  }
 
   function newTab() {
     tabs.push("new");
     tabs = tabs;
   }
 
+  function animateTabOpening(element: HTMLElement) {
+    // animate grid-template columns
+    if (!tabsElm) return;
+    const targetWidth = element.getBoundingClientRect().width;
+
+    animateSimple({
+      duration: TAB_ANIMATION_DURATION,
+      easing: cubicInOut,
+      onStep: (t: number, u: number) => {
+        if (tabs.length == 1)
+          tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
+        else
+          tabsElm.style.gridTemplateColumns = `repeat(${tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
+          tabsElm.scrollLeft = tabsElm.scrollWidth;
+      },
+      onEnd: () => {
+        tabsElm.style.gridTemplateColumns = "";
+      },
+    });
+  }
+
   const unlockWidth = debounce(() => {
-    tabsElm?.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+    if (!tabsElm) return;
+    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
     const targetWidth = tabElms[0].getBoundingClientRect().width;
 
     animateSimple({
       duration: TAB_ANIMATION_DURATION,
       easing: cubicInOut,
       onStep: (t: number, u: number) => {
-        tabsElm?.style.setProperty("--tab-max-width", `${lockWidth + t * (targetWidth - lockWidth)}px`);
+        tabsElm.style.setProperty("--tab-max-width", `${lockWidth + t * (targetWidth - lockWidth)}px`);
       },
       onEnd: () => {
-        tabsElm?.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+        tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
         lockWidth = 0;
       },
     });
@@ -88,28 +98,6 @@
         tabsElm.style.gridTemplateColumns = "";
         tabs.splice(index, 1);
         tabs = tabs;
-      },
-    });
-  }
-
-  function animateTabOpening(element: HTMLElement) {
-    // animate grid-template columns
-    if (!tabsElm) return;
-    const targetWidth = element.getBoundingClientRect().width;
-
-    animateSimple({
-      duration: TAB_ANIMATION_DURATION,
-      easing: cubicInOut,
-      onStep: (t: number, u: number) => {
-        if (tabs.length == 1)
-          tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
-        else
-          tabsElm.style.gridTemplateColumns = `repeat(${tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
-          tabsElm.scrollLeft = tabsElm.scrollWidth;
-
-      },
-      onEnd: () => {
-        tabsElm.style.gridTemplateColumns = "";
       },
     });
   }
