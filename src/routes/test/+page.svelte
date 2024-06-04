@@ -5,9 +5,13 @@
 
   const TAB_MAX_WIDTH = 140; // also update in .tab css
   const TAB_MIN_WIDTH = 70; // also update in .tab css
+  const TAB_ANIMATION_DURATION = 1000;
+  const TAB_RESIZE_DELAY = 3000;
 
-  let tabs = ["test", "test2", "test3"];
+  let tabs: string[] = [];
+  let tabElms: HTMLElement[] = [];
   let tabsElm: HTMLElement;
+  let lockWidth = 0;
 
   const debounce = (func: Function, timeout = 300) => {
     //@ts-ignore
@@ -23,58 +27,89 @@
       }, timeout);
     };
   };
-
-  const unlockWidth = debounce((maxWidth: number) => {
-    animateSimple({
-      duration: 2000,
-      easing: cubicInOut,
-      onStep(t: number, u: number) {
-        tabsElm.style.setProperty(
-          "--max-width",
-          `${maxWidth + t * (TAB_MAX_WIDTH - maxWidth)}px`
-        );
-      },
-      onEnd() {
-        tabsElm.style.setProperty("--max-width", `${TAB_MAX_WIDTH}px`);
-      },
-    });
-  }, 2000);
+  function debounce_leading(func: Function, timeout = 300) {
+    //@ts-ignore
+    let timer;
+    //@ts-ignore
+    return (...args) => {
+      //@ts-ignore
+      if (!timer) {
+        //@ts-ignore
+        func.apply(this, args);
+      }
+      //@ts-ignore
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = undefined;
+      }, timeout);
+    };
+  }
 
   function newTab() {
     tabs.push("new");
     tabs = tabs;
   }
 
+  const unlockWidth = debounce(() => {
+    tabsElm?.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+    const targetWidth = tabElms[0].getBoundingClientRect().width;
+
+    animateSimple({
+      duration: TAB_ANIMATION_DURATION,
+      easing: cubicInOut,
+      onStep: (t: number, u: number) => {
+        tabsElm?.style.setProperty("--tab-max-width", `${lockWidth + t * (targetWidth - lockWidth)}px`);
+      },
+      onEnd: () => {
+        tabsElm?.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+        lockWidth = 0;
+      },
+    });
+  }, TAB_RESIZE_DELAY);
+
   function closeTab(index: number) {
+    lockWidth = tabElms[index].getBoundingClientRect().width;
+
     if (index < tabs.length - 1) {
-      const maxWidth = tabsElm.children[0].clientWidth;
-      tabsElm.style.setProperty("--max-width", `${maxWidth}px`);
-      unlockWidth(maxWidth);
+      tabsElm.style.setProperty("--tab-max-width", `${lockWidth}px`);
+      unlockWidth();
     }
 
-    //TODO: animate close
-    tabs.splice(index, 1);
-    tabs = tabs;
+    animateSimple({
+      duration: TAB_ANIMATION_DURATION,
+      easing: cubicInOut,
+      onStep: (t: number, u: number) => {
+        if (index == 0)
+          tabsElm.style.gridTemplateColumns = `minmax(${u * TAB_MIN_WIDTH}px, ${u * lockWidth}px)`;
+        else
+          tabsElm.style.gridTemplateColumns = `repeat(${index}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${u * TAB_MIN_WIDTH}px, ${u * lockWidth}px)`;
+      },
+      onEnd: () => {
+        tabsElm.style.gridTemplateColumns = "";
+        tabs.splice(index, 1);
+        tabs = tabs;
+      },
+    });
   }
 
   function animateTabOpening(element: HTMLElement) {
+    // animate grid-template columns
     if (!tabsElm) return;
-    const width = element.getBoundingClientRect().width;
-    animateCSS(element, {
-      duration: 2000,
+    const targetWidth = element.getBoundingClientRect().width;
+
+    animateSimple({
+      duration: TAB_ANIMATION_DURATION,
       easing: cubicInOut,
-      css: (t: number, u: number) => {
-        return `min-width: ${t * TAB_MIN_WIDTH}px; width: ${t * width}px;`;
-      },
-      onStep(t: number, u: number) {
-        tabsElm.scrollLeft = tabsElm.scrollWidth;
+      onStep: (t: number, u: number) => {
         if (tabs.length == 1)
-          tabsElm.style.cssText = `grid-template-columns: minmax(auto, ${t * TAB_MAX_WIDTH}px);`;
+          tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
         else
-          tabsElm.style.cssText = `grid-template-columns: repeat(${tabs.length - 1}, minmax(auto, var(--max-width))) minmax(auto, ${t * TAB_MAX_WIDTH}px);`;
+          tabsElm.style.gridTemplateColumns = `repeat(${tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
+          tabsElm.scrollLeft = tabsElm.scrollWidth;
+
       },
       onEnd: () => {
-        tabsElm.style.cssText = "";
+        tabsElm.style.gridTemplateColumns = "";
       },
     });
   }
@@ -84,7 +119,7 @@
   <div class="toolbar">
     <div class="tabs" bind:this={tabsElm}>
       {#each tabs as tab, i}
-        <div class="tab" use:animateTabOpening>
+        <div bind:this={tabElms[i]} class="tab" use:animateTabOpening>
           <div>{tab}</div>
           <button class="closeTab" on:click={() => closeTab(i)}>❌</button>
         </div>
@@ -106,34 +141,28 @@
   .buttons {
     border: 2px solid yellow;
     min-width: 100px;
-    display: grid;
-    grid-template-columns: auto auto 1fr;
   }
 
   .toolbar {
     width: 100%;
     height: 3rem;
     background-color: aquamarine;
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
   }
 
   .tabs {
-    --max-width: 140px;
-    --min-width: 70px;
+    --tab-max-width: 140px;
+    --tab-min-width: 70px;
 
-    border: 2px solid red;
+    min-width: none;
     overflow-x: scroll;
-
-    transition: all 300ms ease-in-out;
 
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(auto, var(--max-width));
+    grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
   }
 
   .tab {
-    min-width: var(--min-width);
     overflow: hidden;
     display: grid;
     grid-template-columns: 1fr auto;
