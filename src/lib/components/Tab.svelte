@@ -73,24 +73,26 @@
   .tab::after,
   .tab::before {
     content: "";
-    opacity: 0;
+    display: none;
     pointer-events: none;
     position: absolute;
     bottom: 0;
-    width: var(--tab-radius);
-    height: calc(2 * var(--tab-radius));
+    width: calc(2 * var(--tab-radius));
+    height: var(--tab-radius);
     background-color: transparent;
-    box-shadow: 0 var(--tab-radius) 0 0 var(--tab-active-color);
   }
   .tab.active::before {
-    opacity: 1;
-    left: calc(var(--tab-radius) * -1);
+    display: block;
+    left: calc(var(--tab-radius) * -2);
     border-bottom-right-radius: 100vw;
+    box-shadow: var(--tab-radius) 0 0 0 var(--tab-active-color);
   }
   .tab.active::after {
-    opacity: 1;
-    right: calc(var(--tab-radius) * -1);
+    display: block;
+    right: calc(var(--tab-radius) * -2);
     border-bottom-left-radius: 100vw;
+    box-shadow: calc(-1 * var(--tab-radius)) 0 0 0 var(--tab-active-color);
+
   }
   .tab input {
     font-family: var(--default-font);
@@ -98,7 +100,7 @@
     color: var(--tab-text-color);
     background-color: transparent;
 
-    padding: 0 !important;
+    padding: 0;
     margin-inline: 9px 0;
     white-space: nowrap;
     outline: none;

@@ -7,12 +7,13 @@
   import Tab from "$lib/components/Tab.svelte";
   import Button from "$lib/components/Button.svelte";
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";
+  import type { TabData } from "../stores/tabsStore";
   import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
 
   const SWAP_DURATION_MS = 200; //200;
-  const MIN_DRAG_DISTANCE = 1; //12
+  const MIN_DRAG_DISTANCE = 12; //12
   const TAB_MAX_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
   const TAB_ANIMATION_DURATION = 160; //160
@@ -41,6 +42,25 @@
       }, timeout);
     };
   };
+
+  // a debounce function that only triggers on the leading edge
+  function debounce_leading(func: Function, timeout = 300) {
+    //@ts-ignore
+    let timer;
+    //@ts-ignore
+    return (...args) => {
+      //@ts-ignore
+      if (!timer) {
+        //@ts-ignore
+        func.apply(this, args);
+      }
+      //@ts-ignore
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = undefined;
+      }, timeout);
+    };
+  }
 
   function selectTab(index: number) {
     tabsHandlers.setActiveIndex(index);
@@ -94,7 +114,7 @@
 
   function closeTab(index: number) {
     // TODO: decide what to do when the last tab is closed
-    if ($tabsStore.tabs.length == 1) return;
+    //if ($tabsStore.tabs.length == 1) return;
 
     lockWidth = tabElms[index].getBoundingClientRect().width;
 
@@ -151,7 +171,9 @@
 
   let startPosition: [number, number] | null = null;
   let draggedTabIndex = -1;
+  let draggedTabData: TabData = { title: "", text: "" };
   let original: HTMLElement;
+  let originalRect: DOMRect;
   let clone: HTMLElement;
   let dragging = false;
   let draggingOutside = false;
@@ -160,10 +182,8 @@
   let toolbarContainerElm: HTMLElement;
 
   function draggingTab(x: number, y: number) {
-    console.log("weee!!!!");
-    //TODO: set the cloned element's position
     clone.style.left = `${x + offsetX}px`;
-    clone.style.bottom = "0";
+    clone.style.top = `${originalRect.top}px`;
 
     // check if you are dragging outside the toolbar
     let toolbarRect = toolbarContainerElm.getBoundingClientRect();
@@ -174,19 +194,48 @@
       y > toolbarRect.bottom
     ) {
       if (!draggingOutside) {
+        // was dragging inside the toolbar but now dragging outside
+        console.log("out")
+        // TODO: remove placeholder
+        //closeTab($tabsStore.placeholderIndex);
+        //tabsHandlers.setPlaceholderIndex();
+
         // TODO: trigger drag and drop events
         clone.addEventListener("dragstart", dragstartHandler);
         clone.dispatchEvent(new Event("dragstart"));
       }
 
       // dragging outside the toolbar
-      clone.style.bottom = `${-y + offsetY}px`;
+      clone.style.top = `${y + offsetY}px`;
       draggingOutside = true;
       return;
     }
 
-    draggingOutside = false;
-    // TODO: check if tabs should be swapped
+    // dragging inside the toolbar
+    if (draggingOutside) {
+      // was dragging outside the toolbar but now dragging inside the toolbar
+      draggingOutside = false;
+      console.log("in")
+
+      // TODO: re-insert placeholder
+      //tabsHandlers.newTab(draggedTabData);
+      //tabsHandlers.setPlaceholderIndex($tabsStore.tabs.length - 1);
+    }
+
+    const farLeft = -tabsElm.scrollLeft;
+    const tabWidth = originalRect.width;
+
+    for (let i = 0; i < $tabsStore.tabs.length; i++) {
+      if (i  == $tabsStore.placeholderIndex) continue;
+
+      if ( x > farLeft + i * tabWidth && x < farLeft + (i + 1) * tabWidth) {
+        swap(i, $tabsStore.placeholderIndex);
+        // TODO: scroll if near the edges
+      }
+    }
+
+    
+
   }
 
   function dragstartHandler(e: DragEvent) {
@@ -205,14 +254,14 @@
     tabsHandlers.setActiveIndex(index);
 
     original = e.target as HTMLElement;
-    const rect = original.getBoundingClientRect();
+    originalRect = original.getBoundingClientRect();
     startPosition = [e.clientX, e.clientY];
-    offsetX = rect.left - e.clientX;
-    offsetY = rect.bottom - e.clientY;
-    clone.style.width = `${rect.width}px`;
-    clone.style.height = `${rect.height}px`;
-    clone.style.left = `${e.clientX + offsetX}px`;
-    clone.style.bottom = "0";
+    offsetX = originalRect.left - e.clientX;
+    offsetY = originalRect.top - e.clientY;
+    clone.style.width = `${originalRect.width}px`;
+    clone.style.left = `${originalRect.left}px`;
+    clone.style.top = `${originalRect.top}px`;
+    draggedTabData = {...$tabsStore.tabs[index]};
     draggedTabIndex = index;
   }
 
@@ -232,7 +281,6 @@
     dragging = true;
     tabsHandlers.setPlaceholderIndex(draggedTabIndex);
     tabsHandlers.setActiveIndex(draggedTabIndex);
-    console.log("dragging tab: ", draggedTabIndex);
   }
 
   function mouseupHandler() {
@@ -246,7 +294,6 @@
     offsetX = 0;
     offsetY = 0;
     tabsHandlers.setPlaceholderIndex();
-    console.log("stop dragging");
   }
 </script>
 
@@ -283,7 +330,7 @@
       ></Button>
     </div>
     <div bind:this={clone} class="clone" class:dragging>
-      <Tab title={"title"} active={true} />
+      <Tab title={draggedTabData.title} active={!draggingOutside} />
     </div>
   </div>
   <div class="separator"></div>
@@ -297,7 +344,7 @@
     grid-template-columns: auto 1fr;
 
     align-items: end;
-    height: 3rem;
+    height: var(--toolbar-height);
   }
 
   .separator {
@@ -335,7 +382,7 @@
       display: block;
     }
     .tabs::-webkit-scrollbar-thumb {
-      background-color: var(--toolbar-scrollbar-color);
+      background-color: var(--slight-transparent);
       border-radius: 100vw;
     }
     .tabs::-webkit-scrollbar-button {
@@ -344,7 +391,7 @@
   }
 
   .tab-container {
-    height: 36px;
+    height: var(--tab-height);
     padding-inline: calc(var(--tab-gaps) / 2);
   }
   .tab-container.placeholder {
@@ -352,9 +399,11 @@
   }
 
   .clone {
-    position: absolute;
+    height: var(--tab-height);
+    position: fixed;
     display: none;
-    z-index: 1;
+    top: 0;
+    left: 0;
   }
   .clone.dragging {
     display: block;

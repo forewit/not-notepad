@@ -1,22 +1,33 @@
 import { writable } from "svelte/store";
 
-interface Tab {
+export type TabData = {
     title: string;
     text: string;
 }
 
 export const tabsStore = writable({
-    tabs: [] as Tab[],
+    tabs: [] as TabData[],
     activeIndex: 0,
     placeholderIndex: -1
 });
 
 export const tabsHandlers = {
-    newTab: (options?: { title?: string, text?: string, callback?: () => void }) => {
-        const { title = "Untitled", text = "", callback = () => { } } = options || {};
+    newTab: (options?: { title?: string, text?: string, index?: number, callback?: () => void }) => {
+        const { title = "Untitled", text = "",index = -1, callback = () => { } } = options || {};
         tabsStore.update(curr => {
-            curr.tabs.push({ title, text });
-            curr.activeIndex = curr.tabs.length - 1;
+            // insert at index or at end
+
+            if (index < 0) {
+                curr.tabs.push({ title, text });
+                curr.activeIndex = curr.tabs.length - 1;
+            }
+            else {
+                curr.tabs.splice(index, 0, { title, text });
+                curr.activeIndex = index;
+            }
+            
+            //curr.tabs.push({ title, text });
+            //curr.activeIndex = curr.tabs.length - 1;
             return curr;
         })
         callback();
@@ -32,7 +43,7 @@ export const tabsHandlers = {
     setActiveIndex: (index: number) => {
         tabsStore.update(curr => {
             if (index < 0) curr.activeIndex = 0;
-            else if (index >= curr.tabs.length) curr.activeIndex = curr.tabs.length - 1;
+            else if (index > curr.tabs.length) curr.activeIndex = curr.tabs.length - 1;
             else curr.activeIndex = index;
             return curr;
         })

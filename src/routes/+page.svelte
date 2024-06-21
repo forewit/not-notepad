@@ -8,11 +8,16 @@
     title: "Hello 👋",
     text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.19",
   });
+
+  $: tab =
+    $tabsStore.tabs.length > 0
+      ? $tabsStore.tabs[$tabsStore.activeIndex]
+      : { text: "Click the ➕ above to create a new tab." };
 </script>
 
 <div class="container">
   <Toolbar />
-  <Editor bind:text={$tabsStore.tabs[$tabsStore.activeIndex].text} />
+  <Editor bind:text={tab.text} />
 </div>
 
 <style>
