@@ -11,6 +11,7 @@
   import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
+  import { flip } from "svelte/animate";
 
   const SWAP_DURATION_MS = 200; //200;
   const MIN_DRAG_DISTANCE = 12; //12
@@ -112,9 +113,13 @@
     });
   }, TAB_RESIZE_DELAY);
 
-  function closeTab(index: number) {
+  const closeTab = (index: number) => {
     // TODO: decide what to do when the last tab is closed
     //if ($tabsStore.tabs.length == 1) return;
+    if (!tabElms[index]) {
+      console.warn("Cannot close tab!");
+      return;
+    }
 
     lockWidth = tabElms[index].getBoundingClientRect().width;
 
@@ -143,35 +148,46 @@
         tabsHandlers.removeTab(index);
       },
     });
-  }
+  };
 
-  const swap = (index1: number, index2: number) => {
-    const node1 = tabsElm.children[index1] as HTMLElement;
-    const node2 = tabsElm.children[index2] as HTMLElement;
-    const dx =
-      node1.getBoundingClientRect().left - node2.getBoundingClientRect().left;
+  const moveTab = (fromIndex: number, toIndex: number) => {
+    const width = tabElms[0].getBoundingClientRect().width;
+    console.log(fromIndex, toIndex);
 
-    tabsHandlers.swapTabs(index1, index2, () => {
-      animateCSS(node1, {
-        duration: SWAP_DURATION_MS,
-        easing: cubicInOut,
-        css: (t: number, u: number) => {
-          return `transform: translateX(${dx * u}px);`;
-        },
-      });
-      animateCSS(node2, {
-        duration: SWAP_DURATION_MS,
-        easing: cubicInOut,
-        css: (t: number, u: number) => {
-          return `transform: translateX(${-dx * u}px);`;
-        },
-      });
+    tabsHandlers.moveTab(fromIndex, toIndex, () => {
+      // example where fromIndex > toIndex: [A, B, C, D] move  index 3 to index 1
+      // expected output: [A, D, B, C]
+      if (fromIndex > toIndex) {
+        for (let i = toIndex; i < fromIndex; i++) {
+          animateCSS(tabElms[i], {
+            duration: TAB_ANIMATION_DURATION,
+            easing: cubicInOut,
+            css: (t: number, u: number) => {
+              return `transform: translateX(-${u * width}px);`;
+            },
+          });
+        }
+      }
+
+      // example where fromIndex < toIndex: [A, B, C, D] move index 1 to index 3
+      // expected output: [A, C, D, B]
+      if (fromIndex < toIndex) {
+        for (let i = toIndex; i > fromIndex; i--) {
+          animateCSS(tabElms[i], {
+            duration: TAB_ANIMATION_DURATION,
+            easing: cubicInOut,
+            css: (t: number, u: number) => {
+              return `transform: translateX(${u * width}px);`;
+            },
+          });
+        }
+      }
     });
   };
 
   let startPosition: [number, number] | null = null;
   let draggedTabIndex = -1;
-  let draggedTabData: TabData = { title: "", text: "" };
+  let draggedTabData: TabData = { id: -1, title: "", text: "" };
   let original: HTMLElement;
   let originalRect: DOMRect;
   let clone: HTMLElement;
@@ -195,10 +211,7 @@
     ) {
       if (!draggingOutside) {
         // was dragging inside the toolbar but now dragging outside
-        console.log("out")
-        // TODO: remove placeholder
-        //closeTab($tabsStore.placeholderIndex);
-        //tabsHandlers.setPlaceholderIndex();
+        console.log("out");
 
         // TODO: trigger drag and drop events
         clone.addEventListener("dragstart", dragstartHandler);
@@ -215,31 +228,37 @@
     if (draggingOutside) {
       // was dragging outside the toolbar but now dragging inside the toolbar
       draggingOutside = false;
-      console.log("in")
-
-      // TODO: re-insert placeholder
-      //tabsHandlers.newTab(draggedTabData);
-      //tabsHandlers.setPlaceholderIndex($tabsStore.tabs.length - 1);
+      console.log("in");
     }
 
     const farLeft = -tabsElm.scrollLeft;
-    const tabWidth = originalRect.width;
+    const tabWidth = tabElms[0].getBoundingClientRect().width;
 
-    for (let i = 0; i < $tabsStore.tabs.length; i++) {
-      if (i  == $tabsStore.placeholderIndex) continue;
+    let moveToIndex = -1;
 
-      if ( x > farLeft + i * tabWidth && x < farLeft + (i + 1) * tabWidth) {
-        swap(i, $tabsStore.placeholderIndex);
-        // TODO: scroll if near the edges
+    if (x > farLeft + $tabsStore.tabs.length * tabWidth) {
+      moveToIndex = $tabsStore.tabs.length - 1;
+    } else {
+      for (let i = 0; i < $tabsStore.tabs.length; i++) {
+        if (x > farLeft + i * tabWidth && x < farLeft + (i + 1) * tabWidth) {
+          moveToIndex = i;
+          break;
+        }
       }
     }
 
-    
+    if (x < 10) {
+      tabsElm.scrollBy({ left: -10, behavior: "smooth" });
+    } else if (x > tabsElm.clientWidth - 10) {
+      tabsElm.scrollBy({ left: 10, behavior: "smooth" });
+    }
 
+    if (moveToIndex == -1) return;
+    moveTab($tabsStore.placeholderIndex, moveToIndex);
   }
 
   function dragstartHandler(e: DragEvent) {
-    console.warn("drag events not implemented");
+    //console.warn("drag events not implemented");
     if (!e.dataTransfer || !clone) return;
 
     //TODO: figure out how to manually trigger drag events
@@ -261,7 +280,7 @@
     clone.style.width = `${originalRect.width}px`;
     clone.style.left = `${originalRect.left}px`;
     clone.style.top = `${originalRect.top}px`;
-    draggedTabData = {...$tabsStore.tabs[index]};
+    draggedTabData = { ...$tabsStore.tabs[index] };
     draggedTabIndex = index;
   }
 
@@ -322,12 +341,6 @@
 
     <div class="buttons">
       <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
-      <Button
-        url="{base}/images/svg/swap.svg"
-        onClick={() => {
-          swap(0, 1);
-        }}
-      ></Button>
     </div>
     <div bind:this={clone} class="clone" class:dragging>
       <Tab title={draggedTabData.title} active={!draggingOutside} />

@@ -14,6 +14,11 @@ export const animateCSS = (element: HTMLElement, options: AnimateCSSOptions) => 
 
   let start: number;
   function step(timeStamp: number) {
+    if (!element) {
+      console.warn("Cannot find element to animate");
+      return;
+    };
+
     if (start === undefined) start = timeStamp;
     const t = easing((timeStamp - start) / duration);
     const u = 1 - t;

@@ -1,20 +1,23 @@
 <script lang="ts">
   import { cubicInOut } from "svelte/easing";
-  import { animateSimple } from "$lib/modules/animate";
+  import { animateSimple, animateCSS } from "$lib/modules/animate";
   import { onMount } from "svelte";
+  import { flip } from "svelte/animate";
 
-  const TAB_MAX_WIDTH = 140;
+  const TAB_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
-  const TAB_ANIMATION_DURATION = 160;
+  const TAB_ANIMATION_DURATION = 2000;
   const TAB_RESIZE_DELAY = 1600;
 
-  let tabs: string[] = ["test", "test"];
+  let id = 0;
+  let tabs: string[] = ["test2", "test"];
   let tabElms: HTMLElement[] = [];
   let tabsElm: HTMLElement;
   let lockWidth = 0;
+  let targetWidth = 0;
 
   onMount(() => {
-    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+    tabsElm.style.setProperty("--tab-width", `${TAB_WIDTH}px`);
     tabsElm.style.setProperty("--tab-min-width", `${TAB_MIN_WIDTH}px`);
   });
 
@@ -34,80 +37,78 @@
   };
 
   function newTab() {
-    tabs.push("new");
+    tabs.push("new" + id++);
     tabs = tabs;
   }
 
   function animateTabOpening(element: HTMLElement) {
-    // animate grid-template columns
-    if (!tabsElm) return;
-    const targetWidth = element.getBoundingClientRect().width;
-
-    animateSimple({
+    element.scrollIntoView({ behavior: "smooth" });
+    return {
       duration: TAB_ANIMATION_DURATION,
       easing: cubicInOut,
-      onStep: (t: number, u: number) => {
-        if (tabs.length == 1)
-          tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
-        else
-          tabsElm.style.gridTemplateColumns = `repeat(${tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
-          tabsElm.scrollLeft = tabsElm.scrollWidth;
+      css: (t: number, u: number) => {
+        return `
+        width: ${t * TAB_WIDTH}px;
+        min-width: ${t * TAB_MIN_WIDTH}px;
+        `;
       },
-      onEnd: () => {
-        tabsElm.style.gridTemplateColumns = "";
+    };
+  }
+
+  function animateTabClosing(element: HTMLElement) {
+    return {
+      duration: TAB_ANIMATION_DURATION,
+      easing: cubicInOut,
+      css: (t: number, u: number) => {
+        return `
+        max-width: ${t * lockWidth}px;
+        min-width: 0px;
+        `;
       },
-    });
+    };
   }
 
   const unlockWidth = debounce(() => {
     if (!tabsElm) return;
-    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
-    const targetWidth = tabElms[0].getBoundingClientRect().width;
 
     animateSimple({
       duration: TAB_ANIMATION_DURATION,
       easing: cubicInOut,
       onStep: (t: number, u: number) => {
-        tabsElm.style.setProperty("--tab-max-width", `${lockWidth + t * (targetWidth - lockWidth)}px`);
+        tabsElm.style.setProperty(
+          "--tab-width",
+          `${lockWidth + t * (TAB_WIDTH - lockWidth)}px`
+        );
       },
       onEnd: () => {
-        tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
-        lockWidth = 0;
+        tabsElm.style.setProperty("--tab-width", `${TAB_WIDTH}px`);
       },
     });
   }, TAB_RESIZE_DELAY);
 
   function closeTab(index: number) {
     lockWidth = tabElms[index].getBoundingClientRect().width;
+    console.log(lockWidth);
 
     if (index < tabs.length - 1) {
-      tabsElm.style.setProperty("--tab-max-width", `${lockWidth}px`);
+      tabsElm.style.setProperty("--tab-width", `${lockWidth}px`);
       unlockWidth();
     }
 
-    animateSimple({
-      duration: TAB_ANIMATION_DURATION,
-      easing: cubicInOut,
-      onStep: (t: number, u: number) => {
-        if (index == 0)
-          tabsElm.style.gridTemplateColumns = `minmax(${u * TAB_MIN_WIDTH}px, ${u * lockWidth}px)`;
-        else
-          tabsElm.style.gridTemplateColumns = `repeat(${index}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${u * TAB_MIN_WIDTH}px, ${u * lockWidth}px)`;
-      },
-      onEnd: () => {
-        tabsElm.style.gridTemplateColumns = "";
-        tabs.splice(index, 1);
-        tabs = tabs;
-      },
-    });
+    tabs.splice(index, 1);
+    tabs = tabs;
   }
 </script>
 
 <div class="main">
   <div class="toolbar">
     <div class="tabs" bind:this={tabsElm}>
-      {#each tabs as tab, i}
-        <div bind:this={tabElms[i]} class="tab" use:animateTabOpening>
+      {#each tabs as tab, i (tab)}
+        <div
+          bind:this={tabElms[i]}
+          class="tab"
+          animate:flip
+        >
           <div>{tab}</div>
           <button class="closeTab" on:click={() => closeTab(i)}>❌</button>
         </div>
@@ -139,18 +140,19 @@
   }
 
   .tabs {
-    --tab-max-width: 140px;
+    --tab-width: 140px;
     --tab-min-width: 70px;
 
     min-width: none;
     overflow-x: scroll;
 
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
+    display: flex;
   }
 
   .tab {
+    width: var(--tab-width);
+    min-width: var(--tab-min-width);
+
     overflow: hidden;
     display: grid;
     grid-template-columns: 1fr auto;

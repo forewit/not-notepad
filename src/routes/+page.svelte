@@ -4,10 +4,10 @@
   import Editor from "$lib/components/Editor.svelte";
   import { tabsStore, tabsHandlers } from "../lib/stores/tabsStore";
 
-  tabsHandlers.newTab({
+  tabsHandlers.newTab({data:{
     title: "Hello 👋",
     text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.19",
-  });
+  }});
 
   $: tab =
     $tabsStore.tabs.length > 0
