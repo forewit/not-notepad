@@ -260,7 +260,7 @@
       scrollBy = 0;
     }
 
-    if (moveToIndex == -1) return;
+    if (moveToIndex == -1 || moveToIndex == $tabsStore.placeholderIndex) return;
     moveTab($tabsStore.placeholderIndex, moveToIndex);
   }
 
