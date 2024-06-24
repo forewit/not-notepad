@@ -19,6 +19,7 @@
   const TAB_MIN_WIDTH = 70;
   const TAB_ANIMATION_DURATION = 160; //160
   const TAB_RESIZE_DELAY = 1600; //1600
+  const TAB_SCROLL_SPEED = 0.3; //10
 
   let tabsElm: HTMLDivElement;
   let tabElms: HTMLElement[] = [];
@@ -195,6 +196,7 @@
   let draggingOutside = false;
   let offsetX = 0;
   let offsetY = 0;
+  let scrollBy = 0;
   let toolbarContainerElm: HTMLElement;
 
   function draggingTab(x: number, y: number) {
@@ -212,6 +214,7 @@
       if (!draggingOutside) {
         // was dragging inside the toolbar but now dragging outside
         console.log("out");
+        scrollBy = 0;
 
         // TODO: trigger drag and drop events
         clone.addEventListener("dragstart", dragstartHandler);
@@ -247,14 +250,33 @@
       }
     }
 
-    if (x < 10) {
-      tabsElm.scrollBy({ left: -10, behavior: "smooth" });
+    if (x < 20) {
+      scrollBy = -TAB_SCROLL_SPEED;
+      requestAnimationFrame(scrollWhileDragging);
     } else if (x > tabsElm.clientWidth - 10) {
-      tabsElm.scrollBy({ left: 10, behavior: "smooth" });
+      scrollBy = TAB_SCROLL_SPEED;
+      requestAnimationFrame(scrollWhileDragging);
+    } else {
+      scrollBy = 0;
     }
 
     if (moveToIndex == -1) return;
     moveTab($tabsStore.placeholderIndex, moveToIndex);
+  }
+
+  let last = 0;
+  function scrollWhileDragging(timestamp: number) {
+    if (!dragging || scrollBy == 0) {
+      last = 0;
+      return;
+    }
+
+    if (last == 0) last = timestamp;
+    const elapsed = (timestamp - last);
+    last = timestamp;
+    
+    tabsElm.scrollBy({ left: scrollBy * elapsed });
+    requestAnimationFrame(scrollWhileDragging);
   }
 
   function dragstartHandler(e: DragEvent) {
