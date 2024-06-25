@@ -11,13 +11,12 @@
   import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
-  import { flip } from "svelte/animate";
 
   const SWAP_DURATION_MS = 200; //200;
   const MIN_DRAG_DISTANCE = 12; //12
   const TAB_MAX_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
-  const TAB_ANIMATION_DURATION = 160; //160
+  const TAB_ANIMATION_DURATION = 200; //160
   const TAB_RESIZE_DELAY = 1600; //1600
   const TAB_SCROLL_SPEED = 0.3; //10
 
@@ -153,7 +152,6 @@
 
   const moveTab = (fromIndex: number, toIndex: number) => {
     const width = tabElms[0].getBoundingClientRect().width;
-    console.log(fromIndex, toIndex);
 
     tabsHandlers.moveTab(fromIndex, toIndex, () => {
       // example where fromIndex > toIndex: [A, B, C, D] move  index 3 to index 1
@@ -195,13 +193,26 @@
   let dragging = false;
   let draggingOutside = false;
   let offsetX = 0;
-  let offsetY = 0;
   let scrollBy = 0;
   let toolbarContainerElm: HTMLElement;
+  let preventHover = false;
+  $: if (!dragging) {
+    setTimeout(() => {console.log(preventHover = false)}, 20);
+  } else console.log(preventHover = true)
+
+  function dragstartHandler(e: DragEvent) {
+    if (!e.target || !e.dataTransfer) return;
+    e.dataTransfer.setData("text/plain", JSON.stringify(draggedTabData));
+    e.dataTransfer.setDragImage(new Image(), 0, 0);
+  }
 
   function draggingTab(x: number, y: number) {
-    clone.style.left = `${x + offsetX}px`;
-    clone.style.top = `${originalRect.top}px`;
+    // hide the clone if x and y are both 0 (dragging outside the window)
+    if (x == 0 && y == 0) {
+      clone.style.left = `-1000px`;
+      clone.style.top = `-1000px`;
+      return;
+    }
 
     // check if you are dragging outside the toolbar
     let toolbarRect = toolbarContainerElm.getBoundingClientRect();
@@ -213,25 +224,23 @@
     ) {
       if (!draggingOutside) {
         // was dragging inside the toolbar but now dragging outside
-        console.log("out");
         scrollBy = 0;
-
-        // TODO: trigger drag and drop events
-        clone.addEventListener("dragstart", dragstartHandler);
-        clone.dispatchEvent(new Event("dragstart"));
       }
 
       // dragging outside the toolbar
-      clone.style.top = `${y + offsetY}px`;
+      clone.style.left = `${x + 25}px`;
+      clone.style.top = `${y - 5}px`;
       draggingOutside = true;
       return;
     }
 
     // dragging inside the toolbar
+    clone.style.left = `${x + offsetX}px`;
+    clone.style.top = `${originalRect.top}px`;
+
     if (draggingOutside) {
       // was dragging outside the toolbar but now dragging inside the toolbar
       draggingOutside = false;
-      console.log("in");
     }
 
     const farLeft = -tabsElm.scrollLeft;
@@ -272,24 +281,19 @@
     }
 
     if (last == 0) last = timestamp;
-    const elapsed = (timestamp - last);
+    const elapsed = timestamp - last;
     last = timestamp;
-    
+
     tabsElm.scrollBy({ left: scrollBy * elapsed });
     requestAnimationFrame(scrollWhileDragging);
-  }
-
-  function dragstartHandler(e: DragEvent) {
-    //console.warn("drag events not implemented");
-    if (!e.dataTransfer || !clone) return;
-
-    //TODO: figure out how to manually trigger drag events
   }
 
   function mousedownHandler(e: MouseEvent, index: number) {
     if (!e.target) return;
     window.addEventListener("mousemove", mousemoveHandler);
     window.addEventListener("mouseup", mouseupHandler);
+    window.addEventListener("drag", mousemoveHandler);
+    window.addEventListener("dragend", mouseupHandler);
     window.addEventListener("blur", mouseupHandler);
 
     tabsHandlers.setActiveIndex(index);
@@ -298,7 +302,6 @@
     originalRect = original.getBoundingClientRect();
     startPosition = [e.clientX, e.clientY];
     offsetX = originalRect.left - e.clientX;
-    offsetY = originalRect.top - e.clientY;
     clone.style.width = `${originalRect.width}px`;
     clone.style.left = `${originalRect.left}px`;
     clone.style.top = `${originalRect.top}px`;
@@ -327,14 +330,15 @@
   function mouseupHandler() {
     window.removeEventListener("mousemove", mousemoveHandler);
     window.removeEventListener("mouseup", mouseupHandler);
+    window.removeEventListener("drag", mousemoveHandler);
+    window.removeEventListener("dragend", mouseupHandler);
     window.removeEventListener("blur", mouseupHandler);
     startPosition = null;
-    dragging = false;
     draggingOutside = false;
     draggedTabIndex = -1;
     offsetX = 0;
-    offsetY = 0;
     tabsHandlers.setPlaceholderIndex();
+    dragging = false;
   }
 </script>
 
@@ -347,8 +351,11 @@
         <div
           bind:this={tabElms[i]}
           class="tab-container"
+          class:preventHover
           class:placeholder={$tabsStore.placeholderIndex == i}
           use:animateTabOpening
+          draggable="true"
+          on:dragstart={dragstartHandler}
         >
           <Tab
             bind:title={$tabsStore.tabs[i].title}
@@ -442,5 +449,9 @@
   }
   .clone.dragging {
     display: block;
+  }
+
+  .preventHover {
+    pointer-events: none;
   }
 </style>
