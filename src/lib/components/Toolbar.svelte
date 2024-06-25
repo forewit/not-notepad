@@ -485,10 +485,6 @@
     display: block;
   }
 
-  .preventHover {
-    pointer-events: none !important;
-  }
-
   .new-tab-button {
     width: 22px;
     height: 22px;
