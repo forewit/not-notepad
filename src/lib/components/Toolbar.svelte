@@ -11,7 +11,7 @@
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
-  const TAB_ANIMATION_DURATION = 200;
+  const TAB_ANIMATION_DURATION = 10000;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
@@ -474,9 +474,10 @@
   }
 
   .new-tab-button {
-    width: 22px;
-    height: 22px;
+    width: 1.7em;
+    aspect-ratio: 1;
     margin: 4px;
+    margin-inline-end: 14px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -492,7 +493,7 @@
 
   .new-tab-icon {
     background-color: var(--ui-color);
-    width: 10px;
+    width: 0.9em;
     aspect-ratio: 1;
   }
 </style>

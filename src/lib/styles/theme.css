@@ -11,21 +11,21 @@
   --toolbar-background-color: #0d222c;/*#000e0f;*/
   --toolbar-scrollbar-size: 0.3rem;
   --toolbar-scrollbar-color: #405e6e;/*#3f3f3f;*/
-  --toolbar-height: 3rem;
+  --toolbar-height: 60px;
   --tab-background-color: #0d222c;/*#000e0f;*/
   --tab-hover-color: #004d66;/*#0c1919;*/
   --tab-active-color: #2a3e48;/*#272727;*/
   --tab-text-color: #dfe3e7;/*#cfcfcf;*/
-  --tab-font-size: 14px;
-  --tab-height: 36px;
-  --tab-radius: 10px;
-  --tab-gaps: 5px;
+  --tab-font-size: 16px;
+  --tab-height: 40px;
+  --tab-radius: 12px;
+  --tab-gaps: 6px;
 
   /* Editor */
   --editor-text-color: #fff;
   --editor-background-color: #0c1919;
   --editor-font-family: "Consolas", monospace;
-  --editor-font-size: 12px;
+  --editor-font-size: 14px;
   --editor-scrollbar-size: 0.3rem;
   --editor-scrollbar-color: #3f3f3f;
 }

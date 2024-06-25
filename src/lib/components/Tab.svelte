@@ -10,7 +10,6 @@
   export let onMousedown = (e: MouseEvent | TouchEvent) => {};
 
   let inputElm: HTMLInputElement;
-
 </script>
 
 <div class="container" class:preventHover>
@@ -95,15 +94,33 @@
   }
   .tab.active::before {
     display: block;
-    left: calc(var(--tab-radius) * -2);
+    /* left: calc(var(--tab-radius) * -2);
     border-bottom-right-radius: 100vw;
-    box-shadow: var(--tab-radius) 0 0 0 var(--tab-active-color);
+    box-shadow: var(--tab-radius) 0 0 0 var(--tab-active-color); */
+
+    left: calc(var(--tab-radius) * -1);
+    width: calc(var(--tab-radius));
+    aspect-ratio: 1;
+    background-image: radial-gradient(
+      circle at 0 0,
+      transparent var(--tab-radius),
+      var(--tab-active-color) calc(var(--tab-radius) + 1px)
+    );
   }
   .tab.active::after {
     display: block;
-    right: calc(var(--tab-radius) * -2);
+    /* right: calc(var(--tab-radius) * -2);
     border-bottom-left-radius: 100vw;
-    box-shadow: calc(-1 * var(--tab-radius)) 0 0 0 var(--tab-active-color);
+    box-shadow: calc(-1 * var(--tab-radius)) 0 0 0 var(--tab-active-color); */
+
+    right: calc(var(--tab-radius) * -1);
+    width: calc(var(--tab-radius));
+    aspect-ratio: 1;
+    background-image: radial-gradient(
+      circle at 100% 0,
+      transparent var(--tab-radius),
+      var(--tab-active-color) calc(var(--tab-radius) + 1px)
+    );
   }
   .tab input {
     font-family: var(--default-font);
@@ -112,7 +129,7 @@
     background-color: transparent;
 
     padding: 0;
-    margin-inline: 9px 0;
+    margin-inline-start: 0.6em;
     white-space: nowrap;
     outline: none;
     border: none;
@@ -139,9 +156,10 @@
   }
 
   .close-button {
-    width: 22px;
-    height: 22px;
+    width: 1.5em;
+    aspect-ratio: 1;
     margin: 4px;
+    margin-inline-end: 0.3em;
     border-radius: 50%;
 
     display: flex;
@@ -158,7 +176,7 @@
 
   .close-icon {
     background-color: var(--ui-color);
-    width: 10px;
+    width: 0.7em;
     aspect-ratio: 1;
   }
 

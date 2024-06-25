@@ -7,7 +7,7 @@
   tabsHandlers.newTab({data:{
     id: -1,
     title: "Hello 👋",
-    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.20",
+    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.21",
   }});
 
   $: tab =

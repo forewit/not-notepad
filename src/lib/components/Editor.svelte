@@ -5,7 +5,7 @@
 </script>
 
 <div id="editor">
-  <textarea bind:value={text} spellcheck="false" name="editor" id="text"
+  <textarea bind:value={text} spellcheck="false" name="editor" id="text" placeholder="Enter text here"
   ></textarea>
 </div>
 
