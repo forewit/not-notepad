@@ -1,7 +1,4 @@
 <script lang="ts">
-  // TODO: implement tab re-ordering
-  // TODO: re-implement svelte transitions as custom animations to make them smoother
-
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
@@ -11,44 +8,56 @@
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
 
-  const MIN_DRAG_DISTANCE = 12; //12
+  const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
-  const TAB_ANIMATION_DURATION = 200; //160
-  const TAB_RESIZE_DELAY = 1600; //1600
-  const TAB_SCROLL_SPEED = 0.3; //10
+  const TAB_ANIMATION_DURATION = 200;
+  const TAB_RESIZE_DELAY = 1600;
+  const TAB_SCROLL_SPEED = 0.3;
 
   let tabsElm: HTMLDivElement;
   let tabElms: HTMLElement[] = [];
   let lockWidth = 0;
+  let startPosition: [number, number] | null = null;
+  let draggedTabIndex = -1;
+  let draggedTabData: TabData = { id: -1, title: "", text: "" };
+  let original: HTMLElement;
+  let originalRect: DOMRect;
+  let clone: HTMLElement;
+  let dragging = false;
+  let draggingOutside = false;
+  let offsetX = 0;
+  let offsetY = 0;
+  let scrollBy = 0;
+  let toolbarContainerElm: HTMLElement;
+  let preventHover = false;
 
+  // Utility functions
   const debounce = (func: Function, timeout = 300) => {
-    //@ts-ignore
+    // @ts-ignore
     let timer;
-    //@ts-ignore
+    // @ts-ignore
     return (...args) => {
-      //@ts-ignore
+      // @ts-ignore
       clearTimeout(timer);
-      //@ts-ignore
       timer = setTimeout(() => {
-        //@ts-ignore
+        // @ts-ignore
         func.apply(this, args);
       }, timeout);
     };
   };
 
-  // a debounce function that only triggers on the leading edge
   function debounce_leading(func: Function, timeout = 300) {
-    //@ts-ignore
+    // @ts-ignore
     let timer;
-    //@ts-ignore
+    // @ts-ignore
     return (...args) => {
-      //@ts-ignore
+      // @ts-ignore
       if (!timer) {
-        //@ts-ignore
+        // @ts-ignore
         func.apply(this, args);
       }
-      //@ts-ignore
+      // @ts-ignore
       clearTimeout(timer);
       timer = setTimeout(() => {
         timer = undefined;
@@ -56,6 +65,7 @@
     };
   }
 
+  // Tab management functions
   function selectTab(index: number) {
     tabsHandlers.setActiveIndex(index);
     tabsElm.children[index].scrollIntoView({ behavior: "smooth" });
@@ -65,50 +75,7 @@
     tabsHandlers.newTab();
   }
 
-  function animateTabOpening(element: HTMLElement) {
-    // animate grid-template columns
-    if (!tabsElm) return;
-    const targetWidth = element.getBoundingClientRect().width;
-
-    animateSimple({
-      duration: TAB_ANIMATION_DURATION,
-      easing: cubicInOut,
-      onStep: (t: number, u: number) => {
-        if ($tabsStore.tabs.length == 1)
-          tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
-        else
-          tabsElm.style.gridTemplateColumns = `repeat(${$tabsStore.tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
-        tabsElm.scrollLeft = tabsElm.scrollWidth;
-      },
-      onEnd: () => {
-        tabsElm.style.gridTemplateColumns = "";
-      },
-    });
-  }
-
-  const unlockWidth = debounce(() => {
-    if (!tabsElm) return;
-    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
-    const targetWidth = tabElms[0].getBoundingClientRect().width;
-
-    animateSimple({
-      duration: TAB_ANIMATION_DURATION,
-      easing: cubicInOut,
-      onStep: (t: number, u: number) => {
-        tabsElm.style.setProperty(
-          "--tab-max-width",
-          `${lockWidth + t * (targetWidth - lockWidth)}px`
-        );
-      },
-      onEnd: () => {
-        tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
-      },
-    });
-  }, TAB_RESIZE_DELAY);
-
   const closeTab = (index: number) => {
-    // TODO: decide what to do when the last tab is closed
-    //if ($tabsStore.tabs.length == 1) return;
     if (!tabElms[index]) {
       console.warn("Cannot close tab!");
       return;
@@ -143,12 +110,51 @@
     });
   };
 
+  const unlockWidth = debounce(() => {
+    if (!tabsElm) return;
+    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+    const targetWidth = tabElms[0].getBoundingClientRect().width;
+
+    animateSimple({
+      duration: TAB_ANIMATION_DURATION,
+      easing: cubicInOut,
+      onStep: (t: number, u: number) => {
+        tabsElm.style.setProperty(
+          "--tab-max-width",
+          `${lockWidth + t * (targetWidth - lockWidth)}px`
+        );
+      },
+      onEnd: () => {
+        tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+      },
+    });
+  }, TAB_RESIZE_DELAY);
+
+  // Animation functions
+  function animateTabOpening(element: HTMLElement) {
+    if (!tabsElm) return;
+    const targetWidth = element.getBoundingClientRect().width;
+
+    animateSimple({
+      duration: TAB_ANIMATION_DURATION,
+      easing: cubicInOut,
+      onStep: (t: number, u: number) => {
+        if ($tabsStore.tabs.length == 1)
+          tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
+        else
+          tabsElm.style.gridTemplateColumns = `repeat(${$tabsStore.tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
+        tabsElm.scrollLeft = tabsElm.scrollWidth;
+      },
+      onEnd: () => {
+        tabsElm.style.gridTemplateColumns = "";
+      },
+    });
+  }
+
   const moveTab = (fromIndex: number, toIndex: number) => {
     const width = tabElms[0].getBoundingClientRect().width;
 
     tabsHandlers.moveTab(fromIndex, toIndex, () => {
-      // example where fromIndex > toIndex: [A, B, C, D] move  index 3 to index 1
-      // expected output: [A, D, B, C]
       if (fromIndex > toIndex) {
         for (let i = toIndex; i < fromIndex; i++) {
           animateCSS(tabElms[i], {
@@ -161,8 +167,6 @@
         }
       }
 
-      // example where fromIndex < toIndex: [A, B, C, D] move index 1 to index 3
-      // expected output: [A, C, D, B]
       if (fromIndex < toIndex) {
         for (let i = toIndex; i > fromIndex; i--) {
           animateCSS(tabElms[i], {
@@ -177,23 +181,7 @@
     });
   };
 
-  let startPosition: [number, number] | null = null;
-  let draggedTabIndex = -1;
-  let draggedTabData: TabData = { id: -1, title: "", text: "" };
-  let original: HTMLElement;
-  let originalRect: DOMRect;
-  let clone: HTMLElement;
-  let dragging = false;
-  let draggingOutside = false;
-  let offsetX = 0;
-  let offsetY = 0;
-  let scrollBy = 0;
-  let toolbarContainerElm: HTMLElement;
-  let preventHover = false;
-  $: if (!dragging) {
-    setTimeout(() => (preventHover = false), 20);
-  } else preventHover = true;
-
+  // Drag-and-drop handlers
   function dragstartHandler(e: DragEvent) {
     if (!e.target || !e.dataTransfer) return;
     e.dataTransfer.setData("text/plain", JSON.stringify(draggedTabData));
@@ -202,14 +190,12 @@
   }
 
   function draggingTab(x: number, y: number) {
-    // hide the clone if x and y are both 0 (dragging outside the window)
     if (x == 0 && y == 0) {
       clone.style.left = `-1000px`;
       clone.style.top = `-1000px`;
       return;
     }
 
-    // check if you are dragging outside the toolbar
     let toolbarRect = toolbarContainerElm.getBoundingClientRect();
     if (
       x < toolbarRect.left ||
@@ -218,23 +204,19 @@
       y > toolbarRect.bottom
     ) {
       if (!draggingOutside) {
-        // was dragging inside the toolbar but now dragging outside
         scrollBy = 0;
       }
 
-      // dragging outside the toolbar
       clone.style.left = `${x + offsetX}px`;
       clone.style.top = `${y + offsetY}px`;
       draggingOutside = true;
       return;
     }
 
-    // dragging inside the toolbar
     clone.style.left = `${x + offsetX}px`;
     clone.style.top = `${originalRect.top}px`;
 
     if (draggingOutside) {
-      // was dragging outside the toolbar but now dragging inside the toolbar
       draggingOutside = false;
     }
 
@@ -285,14 +267,14 @@
 
   function mousedownHandler(e: MouseEvent | TouchEvent, index: number) {
     if (!e.target) return;
-    let x:number;
-    let y:number
+    let x: number;
+    let y: number;
     if (e instanceof TouchEvent) {
-      x = e.touches[0].clientX
-      y = e.touches[0].clientY
+      x = e.touches[0].clientX;
+      y = e.touches[0].clientY;
     } else {
-      x = e.clientX
-      y = e.clientY
+      x = e.clientX;
+      y = e.clientY;
     }
 
     window.addEventListener("touchmove", mousemoveHandler);
@@ -316,15 +298,16 @@
     draggedTabData = { ...$tabsStore.tabs[index] };
     draggedTabIndex = index;
   }
+
   function mousemoveHandler(e: MouseEvent | TouchEvent) {
-    let x:number;
-    let y:number
+    let x: number;
+    let y: number;
     if (e instanceof TouchEvent) {
-      x = e.touches[0].clientX
-      y = e.touches[0].clientY
+      x = e.touches[0].clientX;
+      y = e.touches[0].clientY;
     } else {
-      x = e.clientX
-      y = e.clientY
+      x = e.clientX;
+      y = e.clientY;
     }
 
     if (dragging) {
@@ -333,10 +316,7 @@
     }
     if (startPosition === null) return;
 
-    let distance = Math.hypot(
-      startPosition[0] - x,
-      startPosition[1] - y
-    );
+    let distance = Math.hypot(startPosition[0] - x, startPosition[1] - y);
 
     if (distance < MIN_DRAG_DISTANCE) return;
     dragging = true;
@@ -360,6 +340,12 @@
     dragging = false;
   }
 
+  // Reactive statement for hover prevention
+  $: if (!dragging) {
+    setTimeout(() => (preventHover = false), 20);
+  } else preventHover = true;
+
+  // On mount setup
   onMount(() => {
     tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
     tabsElm.style.setProperty("--tab-min-width", `${TAB_MIN_WIDTH}px`);
@@ -367,11 +353,10 @@
 </script>
 
 <div bind:this={toolbarContainerElm}>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="toolbar">
     <div class="tabs" bind:this={tabsElm}>
       {#each $tabsStore.tabs as tab, i (tab)}
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
           bind:this={tabElms[i]}
           class="tab-container"
@@ -393,13 +378,13 @@
     </div>
 
     <div class="buttons">
-      <button class="new-tab-button" on:click={newTab}
-        ><div
+      <button class="new-tab-button" on:click={newTab}>
+        <div
           class="new-tab-icon"
           style="-webkit-mask: url({base}/images/svg/plus.svg) no-repeat center / contain;
         mask: url({base}/images/svg/plus.svg) no-repeat center / contain;"
-        ></div></button
-      >
+        ></div>
+      </button>
     </div>
     <div bind:this={clone} class="clone" class:dragging>
       <Tab
@@ -418,7 +403,6 @@
     position: relative;
     display: grid;
     grid-template-columns: auto 1fr;
-
     align-items: end;
     height: var(--toolbar-height);
   }
@@ -436,11 +420,9 @@
   .tabs {
     --tab-max-width: 140px;
     --tab-min-width: 70px;
-
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
-
     overflow-x: scroll;
     padding-inline: var(--tab-radius);
   }
@@ -490,7 +472,6 @@
     height: 22px;
     margin: 4px;
     border-radius: 50%;
-
     display: flex;
     justify-content: center;
     align-items: center;
