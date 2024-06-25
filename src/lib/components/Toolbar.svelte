@@ -5,14 +5,12 @@
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
-  import Button from "$lib/components/Button.svelte";
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";
   import type { TabData } from "../stores/tabsStore";
-  import { cubicIn, cubicOut, cubicInOut } from "svelte/easing";
+  import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
 
-  const SWAP_DURATION_MS = 200; //200;
   const MIN_DRAG_DISTANCE = 12; //12
   const TAB_MAX_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
@@ -193,17 +191,19 @@
   let dragging = false;
   let draggingOutside = false;
   let offsetX = 0;
+  let offsetY = 0;
   let scrollBy = 0;
   let toolbarContainerElm: HTMLElement;
   let preventHover = false;
   $: if (!dragging) {
-    setTimeout(() => preventHover = false, 20);
-  } else preventHover = true
+    setTimeout(() => (preventHover = false), 20);
+  } else preventHover = true;
 
   function dragstartHandler(e: DragEvent) {
     if (!e.target || !e.dataTransfer) return;
     e.dataTransfer.setData("text/plain", JSON.stringify(draggedTabData));
     e.dataTransfer.setDragImage(new Image(), 0, 0);
+    e.dataTransfer.dropEffect = "move";
   }
 
   function draggingTab(x: number, y: number) {
@@ -228,8 +228,8 @@
       }
 
       // dragging outside the toolbar
-      clone.style.left = `${x + 25}px`;
-      clone.style.top = `${y - 5}px`;
+      clone.style.left = `${x + offsetX}px`;
+      clone.style.top = `${y + offsetY}px`;
       draggingOutside = true;
       return;
     }
@@ -288,8 +288,20 @@
     requestAnimationFrame(scrollWhileDragging);
   }
 
-  function mousedownHandler(e: MouseEvent, index: number) {
+  function mousedownHandler(e: MouseEvent | TouchEvent, index: number) {
     if (!e.target) return;
+    let x:number;
+    let y:number
+    if (e instanceof TouchEvent) {
+      x = e.touches[0].clientX
+      y = e.touches[0].clientY
+    } else {
+      x = e.clientX
+      y = e.clientY
+    }
+
+    window.addEventListener("touchmove", mousemoveHandler);
+    window.addEventListener("touchend", mouseupHandler);
     window.addEventListener("mousemove", mousemoveHandler);
     window.addEventListener("mouseup", mouseupHandler);
     window.addEventListener("drag", mousemoveHandler);
@@ -300,25 +312,35 @@
 
     original = e.target as HTMLElement;
     originalRect = original.getBoundingClientRect();
-    startPosition = [e.clientX, e.clientY];
-    offsetX = originalRect.left - e.clientX;
+    startPosition = [x, y];
+    offsetX = originalRect.left - x;
+    offsetY = originalRect.top - y;
     clone.style.width = `${originalRect.width}px`;
     clone.style.left = `${originalRect.left}px`;
     clone.style.top = `${originalRect.top}px`;
     draggedTabData = { ...$tabsStore.tabs[index] };
     draggedTabIndex = index;
   }
+  function mousemoveHandler(e: MouseEvent | TouchEvent) {
+    let x:number;
+    let y:number
+    if (e instanceof TouchEvent) {
+      x = e.touches[0].clientX
+      y = e.touches[0].clientY
+    } else {
+      x = e.clientX
+      y = e.clientY
+    }
 
-  function mousemoveHandler(e: MouseEvent) {
     if (dragging) {
-      draggingTab(e.clientX, e.clientY);
+      draggingTab(x, y);
       return;
     }
     if (startPosition === null) return;
 
     let distance = Math.hypot(
-      startPosition[0] - e.clientX,
-      startPosition[1] - e.clientY
+      startPosition[0] - x,
+      startPosition[1] - y
     );
 
     if (distance < MIN_DRAG_DISTANCE) return;
@@ -328,6 +350,8 @@
   }
 
   function mouseupHandler() {
+    window.removeEventListener("touchmove", mousemoveHandler);
+    window.removeEventListener("touchend", mouseupHandler);
     window.removeEventListener("mousemove", mousemoveHandler);
     window.removeEventListener("mouseup", mouseupHandler);
     window.removeEventListener("drag", mousemoveHandler);
@@ -351,7 +375,6 @@
         <div
           bind:this={tabElms[i]}
           class="tab-container"
-          class:preventHover
           class:placeholder={$tabsStore.placeholderIndex == i}
           use:animateTabOpening
           draggable="true"
@@ -360,6 +383,7 @@
           <Tab
             bind:title={$tabsStore.tabs[i].title}
             active={$tabsStore.activeIndex == i}
+            {preventHover}
             onClose={() => closeTab(i)}
             onClick={() => selectTab(i)}
             onMousedown={(e) => mousedownHandler(e, i)}
@@ -369,10 +393,20 @@
     </div>
 
     <div class="buttons">
-      <Button url="{base}/images/svg/plus.svg" onClick={newTab}></Button>
+      <button class="new-tab-button" on:click={newTab}
+        ><div
+          class="new-tab-icon"
+          style="-webkit-mask: url({base}/images/svg/plus.svg) no-repeat center / contain;
+        mask: url({base}/images/svg/plus.svg) no-repeat center / contain;"
+        ></div></button
+      >
     </div>
     <div bind:this={clone} class="clone" class:dragging>
-      <Tab title={draggedTabData.title} active={!draggingOutside} />
+      <Tab
+        title={draggedTabData.title}
+        active={!draggingOutside}
+        preventHover
+      />
     </div>
   </div>
   <div class="separator"></div>
@@ -453,5 +487,29 @@
 
   .preventHover {
     pointer-events: none !important;
+  }
+
+  .new-tab-button {
+    width: 22px;
+    height: 22px;
+    margin: 4px;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+  }
+  .new-tab-button:hover {
+    background-color: var(--tab-hover-color);
+  }
+  .new-tab-button:active {
+    opacity: 0.8;
+  }
+
+  .new-tab-icon {
+    background-color: var(--ui-color);
+    width: 10px;
+    aspect-ratio: 1;
   }
 </style>

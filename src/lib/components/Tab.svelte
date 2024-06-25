@@ -1,24 +1,26 @@
 <script lang="ts">
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
-  import Button from "$lib/components/Button.svelte";
 
   export let title = "";
   export let active = false;
+  export let preventHover = false;
   export let onClose = () => {};
   export let onClick = () => {};
-  export let onMousedown = (e: MouseEvent) => {};
+  export let onMousedown = (e: MouseEvent | TouchEvent) => {};
 
   let inputElm: HTMLInputElement;
+
 </script>
 
-<div class="container">
+<div class="container" class:preventHover>
   <button
     class="tab"
     class:active
     on:dblclick|self={() => inputElm.select()}
     on:click={onClick}
     on:mousedown|self={onMousedown}
+    on:touchstart|self={onMousedown}
   >
     <input
       bind:this={inputElm}
@@ -28,9 +30,18 @@
       spellcheck="false"
       type="text"
     />
-    <div class="close-button">
-      <Button url="{base}/images/svg/cancel.svg" onClick={onClose}></Button>
-    </div>
+    <button
+      class="close-button"
+      on:click|stopPropagation={onClose}
+      class:preventHover
+    >
+      <!-- svg from url -->
+      <div
+        class="close-icon"
+        style="-webkit-mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;
+        mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;"
+      ></div>
+    </button>
   </button>
 </div>
 
@@ -42,7 +53,7 @@
   .container {
     container-name: tab;
     container-type: inline-size;
-    height: 100%; 
+    height: 100%;
     display: flex;
   }
 
@@ -80,6 +91,7 @@
     width: calc(2 * var(--tab-radius));
     height: var(--tab-radius);
     background-color: transparent;
+    z-index: -1;
   }
   .tab.active::before {
     display: block;
@@ -92,7 +104,6 @@
     right: calc(var(--tab-radius) * -2);
     border-bottom-left-radius: 100vw;
     box-shadow: calc(-1 * var(--tab-radius)) 0 0 0 var(--tab-active-color);
-
   }
   .tab input {
     font-family: var(--default-font);
@@ -125,5 +136,33 @@
     .tab .close-button {
       display: none;
     }
+  }
+
+  .close-button {
+    width: 22px;
+    height: 22px;
+    margin: 4px;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+  }
+  .close-button:hover {
+    background-color: var(--slight-transparent);
+  }
+  .close-button:active {
+    opacity: 0.8;
+  }
+
+  .close-icon {
+    background-color: var(--ui-color);
+    width: 10px;
+    aspect-ratio: 1;
+  }
+
+  .preventHover * {
+    pointer-events: none !important;
   }
 </style>
