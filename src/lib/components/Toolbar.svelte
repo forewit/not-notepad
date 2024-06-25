@@ -45,7 +45,7 @@
         func.apply(this, args);
       }, timeout);
     };
-  };
+  }
 
   function debounce_leading(func: Function, timeout = 300) {
     // @ts-ignore
@@ -83,7 +83,7 @@
 
     lockWidth = tabElms[index].getBoundingClientRect().width;
 
-    if (index < $tabsStore.tabs.length - 1 && lockWidth < TAB_MAX_WIDTH) {
+    if (index < $tabsStore.tabs.length - 1) {
       tabsElm.style.setProperty("--tab-max-width", `${lockWidth}px`);
       unlockWidth();
     }
@@ -113,7 +113,6 @@
   const unlockWidth = debounce(() => {
     if (!tabsElm) return;
     tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
-    const targetWidth = tabElms[0].getBoundingClientRect().width;
 
     animateSimple({
       duration: TAB_ANIMATION_DURATION,
@@ -121,7 +120,7 @@
       onStep: (t: number, u: number) => {
         tabsElm.style.setProperty(
           "--tab-max-width",
-          `${lockWidth + t * (targetWidth - lockWidth)}px`
+          `${lockWidth + t * (TAB_MAX_WIDTH - lockWidth)}px`
         );
       },
       onEnd: () => {
@@ -151,7 +150,7 @@
     });
   }
 
-  const moveTab = (fromIndex: number, toIndex: number) => {
+  const animateMovingTab = (fromIndex: number, toIndex: number) => {
     const width = tabElms[0].getBoundingClientRect().width;
 
     tabsHandlers.moveTab(fromIndex, toIndex, () => {
@@ -186,10 +185,9 @@
     if (!e.target || !e.dataTransfer) return;
     e.dataTransfer.setData("text/plain", JSON.stringify(draggedTabData));
     e.dataTransfer.setDragImage(new Image(), 0, 0);
-    e.dataTransfer.dropEffect = "move";
   }
 
-  function draggingTab(x: number, y: number) {
+  function dragTab(x: number, y: number) {
     if (x == 0 && y == 0) {
       clone.style.left = `-1000px`;
       clone.style.top = `-1000px`;
@@ -204,25 +202,29 @@
       y > toolbarRect.bottom
     ) {
       if (!draggingOutside) {
+        // Was dragging inside the toolbar, now outside
         scrollBy = 0;
       }
 
+      // Dragging outside the toolbar
       clone.style.left = `${x + offsetX}px`;
       clone.style.top = `${y + offsetY}px`;
       draggingOutside = true;
       return;
     }
 
-    clone.style.left = `${x + offsetX}px`;
-    clone.style.top = `${originalRect.top}px`;
-
+    // Was dragging outside the toolbar, now inside
     if (draggingOutside) {
       draggingOutside = false;
     }
 
+    // Dragging inside the toolbar
+    clone.style.left = `${x + offsetX}px`;
+    clone.style.top = `${originalRect.top}px`;
+
+
     const farLeft = -tabsElm.scrollLeft;
     const tabWidth = tabElms[0].getBoundingClientRect().width;
-
     let moveToIndex = -1;
 
     if (x > farLeft + $tabsStore.tabs.length * tabWidth) {
@@ -247,7 +249,7 @@
     }
 
     if (moveToIndex == -1 || moveToIndex == $tabsStore.placeholderIndex) return;
-    moveTab($tabsStore.placeholderIndex, moveToIndex);
+    animateMovingTab($tabsStore.placeholderIndex, moveToIndex);
   }
 
   let last = 0;
@@ -265,7 +267,8 @@
     requestAnimationFrame(scrollWhileDragging);
   }
 
-  function mousedownHandler(e: MouseEvent | TouchEvent, index: number) {
+  // Touch and mouse handlers
+  function pointerDownHandler(e: MouseEvent | TouchEvent, index: number) {
     if (!e.target) return;
     let x: number;
     let y: number;
@@ -277,13 +280,13 @@
       y = e.clientY;
     }
 
-    window.addEventListener("touchmove", mousemoveHandler);
-    window.addEventListener("touchend", mouseupHandler);
-    window.addEventListener("mousemove", mousemoveHandler);
-    window.addEventListener("mouseup", mouseupHandler);
-    window.addEventListener("drag", mousemoveHandler);
-    window.addEventListener("dragend", mouseupHandler);
-    window.addEventListener("blur", mouseupHandler);
+    window.addEventListener("touchmove", pointerMoveHandler);
+    window.addEventListener("touchend", pointerUpHandler);
+    window.addEventListener("mousemove", pointerMoveHandler);
+    window.addEventListener("mouseup", pointerUpHandler);
+    window.addEventListener("drag", pointerMoveHandler);
+    window.addEventListener("dragend", pointerUpHandler);
+    window.addEventListener("blur", pointerUpHandler);
 
     tabsHandlers.setActiveIndex(index);
 
@@ -299,7 +302,7 @@
     draggedTabIndex = index;
   }
 
-  function mousemoveHandler(e: MouseEvent | TouchEvent) {
+  function pointerMoveHandler(e: MouseEvent | TouchEvent) {
     let x: number;
     let y: number;
     if (e instanceof TouchEvent) {
@@ -311,7 +314,7 @@
     }
 
     if (dragging) {
-      draggingTab(x, y);
+      dragTab(x, y);
       return;
     }
     if (startPosition === null) return;
@@ -324,14 +327,15 @@
     tabsHandlers.setActiveIndex(draggedTabIndex);
   }
 
-  function mouseupHandler() {
-    window.removeEventListener("touchmove", mousemoveHandler);
-    window.removeEventListener("touchend", mouseupHandler);
-    window.removeEventListener("mousemove", mousemoveHandler);
-    window.removeEventListener("mouseup", mouseupHandler);
-    window.removeEventListener("drag", mousemoveHandler);
-    window.removeEventListener("dragend", mouseupHandler);
-    window.removeEventListener("blur", mouseupHandler);
+  function pointerUpHandler() {
+    window.removeEventListener("touchmove", pointerMoveHandler);
+    window.removeEventListener("touchend", pointerUpHandler);
+    window.removeEventListener("mousemove", pointerMoveHandler);
+    window.removeEventListener("mouseup", pointerUpHandler);
+    window.removeEventListener("drag", pointerMoveHandler);
+    window.removeEventListener("dragend", pointerUpHandler);
+    window.removeEventListener("blur", pointerUpHandler);
+    
     startPosition = null;
     draggingOutside = false;
     draggedTabIndex = -1;
@@ -371,7 +375,7 @@
             {preventHover}
             onClose={() => closeTab(i)}
             onClick={() => selectTab(i)}
-            onMousedown={(e) => mousedownHandler(e, i)}
+            onMousedown={(e) => pointerDownHandler(e, i)}
           />
         </div>
       {/each}
