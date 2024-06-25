@@ -22,11 +22,6 @@
   let tabElms: HTMLElement[] = [];
   let lockWidth = 0;
 
-  onMount(() => {
-    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
-    tabsElm.style.setProperty("--tab-min-width", `${TAB_MIN_WIDTH}px`);
-  });
-
   const debounce = (func: Function, timeout = 300) => {
     //@ts-ignore
     let timer;
@@ -364,6 +359,11 @@
     tabsHandlers.setPlaceholderIndex();
     dragging = false;
   }
+
+  onMount(() => {
+    tabsElm.style.setProperty("--tab-max-width", `${TAB_MAX_WIDTH}px`);
+    tabsElm.style.setProperty("--tab-min-width", `${TAB_MIN_WIDTH}px`);
+  });
 </script>
 
 <div bind:this={toolbarContainerElm}>
