@@ -197,8 +197,8 @@
   let toolbarContainerElm: HTMLElement;
   let preventHover = false;
   $: if (!dragging) {
-    setTimeout(() => {console.log(preventHover = false)}, 20);
-  } else console.log(preventHover = true)
+    setTimeout(() => preventHover = false, 20);
+  } else preventHover = true
 
   function dragstartHandler(e: DragEvent) {
     if (!e.target || !e.dataTransfer) return;
@@ -452,6 +452,6 @@
   }
 
   .preventHover {
-    pointer-events: none;
+    pointer-events: none !important;
   }
 </style>
