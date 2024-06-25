@@ -275,12 +275,13 @@
     if (e instanceof TouchEvent) {
       x = e.touches[0].clientX;
       y = e.touches[0].clientY;
+      e.preventDefault();
     } else {
       x = e.clientX;
       y = e.clientY;
     }
 
-    window.addEventListener("touchmove", pointerMoveHandler);
+    window.addEventListener("touchmove", pointerMoveHandler, { passive: false });
     window.addEventListener("touchend", pointerUpHandler);
     window.addEventListener("mousemove", pointerMoveHandler);
     window.addEventListener("mouseup", pointerUpHandler);
@@ -308,6 +309,7 @@
     if (e instanceof TouchEvent) {
       x = e.touches[0].clientX;
       y = e.touches[0].clientY;
+      e.preventDefault();
     } else {
       x = e.clientX;
       y = e.clientY;
@@ -335,7 +337,7 @@
     window.removeEventListener("drag", pointerMoveHandler);
     window.removeEventListener("dragend", pointerUpHandler);
     window.removeEventListener("blur", pointerUpHandler);
-    
+
     startPosition = null;
     draggingOutside = false;
     draggedTabIndex = -1;
