@@ -13,7 +13,9 @@
 </script>
 
 <div class="container" class:preventHover>
-  <button
+  <div
+    role="button"
+    tabindex="0"
     class="tab"
     class:active
     on:dblclick|self={() => inputElm.select()}
@@ -37,13 +39,13 @@
       on:dragstart|stopPropagation|preventDefault
     >
       <!-- svg from url -->
-      <div
+      <span
         class="close-icon"
         style="-webkit-mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;
         mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;"
-      ></div>
+      ></span>
     </button>
-  </button>
+  </div>
 </div>
 
 <style>
@@ -67,8 +69,8 @@
     min-width: 0;
     position: relative;
     display: grid;
+    grid-auto-flow: column;
     margin-bottom: var(--tab-gaps);
-    grid-template-columns: 1fr auto;
     align-items: center;
   }
   .tab:hover {
