@@ -9,9 +9,9 @@
   import { animateCSS, animateSimple } from "$lib/modules/animate";
 
   const MIN_DRAG_DISTANCE = 12;
-  const TAB_MAX_WIDTH = 140;
-  const TAB_MIN_WIDTH = 70;
-  const TAB_ANIMATION_DURATION = 2000;
+  const TAB_MAX_WIDTH = 140; // update in .tabs css also
+  const TAB_MIN_WIDTH = 70; // update in .tabs css also
+  const TAB_ANIMATION_DURATION = 200;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
@@ -370,16 +370,14 @@
           class="tab-container"
           class:placeholder={$tabsStore.placeholderIndex == i}
           use:animateTabOpening
-          draggable="true"
-          on:dragstart={dragstartHandler}
         >
           <Tab
             bind:title={$tabsStore.tabs[i].title}
             active={$tabsStore.activeIndex == i}
             {preventHover}
             onClose={() => closeTab(i)}
-            onClick={() => selectTab(i)}
-            onMousedown={(e) => pointerDownHandler(e, i)}
+            onPointerdown={(e) => pointerDownHandler(e, i)}
+            onDragstart={dragstartHandler}
           />
         </div>
       {/each}
@@ -431,8 +429,9 @@
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
+    gap: var(--tab-gaps);
     overflow-x: scroll;
-    padding-inline: var(--tab-radius);
+    padding-inline: calc(var(--tab-radius) + 8px)  var(--tab-radius);
   }
 
   .tabs::-webkit-scrollbar {
@@ -458,10 +457,10 @@
 
   .tab-container {
     height: var(--tab-height);
-    padding-inline: calc(var(--tab-gaps) / 2);
+    opacity: 1;
   }
   .tab-container.placeholder {
-    content-visibility: hidden;
+    opacity: 0;
   }
 
   .clone {

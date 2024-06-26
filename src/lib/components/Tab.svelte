@@ -6,8 +6,8 @@
   export let active = false;
   export let preventHover = false;
   export let onClose = () => {};
-  export let onClick = () => {};
-  export let onMousedown = (e: MouseEvent | TouchEvent) => {};
+  export let onPointerdown = (e: MouseEvent | TouchEvent) => {};
+  export let onDragstart = (e: DragEvent) => {};
 
   let inputElm: HTMLInputElement;
 </script>
@@ -17,9 +17,10 @@
     class="tab"
     class:active
     on:dblclick|self={() => inputElm.select()}
-    on:click={onClick}
-    on:mousedown|self={onMousedown}
-    on:touchstart|self={onMousedown}
+    on:mousedown|self={onPointerdown}
+    on:touchstart|self={onPointerdown}
+    draggable="true"
+    on:dragstart|self={onDragstart}
   >
     <input
       bind:this={inputElm}
@@ -32,7 +33,8 @@
     <button
       class="close-button"
       on:click|stopPropagation={onClose}
-      class:preventHover
+      draggable="true"
+      on:dragstart|stopPropagation|preventDefault
     >
       <!-- svg from url -->
       <div
@@ -47,6 +49,7 @@
 <style>
   * {
     user-select: none;
+    -webkit-user-select: none;
   }
 
   .container {
@@ -157,7 +160,7 @@
 
   .close-button {
     width: 1.5em;
-    aspect-ratio: 1;
+    height: 1.5em;
     margin: 4px;
     margin-inline-end: 0.3em;
     border-radius: 50%;
@@ -177,7 +180,7 @@
   .close-icon {
     background-color: var(--ui-color);
     width: 0.7em;
-    aspect-ratio: 1;
+    height: 0.7em;
   }
 
   .preventHover * {
