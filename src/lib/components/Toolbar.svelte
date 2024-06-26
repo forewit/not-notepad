@@ -11,7 +11,7 @@
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 140;
   const TAB_MIN_WIDTH = 70;
-  const TAB_ANIMATION_DURATION = 10000;
+  const TAB_ANIMATION_DURATION = 2000;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
@@ -45,7 +45,7 @@
         func.apply(this, args);
       }, timeout);
     };
-  }
+  };
 
   function debounce_leading(func: Function, timeout = 300) {
     // @ts-ignore
@@ -222,7 +222,6 @@
     clone.style.left = `${x + offsetX}px`;
     clone.style.top = `${originalRect.top}px`;
 
-
     const farLeft = -tabsElm.scrollLeft;
     const tabWidth = tabElms[0].getBoundingClientRect().width;
     let moveToIndex = -1;
@@ -281,7 +280,9 @@
       y = e.clientY;
     }
 
-    window.addEventListener("touchmove", pointerMoveHandler, { passive: false });
+    window.addEventListener("touchmove", pointerMoveHandler, {
+      passive: false,
+    });
     window.addEventListener("touchend", pointerUpHandler);
     window.addEventListener("mousemove", pointerMoveHandler);
     window.addEventListener("mouseup", pointerUpHandler);
@@ -342,6 +343,7 @@
     draggingOutside = false;
     draggedTabIndex = -1;
     offsetX = 0;
+    offsetY = 0;
     tabsHandlers.setPlaceholderIndex();
     dragging = false;
   }
