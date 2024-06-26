@@ -426,6 +426,7 @@
   .tabs {
     --tab-max-width: 140px;
     --tab-min-width: 70px;
+    width: 100%;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));

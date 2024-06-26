@@ -160,7 +160,7 @@
 
   .close-button {
     width: 1.5em;
-    height: 1.5em;
+    aspect-ratio: 1;
     margin: 4px;
     margin-inline-end: 0.3em;
     border-radius: 50%;
@@ -180,7 +180,7 @@
   .close-icon {
     background-color: var(--ui-color);
     width: 0.7em;
-    height: 0.7em;
+    aspect-ratio: 1;
   }
 
   .preventHover * {
