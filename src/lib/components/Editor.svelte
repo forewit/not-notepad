@@ -1,20 +1,30 @@
 <script lang="ts">
   import "$lib/styles/theme.css";
+  import { onMount } from "svelte";
 
   export let text: string;
+
+  let textarea: HTMLDivElement;
 </script>
 
-<div id="editor">
-  <textarea bind:value={text} spellcheck="false" name="editor" id="text" placeholder="Enter text here"
-  ></textarea>
+<div class="container">
+  <div
+    class="editor"
+    bind:this={textarea}
+    bind:innerHTML={text}
+    spellcheck="false"
+    placeholder="Enter text here"
+    contenteditable="true"
+    role="textbox"
+  />
 </div>
 
 <style>
-  #editor {
+  .container {
     display: grid;
     background-color: var(--editor-background-color);
   }
-  #text {
+  .editor {
     resize: none;
     font-family: var(--editor-font-family);
     font-size: var(--editor-font-size);
@@ -27,14 +37,14 @@
     padding: 1em;
     margin-right: 0.2em;
   }
-  #text::-webkit-scrollbar {
+  .editor::-webkit-scrollbar {
     width: var(--editor-scrollbar-size);
   }
-  #text::-webkit-scrollbar-thumb {
+  .editor::-webkit-scrollbar-thumb {
     background-color: var(--editor-scrollbar-color);
     border-radius: 100vw;
   }
-  #text::-webkit-scrollbar-button {
+  .editor::-webkit-scrollbar-button {
     height: 0.6rem;
   }
 </style>
