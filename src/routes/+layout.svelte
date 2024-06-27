@@ -1,6 +1,7 @@
 <script>
  import "$lib/styles/normalize.css";
  import "$lib/styles/reset.css";
+ import "$lib/styles/theme.css";
 </script>
 
 <svelte:head>
@@ -30,7 +31,7 @@
   .content {
     /* fill container */
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
   }
 </style>

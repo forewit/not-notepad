@@ -1,7 +1,6 @@
 <script lang="ts">
-  import "$lib/styles/theme.css";
   import Toolbar from "$lib/components/Toolbar.svelte";
-  import Editor from "$lib/components/Editor.svelte";
+  import Editor from "$lib/components/Quill.svelte";
   import { tabsStore, tabsHandlers } from "../lib/stores/tabsStore";
 
   tabsHandlers.newTab({data:{
@@ -26,5 +25,6 @@
     height: 100%;
     display: grid;
     grid-template-rows: min-content 1fr;
+    grid-template-columns: 100%;
   }
 </style>

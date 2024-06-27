@@ -5,7 +5,7 @@
   --default-line-height: 1.5;
   --default-transition-speed: 200ms;
   --ui-color: #dfe3e7;/*#9f9f9f;*/ /* scrollbar, badges, etc.*/
-  --ui-color-dark: #0d222c;/*#3f3f3f;*/
+  --ui-color-dark: #405e6e;/*#3f3f3f;*/
 
   /* Toolbar */
   --toolbar-background-color: #0d222c;/*#000e0f;*/
@@ -22,8 +22,8 @@
   --tab-gaps: 6px;
 
   /* Editor */
-  --editor-text-color: #fff;
-  --editor-background-color: #0c1919;
+  --editor-text-color: #dfe3e7;
+  --editor-background-color: #0d222c;
   --editor-font-family: "Consolas", monospace;
   --editor-font-size: 14px;
   --editor-scrollbar-size: 0.3rem;
