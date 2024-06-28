@@ -1,23 +1,31 @@
 <script lang="ts">
-  import Toolbar from "$lib/components/Tabbar.svelte";
-  import Editor from "$lib/components/Quill.svelte";
+  import Tabbar from "$lib/components/Tabbar.svelte";
+  import Editor from "$lib/components/Editor.svelte";
   import { tabsStore, tabsHandlers } from "../lib/stores/tabsStore";
+  import type { Op } from "quill/core";
 
-  tabsHandlers.newTab({data:{
-    id: -1,
-    title: "Hello 👋",
-    text: "Welcome to notep... not notepad. Something completely different (Microsoft, don't sue me). v0.22",
-  }});
 
-  $: tab =
+  const defaultDeltaOps: Op[] = [
+    { insert: "Testing " },
+    { insert: "inline", attributes: { code: true } },
+    { insert: " code!" },
+  ];
+  tabsHandlers.newTab({ data: { id: 0, title: "Hey 👋", DeltaOps: defaultDeltaOps }});
+  
+  $: deltaOps =
     $tabsStore.tabs.length > 0
-      ? $tabsStore.tabs[$tabsStore.activeIndex]
-      : { text: "Click the ➕ above to create a new tab." };
+      ? $tabsStore.tabs[$tabsStore.activeIndex].DeltaOps
+      : [
+    { insert: "Click the " },
+    { insert: "+", attributes: { code: true } },
+    { insert: " to create a new tab" },
+  ];
+
 </script>
 
 <div class="container">
-  <Toolbar />
-  <Editor bind:text={tab.text} />
+  <Tabbar />
+  <Editor bind:deltaOps />
 </div>
 
 <style>

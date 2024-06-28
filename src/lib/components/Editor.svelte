@@ -1,47 +1,66 @@
 <script lang="ts">
-    import "$lib/styles/theme.css";
+  import "$lib/styles/theme.css";
+  import "quill/dist/quill.core.css";
+  import "$lib/styles/quill.css";
+  import type Quill from "quill/core";
+  import type { Delta, Op } from "quill/core";
+  import { onMount } from "svelte";
+  
 
-    export let text: string;
-  </script>
-  
-  <div class="container">
-    <div
-      bind:innerHTML={text}
-      class="editor"
-      spellcheck="false"
-      placeholder="Enter text here"
-      contenteditable="true"
-      role="textbox"
-    />
-  </div>
-  
-  <style>
-    .container {
-      display: grid;
-      background-color: var(--editor-background-color);
+  export let deltaOps: Op[];
+
+  let quillEditor: Quill;
+  let editorDiv: HTMLElement;
+
+  async function addEditor() {
+    const { default: Quill } = await import("quill");
+
+    if (editorDiv) {
+      quillEditor = new Quill(editorDiv, {
+        formats: ["bold", "italic", "underline", "strike", "code"],
+        placeholder: "Enter text here",
+      });
+      quillEditor.setContents(deltaOps);
+      quillEditor.on("text-change", handleQuillInput);
     }
-    .editor {
-      resize: none;
-      font-family: var(--editor-font-family);
-      font-size: var(--editor-font-size);
-      color: var(--editor-text-color);
-      background-color: var(--editor-background-color);
-  
-      border: none;
-      outline: none;
-  
-      padding: 1em;
-      margin-right: 0.2em;
-    }
-    .editor::-webkit-scrollbar {
-      width: var(--editor-scrollbar-size);
-    }
-    .editor::-webkit-scrollbar-thumb {
-      background-color: var(--editor-scrollbar-color);
-      border-radius: 100vw;
-    }
-    .editor::-webkit-scrollbar-button {
-      height: 0.6rem;
-    }
-  </style>
-  
+  }
+
+  $: if (quillEditor) quillEditor.setContents(deltaOps);
+
+  function handleQuillInput(delta: Delta, oldDelta: Delta, source: string) {
+    if (source === "api") return;
+    deltaOps.push(...delta.ops);
+  }
+
+  onMount(() => {
+    addEditor().then(() => {
+      quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
+        quillEditor.format("code", !quillEditor.getFormat().code);
+      });
+      quillEditor.keyboard.addBinding({ key: "-", altKey: true }, () => {
+        quillEditor.format("strike", !quillEditor.getFormat().strike);
+      });
+    });
+  });
+</script>
+
+<div id="quill-editor-wrapper">
+  <div id="quill-editor" bind:this={editorDiv} />
+</div>
+
+<style global="true">
+  #quill-editor-wrapper {
+    background-color: var(--editor-background-color);
+    overflow-y: hidden;
+
+    display: grid;
+    grid-template-rows: 1fr auto;
+    grid-template-columns: 100%;
+  }
+
+  #quill-editor {
+    font-size: var(--editor-font-size);
+    font-family: var(--editor-font-family);
+    color: var(--editor-text-color);
+  }
+</style>

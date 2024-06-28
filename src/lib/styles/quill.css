@@ -1,6 +1,6 @@
 .ql-container {
-    overflow: hidden;
-    margin-right: 0.2em
+  overflow: hidden;
+  margin-right: 0.2em;
 }
 
 .ql-editor.ql-blank::before {
@@ -17,4 +17,16 @@
 }
 .ql-editor::-webkit-scrollbar-button {
   height: 0.6rem;
+}
+
+.ql-editor code {
+  font-size: 85%;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background-color: #dfe3e7;
+  color: black;
+}
+
+.ql-editor.ql-blank:focus::before {
+  content: "";
 }

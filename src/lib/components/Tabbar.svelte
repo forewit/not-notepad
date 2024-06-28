@@ -3,7 +3,6 @@
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";
-  import type { TabData } from "../stores/tabsStore";
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
@@ -20,7 +19,7 @@
   let lockWidth = 0;
   let startPosition: [number, number] | null = null;
   let draggedTabIndex = -1;
-  let draggedTabData: TabData = { id: -1, title: "", text: "" };
+  let draggedTabTitle = "";
   let original: HTMLElement;
   let originalRect: DOMRect;
   let clone: HTMLElement;
@@ -183,7 +182,7 @@
   // Drag-and-drop handlers
   function dragstartHandler(e: DragEvent) {
     if (!e.target || !e.dataTransfer) return;
-    e.dataTransfer.setData("text/plain", JSON.stringify(draggedTabData));
+    e.dataTransfer.setData("text/plain", draggedTabIndex.toString());
     e.dataTransfer.setDragImage(new Image(), 0, 0);
   }
 
@@ -300,8 +299,8 @@
     clone.style.width = `${originalRect.width}px`;
     clone.style.left = `${originalRect.left}px`;
     clone.style.top = `${originalRect.top}px`;
-    draggedTabData = { ...$tabsStore.tabs[index] };
     draggedTabIndex = index;
+    draggedTabTitle = $tabsStore.tabs[index].title;
   }
 
   function pointerMoveHandler(e: MouseEvent | TouchEvent) {
@@ -394,7 +393,7 @@
     </div>
     <div bind:this={clone} class="clone" class:dragging>
       <Tab
-        title={draggedTabData.title}
+        title={draggedTabTitle}
         active={!draggingOutside}
         preventHover
       />
