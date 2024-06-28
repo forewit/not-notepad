@@ -1,27 +1,23 @@
 <script lang="ts">
   import "$lib/styles/theme.css";
-  import "$lib/styles/quill-theme.css";
+  import "quill/dist/quill.core.css";
+  import "$lib/styles/quill.css";
   import type Quill from "quill";
   import { onMount } from "svelte";
 
   export let text: string;
 
   let quillEditor: Quill;
+  let toolbarDiv: HTMLElement;
   let editorDiv: HTMLElement;
 
   async function addEditor() {
-    const { default: Quill } = await import("quill/quill");
+    const { default: Quill } = await import("quill");
 
     if (editorDiv) {
       quillEditor = new Quill(editorDiv, {
-        modules: {
-          toolbar: [
-            ["bold", "italic", "underline", "strike"],
-            [{ list: "bullet" }],
-          ],
-        },
         formats: ["bold", "italic", "underline", "strike", "code"],
-        theme: "snow",
+        placeholder: "Enter text here",
       });
 
       quillEditor.on("text-change", handleQuillInput);
@@ -43,13 +39,23 @@
 </script>
 
 <div id="quill-editor-wrapper">
-  <div bind:this={editorDiv}></div>
+  <div id="quill-editor" bind:this={editorDiv} />
+  <div id="quill-toolbar" bind:this={toolbarDiv} />
 </div>
 
 <style>
   #quill-editor-wrapper {
     background-color: var(--editor-background-color);
     overflow-y: hidden;
-    position: relative;
+
+    display: grid;
+    grid-template-rows: 1fr auto;
+    grid-template-columns: 100%;
+  }
+
+  #quill-editor {
+    font-size: var(--editor-font-size);
+    font-family: var(--editor-font-family);
+    color: var(--editor-text-color);
   }
 </style>

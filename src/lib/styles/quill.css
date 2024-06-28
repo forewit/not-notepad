@@ -1,0 +1,20 @@
+.ql-container {
+    overflow: hidden;
+    margin-right: 0.2em
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--editor-text-color);
+  opacity: 0.6;
+}
+
+.ql-editor::-webkit-scrollbar {
+  width: var(--editor-scrollbar-size);
+}
+.ql-editor::-webkit-scrollbar-thumb {
+  background-color: var(--editor-scrollbar-color);
+  border-radius: 100vw;
+}
+.ql-editor::-webkit-scrollbar-button {
+  height: 0.6rem;
+}

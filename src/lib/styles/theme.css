@@ -1,4 +1,11 @@
 :root {
+  /* Theme colors */
+  --theme-color-primary: #2a3e48;
+  --theme-color-highlight: #004d66;
+  --theme-color-dark: #0d222c;
+  
+
+
   /* General */
   --slight-transparent: rgba(255, 255, 255, 0.1);
   --default-font: "Segoe UI", sans-serif;
@@ -7,11 +14,11 @@
   --ui-color: #dfe3e7;/*#9f9f9f;*/ /* scrollbar, badges, etc.*/
   --ui-color-dark: #405e6e;/*#3f3f3f;*/
 
-  /* Toolbar */
-  --toolbar-background-color: #0d222c;/*#000e0f;*/
-  --toolbar-scrollbar-size: 0.3rem;
-  --toolbar-scrollbar-color: #405e6e;/*#3f3f3f;*/
-  --toolbar-height: 60px;
+  /* tabbar */
+  --tabbar-background-color: #0d222c;/*#000e0f;*/
+  --tabbar-scrollbar-size: 0.3rem;
+  --tabbar-scrollbar-color: #405e6e;/*#3f3f3f;*/
+  --tabbar-height: 60px;
   --tab-background-color: #0d222c;/*#000e0f;*/
   --tab-hover-color: #004d66;/*#0c1919;*/
   --tab-active-color: #2a3e48;/*#272727;*/
@@ -28,4 +35,9 @@
   --editor-font-size: 14px;
   --editor-scrollbar-size: 0.3rem;
   --editor-scrollbar-color: #3f3f3f;
+
+  /* Toolbar */
+  --toolbar-background-color: #0d222c;
+  --toolbar-text-color: #dfe3e7;
+  --toolbar-font-size: 14px;
 }

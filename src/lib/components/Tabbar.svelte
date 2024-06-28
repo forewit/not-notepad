@@ -29,7 +29,7 @@
   let offsetX = 0;
   let offsetY = 0;
   let scrollBy = 0;
-  let toolbarContainerElm: HTMLElement;
+  let tabbarContainerElm: HTMLElement;
   let preventHover = false;
 
   // Utility functions
@@ -194,31 +194,31 @@
       return;
     }
 
-    let toolbarRect = toolbarContainerElm.getBoundingClientRect();
+    let tabbarRect = tabbarContainerElm.getBoundingClientRect();
     if (
-      x < toolbarRect.left ||
-      x > toolbarRect.right ||
-      y < toolbarRect.top ||
-      y > toolbarRect.bottom
+      x < tabbarRect.left ||
+      x > tabbarRect.right ||
+      y < tabbarRect.top ||
+      y > tabbarRect.bottom
     ) {
       if (!draggingOutside) {
-        // Was dragging inside the toolbar, now outside
+        // Was dragging inside the tabbar, now outside
         scrollBy = 0;
       }
 
-      // Dragging outside the toolbar
+      // Dragging outside the tabbar
       clone.style.left = `${x + offsetX}px`;
       clone.style.top = `${y + offsetY}px`;
       draggingOutside = true;
       return;
     }
 
-    // Was dragging outside the toolbar, now inside
+    // Was dragging outside the tabbar, now inside
     if (draggingOutside) {
       draggingOutside = false;
     }
 
-    // Dragging inside the toolbar
+    // Dragging inside the tabbar
     clone.style.left = `${x + offsetX}px`;
     clone.style.top = `${originalRect.top}px`;
 
@@ -360,8 +360,8 @@
   });
 </script>
 
-<div bind:this={toolbarContainerElm}>
-  <div class="toolbar">
+<div bind:this={tabbarContainerElm}>
+  <div class="tabbar">
     <div class="tabs" bind:this={tabsElm}>
       {#each $tabsStore.tabs as tab, i (tab)}
         <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -404,18 +404,18 @@
 </div>
 
 <style>
-  .toolbar {
-    background-color: var(--toolbar-background-color);
+  .tabbar {
+    background-color: var(--tabbar-background-color);
     position: relative;
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: end;
-    height: var(--toolbar-height);
+    height: var(--tabbar-height);
   }
 
   .separator {
     background-color: var(--tab-active-color);
-    height: var(--toolbar-scrollbar-size);
+    height: var(--tabbar-scrollbar-size);
   }
 
   .buttons {
@@ -441,10 +441,10 @@
 
   @supports (scrollbar-width: thin) {
     .tabs {
-      margin-bottom: calc(-1 * var(--toolbar-scrollbar-size));
+      margin-bottom: calc(-1 * var(--tabbar-scrollbar-size));
     }
     .tabs::-webkit-scrollbar {
-      height: var(--toolbar-scrollbar-size);
+      height: var(--tabbar-scrollbar-size);
       display: block;
     }
     .tabs::-webkit-scrollbar-thumb {
@@ -473,6 +473,7 @@
   }
   .clone.dragging {
     display: block;
+    z-index: 1;
   }
 
   .new-tab-button {
