@@ -1,6 +1,6 @@
 <script lang="ts">
   import Toolbar from "$lib/components/Toolbar.svelte";
-  import Editor from "$lib/components/Quill.svelte";
+  import Editor from "$lib/components/Editor.svelte";
   import { tabsStore, tabsHandlers } from "../lib/stores/tabsStore";
 
   tabsHandlers.newTab({data:{
