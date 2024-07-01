@@ -3,53 +3,70 @@
   import "quill/dist/quill.core.css";
   import "$lib/styles/quill.css";
   import type Quill from "quill/core";
-  import type { Delta, Op } from "quill/core";
+  import type { Delta } from "quill/core";
   import { onMount } from "svelte";
-  
+  import { tabsStore } from "../stores/tabsStore";
 
-  export let deltaOps: Op[];
+  export let disabled = false;
 
   let quillEditor: Quill;
   let editorDiv: HTMLElement;
 
-  async function addEditor() {
-    const { default: Quill } = await import("quill");
+  $: if (disabled) {
+    quillEditor?.disable();
+  } else {
+    quillEditor?.enable();
+  }
 
-    if (editorDiv) {
-      quillEditor = new Quill(editorDiv, {
-        formats: ["bold", "italic", "underline", "strike", "code"],
-        placeholder: "Enter text here",
-      });
-      quillEditor.setContents(deltaOps);
-      quillEditor.on("text-change", handleQuillInput);
+  function loadContentFromActiveTab() {
+    if (!quillEditor) return;
+    quillEditor.setContents($tabsStore.tabs[$tabsStore.activeIndex].content);
+  }
+
+  function saveContentToActiveTab() {
+    if (!quillEditor) return;
+    $tabsStore.tabs[$tabsStore.activeIndex].content = quillEditor.getContents();
+  }
+
+  function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
+    if (source === "user") {
+      saveContentToActiveTab();
     }
   }
 
-  $: if (quillEditor) quillEditor.setContents(deltaOps);
+  async function addEditor() {
+    const { default: Quill } = await import("quill");
 
-  function handleQuillInput(delta: Delta, oldDelta: Delta, source: string) {
-    if (source === "api") return;
-    deltaOps.push(...delta.ops);
+    quillEditor = new Quill(editorDiv, {
+      formats: ["bold", "italic", "underline", "strike", "code"],
+      placeholder: "Enter text here",
+    });
+
+    loadContentFromActiveTab();
+    quillEditor.on("text-change", handleQuillInput);
+
+    quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
+      quillEditor.format("code", !quillEditor.getFormat().code);
+    });
+    quillEditor.keyboard.addBinding({ key: "-", altKey: true }, () => {
+      quillEditor.format("strike", !quillEditor.getFormat().strike);
+    });
   }
 
   onMount(() => {
-    addEditor().then(() => {
-      quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
-        quillEditor.format("code", !quillEditor.getFormat().code);
-      });
-      quillEditor.keyboard.addBinding({ key: "-", altKey: true }, () => {
-        quillEditor.format("strike", !quillEditor.getFormat().strike);
-      });
-    });
+    addEditor();
   });
 </script>
 
-<div id="quill-editor-wrapper">
-  <div id="quill-editor" bind:this={editorDiv} />
+<div class="quill-editor-wrapper" class:disabled>
+  <div class="quill-editor" bind:this={editorDiv} />
 </div>
 
 <style global="true">
-  #quill-editor-wrapper {
+  .disabled {
+    display: none !important;
+  }
+  .quill-editor-wrapper {
     background-color: var(--editor-background-color);
     overflow-y: hidden;
 
@@ -58,7 +75,7 @@
     grid-template-columns: 100%;
   }
 
-  #quill-editor {
+  .quill-editor {
     font-size: var(--editor-font-size);
     font-family: var(--editor-font-family);
     color: var(--editor-text-color);

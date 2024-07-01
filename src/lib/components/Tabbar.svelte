@@ -343,7 +343,7 @@
     draggedTabIndex = -1;
     offsetX = 0;
     offsetY = 0;
-    tabsHandlers.setPlaceholderIndex();
+    tabsHandlers.setPlaceholderIndex(); // TODO: make placeholderIndex it's own store so that it doesn't trigger updates to tabStore
     dragging = false;
   }
 

@@ -4,7 +4,7 @@
 }
 
 .ql-editor.ql-blank::before {
-  color: var(--editor-text-color);
+  color: var(--editor-text-color) !important;
   opacity: 0.6;
 }
 
