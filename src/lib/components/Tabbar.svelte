@@ -14,6 +14,8 @@
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
+  export let logout = () => {};
+
   let tabsElm: HTMLDivElement;
   let tabElms: HTMLElement[] = [];
   let lockWidth = 0;
@@ -382,21 +384,27 @@
       {/each}
     </div>
 
-    <div class="buttons">
-      <button class="new-tab-button" on:click={newTab}>
+    <div class="new-tab-container">
+      <button class="button" on:click={newTab}>
         <div
-          class="new-tab-icon"
+          class="button-icon"
           style="-webkit-mask: url({base}/images/svg/plus.svg) no-repeat center / contain;
         mask: url({base}/images/svg/plus.svg) no-repeat center / contain;"
         ></div>
       </button>
     </div>
+    <div class="logout-container">
+      <button class="logout button" on:click={logout}>
+        <div
+          class="button-icon"
+          style="-webkit-mask: url({base}/images/svg/logout.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/logout.svg) no-repeat center / contain;"
+        ></div>
+      </button>
+    </div>
+    
     <div bind:this={clone} class="clone" class:dragging>
-      <Tab
-        title={draggedTabTitle}
-        active={!draggingOutside}
-        preventHover
-      />
+      <Tab title={draggedTabTitle} active={!draggingOutside} preventHover />
     </div>
   </div>
   <div class="separator"></div>
@@ -407,7 +415,7 @@
     background-color: var(--tabbar-background-color);
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto 1fr 40px;
     align-items: end;
     height: var(--tabbar-height);
   }
@@ -417,9 +425,12 @@
     height: var(--tabbar-scrollbar-size);
   }
 
-  .buttons {
+  .new-tab-container {
     margin-bottom: var(--tab-gaps);
     display: flex;
+  }
+  .logout-container {
+    margin-bottom: var(--tab-gaps);
   }
 
   .tabs {
@@ -431,7 +442,7 @@
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
     gap: var(--tab-gaps);
     overflow-x: scroll;
-    padding-inline: calc(var(--tab-radius) + 8px)  var(--tab-radius);
+    padding-inline: calc(var(--tab-radius) + 8px) var(--tab-radius);
   }
 
   .tabs::-webkit-scrollbar {
@@ -475,7 +486,7 @@
     z-index: 1;
   }
 
-  .new-tab-button {
+  .button {
     width: 1.7em;
     aspect-ratio: 1;
     margin: 4px;
@@ -486,14 +497,14 @@
     align-items: center;
     transition: background-color 0.2s;
   }
-  .new-tab-button:hover {
+  .button:hover {
     background-color: var(--tab-hover-color);
   }
-  .new-tab-button:active {
+  .button:active {
     opacity: 0.8;
   }
 
-  .new-tab-icon {
+  .button-icon {
     background-color: var(--ui-color);
     width: 0.9em;
     aspect-ratio: 1;

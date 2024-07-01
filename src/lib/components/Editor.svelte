@@ -74,7 +74,6 @@
     grid-template-rows: 1fr auto;
     grid-template-columns: 100%;
   }
-
   .quill-editor {
     font-size: var(--editor-font-size);
     font-family: var(--editor-font-family);
