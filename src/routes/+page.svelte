@@ -68,7 +68,7 @@
   <div class="container">
     <Tabbar logout={authHandlers.logout} />
     {#if $tabsStore.tabs.length > 0}
-      {#each $tabsStore.tabs as tab, i}
+      {#each $tabsStore.tabs as tab, i (tab)}
         <Editor disabled={i !== $tabsStore.activeIndex} />
       {/each}
     {:else}
