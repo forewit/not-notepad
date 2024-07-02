@@ -4,7 +4,8 @@
 }
 
 .ql-editor.ql-blank::before {
-  color: var(--bg-alt) !important;
+  opacity: 0.8 !important;
+  color: var(--text) !important;
 }
 
 .ql-editor::-webkit-scrollbar {

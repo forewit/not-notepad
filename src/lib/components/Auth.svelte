@@ -107,7 +107,7 @@
 
   .password::placeholder,
   .email::placeholder {
-    color: var(--bg-alt);
+    color: var(--text);
   }
 
   .btn {

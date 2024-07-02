@@ -52,7 +52,7 @@
 
   function firstTab() {
     tabsHandlers.newTab({
-      data: { id: -1, title: "Hello 👋", ops: [{insert: "Welcome to Not Notepad 🎉. v0.25"} ] },
+      data: { id: -1, title: "Hello 👋", ops: [{insert: "Welcome to Not Notepad 🎉. v0.26"} ] },
     });
   }
 
@@ -88,6 +88,6 @@
   }
 
   .editor-placeholder {
-    background-color: var(--bg);
+    background-color: var(--bg-alt);
   }
 </style>

@@ -23,14 +23,14 @@
     quillEditor.setContents($tabsStore.tabs[$tabsStore.activeIndex].ops);
   }
 
-  function saveContentToActiveTab() {
-    if (!quillEditor) return;
-    $tabsStore.tabs[$tabsStore.activeIndex].ops = quillEditor.getContents().ops;
-  }
+  // function saveContentToActiveTab() {
+  //   if (!quillEditor) return;
+  //   $tabsStore.tabs[$tabsStore.activeIndex].ops = quillEditor.getContents().ops;
+  // }
 
   function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
     if (source === "user") {
-      saveContentToActiveTab();
+      $tabsStore.tabs[$tabsStore.activeIndex].ops.push(...newDelta.ops);
     }
   }
 
@@ -67,7 +67,7 @@
     display: none !important;
   }
   .quill-editor-wrapper {
-    background-color: var(--bg);
+    background-color: var(--bg-alt);
     overflow-y: hidden;
 
     display: grid;

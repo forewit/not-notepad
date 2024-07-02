@@ -57,7 +57,6 @@
   }
 
   .container {
-    user-select: none;
     position: relative;
     container-name: tab;
     container-type: inline-size;
@@ -66,7 +65,7 @@
   }
 
   .tab {
-    background-color: var(--bg);
+    background-color: var(--bg-alt);
     border-radius: var(--tab-radius);
     transition: background-color var(--transition-speed);
 
@@ -166,7 +165,6 @@
     outline: none;
     border: none;
     pointer-events:none;
-    user-select: none;
     overflow: hidden;
   }
   .tab-wrapper input:focus {
@@ -192,7 +190,7 @@
     transition: background-color var(--transition-speed);
   }
   .close-button:hover {
-    background-color: var(--bg);
+    background-color: var(--bg-alt);
   }
 
   .close-icon {

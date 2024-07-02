@@ -379,7 +379,7 @@
         ></span>
       </button>
     </div>
-    
+
     <div bind:this={clone} class="clone" class:dragging>
       <Tab title={draggedTabTitle} active={!draggingOutside} preventHover />
     </div>
@@ -388,8 +388,13 @@
 </div>
 
 <style>
+  * {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
   .tabbar {
-    background-color: var(--bg-alt);
+    background-color: var(--bg);
     position: relative;
     display: grid;
     grid-template-columns: auto 1fr 40px;
