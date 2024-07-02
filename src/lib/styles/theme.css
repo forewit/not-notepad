@@ -1,3 +1,5 @@
+/* the theme variables are based on https://www.monkeytype.com/settings#group_theme */
+
 :root {
   --bg: #fffaf3; /* background */
   --bg-alt: #f0e9df; /* input background */
@@ -15,6 +17,8 @@
   --ui-font: "Segoe UI", sans-serif;
   --ui-font-size: 16px;
 
+  --transition-speed: 200ms;
+  
   /* tabbar */
   --tabbar-scrollbar-size: 0.3rem;
   --tabbar-height: 60px;
@@ -38,7 +42,12 @@ button:selected --main		  --bg
 
 button.error	  --error     --bg
 
-text				                --text
-h1, h2, h3			            --sub
-link:hover			            --text
+text, link:hover            --text
+h1, h2, h3, link            --sub
 */
+
+/* global css */
+::selection {
+  background-color: var(--sub);
+  color: var(--bg);
+}

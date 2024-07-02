@@ -1,13 +1,12 @@
 import { writable } from "svelte/store";
-import type { Delta } from "quill/core";
-import type Quill from "quill/core";
+import type { Op } from "quill/core";
 
 let uuid = 0;
 
 export type TabData = {
     id: number;
     title: string;
-    content: Delta;
+    ops: Op[];
 }
 
 export const tabsStore = writable({
@@ -17,11 +16,9 @@ export const tabsStore = writable({
 });
 
 export const tabsHandlers = {
-    newTab: async (options?: { data?: TabData, index?: number, callback?: () => void }) => {
-        const { Delta: Delta } = await import("quill/core")
-        // TODO: create new Delta if neccessary
+    newTab: (options?: { data?: TabData, index?: number, callback?: () => void }) => {
 
-        const { data = { id: uuid++, title: "Untitled", content: new Delta() }, index = -1, callback = () => { } } = options || {};
+        const { data = { id: uuid++, title: "Untitled", ops: [] }, index = -1, callback = () => { } } = options || {};
 
         tabsStore.update(curr => {
             if (curr.tabs.some((tab) => tab.id == data.id)) return curr;

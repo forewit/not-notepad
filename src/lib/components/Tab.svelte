@@ -1,6 +1,10 @@
 <script lang="ts">
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
+  import type { ActionReturn } from "svelte/action";
+  interface Attributes {
+    "on:longpress"?: (e: CustomEvent<void>) => void;
+  }
 
   export let title = "";
   export let active = false;
@@ -10,20 +14,53 @@
   export let onDragstart = (e: DragEvent) => {};
 
   let inputElm: HTMLInputElement;
+
+  function longpress(
+    node: HTMLElement,
+    threshold = 500
+  ): ActionReturn<{}, Attributes> {
+    const handle_touchstart = () => {
+      let start = Date.now();
+
+      const timeout = setTimeout(() => {
+        node.dispatchEvent(new CustomEvent("longpress"));
+      }, threshold);
+
+      const cancel = () => {
+        clearTimeout(timeout);
+        node.removeEventListener("touchmove", cancel);
+        node.removeEventListener("touchend", cancel);
+      };
+
+      node.addEventListener("touchstart", cancel);
+      node.addEventListener("touchend", cancel);
+    };
+
+    node.addEventListener("touchstart", handle_touchstart);
+
+    return {
+      destroy() {
+        node.removeEventListener("touchstart", handle_touchstart);
+      },
+    };
+  }
 </script>
 
 <div class="container" class:preventHover>
-  <div
-    role="button"
-    tabindex="0"
+  <button
     class="tab"
     class:active
+    draggable="true"
+    use:longpress
+    on:longpress|self|stopPropagation|preventDefault={() => inputElm.select()}
     on:dblclick|self={() => inputElm.select()}
     on:mousedown|self={onPointerdown}
     on:touchstart|self={onPointerdown}
-    draggable="true"
     on:dragstart|self={onDragstart}
   >
+  </button>
+
+  <div class="tab-wrapper">
     <input
       bind:this={inputElm}
       bind:value={title}
@@ -36,7 +73,7 @@
       class="close-button"
       on:click|stopPropagation={onClose}
       draggable="true"
-      on:dragstart|stopPropagation|preventDefault
+      on:dragstart|stopPropagation
     >
       <!-- svg from url -->
       <span
@@ -55,6 +92,7 @@
   }
 
   .container {
+    position: relative;
     container-name: tab;
     container-type: inline-size;
     height: 100%;
@@ -64,16 +102,19 @@
   .tab {
     background-color: var(--bg);
     border-radius: var(--tab-radius);
+    transition: background-color var(--transition-speed);
 
     outline-offset: -2px;
     min-width: 0;
+    width: 100%;
     position: relative;
     display: grid;
     grid-auto-flow: column;
     margin-bottom: var(--tab-gaps);
     align-items: center;
   }
-  .tab:hover {
+  .tab:hover,
+  .tab:not(.active):has(+ .tab-wrapper .close-button:hover) {
     background-color: var(--text);
   }
 
@@ -99,10 +140,6 @@
   }
   .tab.active::before {
     display: block;
-    /* left: calc(var(--tab-radius) * -2);
-    border-bottom-right-radius: 100vw;
-    box-shadow: var(--tab-radius) 0 0 0 var(--tab-active-color); */
-
     left: calc(var(--tab-radius) * -1);
     width: calc(var(--tab-radius));
     aspect-ratio: 1;
@@ -114,10 +151,6 @@
   }
   .tab.active::after {
     display: block;
-    /* right: calc(var(--tab-radius) * -2);
-    border-bottom-left-radius: 100vw;
-    box-shadow: calc(-1 * var(--tab-radius)) 0 0 0 var(--main); */
-
     right: calc(var(--tab-radius) * -1);
     width: calc(var(--tab-radius));
     aspect-ratio: 1;
@@ -127,55 +160,70 @@
       var(--main) calc(var(--tab-radius) + 1px)
     );
   }
-  .tab input {
-    color: var(--text);
-    font-family: var(--font);
-    font-size: var(--font-size);
-    background-color: transparent;
-
-    padding: 0;
-    margin-inline-start: 0.6em;
-    white-space: nowrap;
-    outline: none;
-    border: none;
-    pointer-events: none;
-    overflow: hidden;
-  }
-  .tab input:focus {
-    pointer-events: all;
-  }
-  .tab:hover input,
-  .tab.active input {
-    color: var(--bg);
-  }
-  
 
   @container tab (width < 60px) {
-    .tab:not(.active) .close-button {
+    .tab:not(.active) ~ .close-button {
       display: none;
     }
-    .tab:not(.active) input {
+    .tab:not(.active) ~ input {
       margin-inline: 6px;
     }
   }
   /* this should only happen during the tab opening/closing animation */
   @container tab (width < 38px) {
-    .tab .close-button {
+    .tab ~ .close-button {
       display: none;
     }
   }
 
+  .tab-wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: var(--tab-gaps);
+    pointer-events: none;
+
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+  }
+
+  .tab-wrapper input {
+    color: var(--text);
+    font-family: var(--ui-font);
+    font-size: var(--ui-font-size);
+    background-color: transparent;
+    padding: 0;
+    margin-inline-start: 0.7em;
+    white-space: nowrap;
+    outline: none;
+    border: none;
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+  }
+  .tab-wrapper input:focus {
+    pointer-events: all;
+  }
+  .tab:hover ~ .tab-wrapper input,
+  .tab.active ~ .tab-wrapper input,
+  .tab-wrapper input:has(+ .close-button:hover) {
+    color: var(--bg);
+  }
+
   .close-button {
+    pointer-events: all;
     width: 1.5em;
+    height: 1.5em;
     aspect-ratio: 1;
-    margin: 4px;
-    margin-inline-end: 0.3em;
+    margin-inline: 3px 0.4em;
     border-radius: 50%;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
   }
   .close-button:hover {
     background-color: var(--bg);
@@ -185,15 +233,15 @@
     width: 0.7em;
     aspect-ratio: 1;
   }
-  .tab:hover .close-icon,
-  .tab.active .close-icon {
-    background-color: var(--bg);
-  }
   .close-icon,
   .close-button:hover .close-icon {
     background-color: var(--text);
   }
-  .tab.active .close-button:hover .close-icon {
+  .tab:hover ~ .tab-wrapper .close-button .close-icon,
+  .tab.active ~ .tab-wrapper .close-button:not(:hover) .close-icon {
+    background-color: var(--bg);
+  }
+  .tab.active ~ .tab-wrapper .close-button:hover .close-icon {
     background-color: var(--main);
   }
 

@@ -20,12 +20,12 @@
 
   function loadContentFromActiveTab() {
     if (!quillEditor) return;
-    quillEditor.setContents($tabsStore.tabs[$tabsStore.activeIndex].content);
+    quillEditor.setContents($tabsStore.tabs[$tabsStore.activeIndex].ops);
   }
 
   function saveContentToActiveTab() {
     if (!quillEditor) return;
-    $tabsStore.tabs[$tabsStore.activeIndex].content = quillEditor.getContents();
+    $tabsStore.tabs[$tabsStore.activeIndex].ops = quillEditor.getContents().ops;
   }
 
   function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {

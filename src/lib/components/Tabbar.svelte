@@ -48,30 +48,7 @@
     };
   };
 
-  function debounce_leading(func: Function, timeout = 300) {
-    // @ts-ignore
-    let timer;
-    // @ts-ignore
-    return (...args) => {
-      // @ts-ignore
-      if (!timer) {
-        // @ts-ignore
-        func.apply(this, args);
-      }
-      // @ts-ignore
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = undefined;
-      }, timeout);
-    };
-  }
-
   // Tab management functions
-  function selectTab(index: number) {
-    tabsHandlers.setActiveIndex(index);
-    tabsElm.children[index].scrollIntoView({ behavior: "smooth" });
-  }
-
   function newTab() {
     tabsHandlers.newTab();
   }
@@ -275,7 +252,7 @@
     if (e instanceof TouchEvent) {
       x = e.touches[0].clientX;
       y = e.touches[0].clientY;
-      e.preventDefault();
+      //e.preventDefault();
     } else {
       x = e.clientX;
       y = e.clientY;
@@ -345,7 +322,7 @@
     draggedTabIndex = -1;
     offsetX = 0;
     offsetY = 0;
-    tabsHandlers.setPlaceholderIndex(); // TODO: make placeholderIndex it's own store so that it doesn't trigger updates to tabStore
+    tabsHandlers.setPlaceholderIndex(); // TODO?: make placeholderIndex it's own store so that it doesn't trigger updates to tabStore
     dragging = false;
   }
 
@@ -386,20 +363,20 @@
 
     <div class="new-tab-container">
       <button class="button" on:click={newTab}>
-        <div
+        <span
           class="button-icon"
           style="-webkit-mask: url({base}/images/svg/plus.svg) no-repeat center / contain;
         mask: url({base}/images/svg/plus.svg) no-repeat center / contain;"
-        ></div>
+        ></span>
       </button>
     </div>
     <div class="logout-container">
       <button class="logout button" on:click={logout}>
-        <div
+        <span
           class="button-icon"
           style="-webkit-mask: url({base}/images/svg/logout.svg) no-repeat center / contain;
       mask: url({base}/images/svg/logout.svg) no-repeat center / contain;"
-        ></div>
+        ></span>
       </button>
     </div>
     
@@ -495,7 +472,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
   }
   .button:hover {
     background-color: var(--text);

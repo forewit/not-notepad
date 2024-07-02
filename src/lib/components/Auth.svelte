@@ -42,7 +42,6 @@
 
 
 <style>
-
   .form-container {
     width: 100%;
     height:100%;
@@ -50,8 +49,8 @@
   }
 
   .form {
-    font-family: var(--font);
-    font-size: var(--font-size);
+    font-family: var(--ui-font);
+    font-size: var(--ui-font-size);
 
     position: absolute;
     top: 40px;

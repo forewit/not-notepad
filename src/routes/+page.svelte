@@ -50,12 +50,9 @@
     if (curr.data) data = curr.data;
   });
 
-  async function firstTab() {
-    const { Delta: Delta } = await import("quill/core");
-
-    const initialContent = new Delta().insert("Welcome to Not Notepad 🎉");
+  function firstTab() {
     tabsHandlers.newTab({
-      data: { id: 0, title: "Hello 👋", content: initialContent },
+      data: { id: -1, title: "Hello 👋", ops: [{insert: "Welcome to Not Notepad 🎉"} ] },
     });
   }
 
@@ -91,6 +88,6 @@
   }
 
   .editor-placeholder {
-    background-color: var(--editor-background-color);
+    background-color: var(--bg);
   }
 </style>
