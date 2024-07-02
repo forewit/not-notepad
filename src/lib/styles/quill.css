@@ -4,8 +4,8 @@
 }
 
 .ql-editor.ql-blank::before {
-  color: var(--editor-text-color) !important;
-  opacity: 0.6;
+  color: var(--text) !important;
+  opacity: 0.8;
 }
 
 .ql-editor::-webkit-scrollbar {
@@ -23,8 +23,9 @@
   font-size: 85%;
   padding: 2px 4px;
   border-radius: 3px;
-  background-color: #dfe3e7;
-  color: black;
+  background-color: var(--sub);
+  margin-bottom: 2px;
+  color: var(--bg);
 }
 
 .ql-editor.ql-blank:focus::before {

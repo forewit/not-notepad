@@ -34,7 +34,7 @@
       required
     />
     {#if failedLogin}
-      <p class="error">Failed to login!</p>
+      <b class="error">Wrong password!</b>
     {/if}
     <input type="submit" value="Login" class="btn" />
   </form>
@@ -46,22 +46,22 @@
   .form-container {
     width: 100%;
     height:100%;
-    background-color: var(--editor-background-color);
+    background-color: var(--bg);
   }
 
   .form {
-    font-family: var(--editor-font-family);
+    font-family: var(--font);
+    font-size: var(--font-size);
 
     position: absolute;
     top: 40px;
     left: 50%;
     transform: translateX(-50%);
     width: 305px;
-    background-color: var(--tab-active-color);
+    background-color: var(--bg-alt);
     padding: 20px 24px;
     border-radius: 8px;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
 
     display: grid;
     grid-template-columns: max-content 1fr;
@@ -81,11 +81,10 @@
   }
   .error {
     grid-area: error;
-    color: red;
+    color: var(--error);
     font-size: 12px;
     align-self: center;
     justify-self: left;
-    border: 1px solid red;
     border-radius: 4px;
     padding: 5px 6px;
   }
@@ -94,35 +93,42 @@
   .email {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    background-color: var(--bg);
+    border: 2px solid var(--bg-alt);
+    color: var(--text);
+    border-radius: 6px;
     outline: none;
   }
 
   .password:focus,
   .email:focus {
-    border: 2px solid var(--tab-background-color);
+    border-color: var(--main);
     padding: 9px;
   }
 
   .password::placeholder,
   .email::placeholder {
-    color: #ccc;
+    color: var(--bg-alt);
   }
 
   .btn {
     margin: 2px 0;
     padding: 0 18px;
-    background-color: var(--tab-background-color); /* Google blue */
-    color: var(--tab-text-color);
+    background-color: var(--bg); 
+    color: var(--text);
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     justify-self: right;
     grid-area: btn;
   }
 
   .btn:hover {
-    background-color: var(--tab-hover-color); /* Darker blue for hover */
+    background-color: var(--text);
+    color: var(--bg);
+  }
+  .btn:active {
+    background-color: var(--sub);
+    color: var(--bg);
   }
 </style>

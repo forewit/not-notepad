@@ -53,7 +53,7 @@
   async function firstTab() {
     const { Delta: Delta } = await import("quill/core");
 
-    const initialContent = new Delta().insert("Welcome to Not Notepad 🎉\n");
+    const initialContent = new Delta().insert("Welcome to Not Notepad 🎉");
     tabsHandlers.newTab({
       data: { id: 0, title: "Hello 👋", content: initialContent },
     });

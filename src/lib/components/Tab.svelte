@@ -62,10 +62,10 @@
   }
 
   .tab {
-    outline-offset: -2px;
-    background-color: var(--tab-background-color);
+    background-color: var(--bg);
     border-radius: var(--tab-radius);
 
+    outline-offset: -2px;
     min-width: 0;
     position: relative;
     display: grid;
@@ -74,12 +74,12 @@
     align-items: center;
   }
   .tab:hover {
-    background-color: var(--tab-hover-color);
+    background-color: var(--text);
   }
 
   .tab.active {
     transition: background-color 0s;
-    background-color: var(--tab-active-color);
+    background-color: var(--main);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     margin-bottom: 0;
@@ -109,14 +109,14 @@
     background-image: radial-gradient(
       circle at 0 0,
       transparent var(--tab-radius),
-      var(--tab-active-color) calc(var(--tab-radius) + 1px)
+      var(--main) calc(var(--tab-radius) + 1px)
     );
   }
   .tab.active::after {
     display: block;
     /* right: calc(var(--tab-radius) * -2);
     border-bottom-left-radius: 100vw;
-    box-shadow: calc(-1 * var(--tab-radius)) 0 0 0 var(--tab-active-color); */
+    box-shadow: calc(-1 * var(--tab-radius)) 0 0 0 var(--main); */
 
     right: calc(var(--tab-radius) * -1);
     width: calc(var(--tab-radius));
@@ -124,13 +124,13 @@
     background-image: radial-gradient(
       circle at 100% 0,
       transparent var(--tab-radius),
-      var(--tab-active-color) calc(var(--tab-radius) + 1px)
+      var(--main) calc(var(--tab-radius) + 1px)
     );
   }
   .tab input {
-    font-family: var(--default-font);
-    font-size: var(--tab-font-size);
-    color: var(--tab-text-color);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: var(--font-size);
     background-color: transparent;
 
     padding: 0;
@@ -144,6 +144,11 @@
   .tab input:focus {
     pointer-events: all;
   }
+  .tab:hover input,
+  .tab.active input {
+    color: var(--bg);
+  }
+  
 
   @container tab (width < 60px) {
     .tab:not(.active) .close-button {
@@ -173,16 +178,23 @@
     transition: background-color 0.2s;
   }
   .close-button:hover {
-    background-color: var(--slight-transparent);
-  }
-  .close-button:active {
-    opacity: 0.8;
+    background-color: var(--bg);
   }
 
   .close-icon {
-    background-color: var(--ui-color);
     width: 0.7em;
     aspect-ratio: 1;
+  }
+  .tab:hover .close-icon,
+  .tab.active .close-icon {
+    background-color: var(--bg);
+  }
+  .close-icon,
+  .close-button:hover .close-icon {
+    background-color: var(--text);
+  }
+  .tab.active .close-button:hover .close-icon {
+    background-color: var(--main);
   }
 
   .preventHover * {

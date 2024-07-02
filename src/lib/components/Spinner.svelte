@@ -8,21 +8,21 @@
 
 <style>
   .spinner-container {
-    background-color: var(--editor-background-color);
+    background-color: var(--bg);
     width: 100%;
     height: 100%;
-    display: grid;
-    justify-items: center;
-    align-items: center;
+    position: relative
   }
 
   .spinner {
-    color: var(--ui-color);
+    color: var(--main);
     font-size: 10px;
     width: 1em;
     height: 1em;
     border-radius: 50%;
     position: absolute;
+    left: 50%;
+    top: 50%;
     text-indent: -9999em;
     animation: mulShdSpin 1.3s infinite linear;
     transform: translateZ(0);

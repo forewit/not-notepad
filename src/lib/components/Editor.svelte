@@ -67,7 +67,7 @@
     display: none !important;
   }
   .quill-editor-wrapper {
-    background-color: var(--editor-background-color);
+    background-color: var(--bg);
     overflow-y: hidden;
 
     display: grid;
@@ -75,8 +75,8 @@
     grid-template-columns: 100%;
   }
   .quill-editor {
-    font-size: var(--editor-font-size);
-    font-family: var(--editor-font-family);
-    color: var(--editor-text-color);
+    font-size: var(--font-size);
+    font-family: var(--font);
+    color: var(--text);
   }
 </style>

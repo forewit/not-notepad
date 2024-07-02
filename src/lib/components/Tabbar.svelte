@@ -412,7 +412,7 @@
 
 <style>
   .tabbar {
-    background-color: var(--tabbar-background-color);
+    background-color: var(--bg-alt);
     position: relative;
     display: grid;
     grid-template-columns: auto 1fr 40px;
@@ -421,7 +421,7 @@
   }
 
   .separator {
-    background-color: var(--tab-active-color);
+    background-color: var(--main);
     height: var(--tabbar-scrollbar-size);
   }
 
@@ -458,7 +458,7 @@
       display: block;
     }
     .tabs::-webkit-scrollbar-thumb {
-      background-color: var(--slight-transparent);
+      background-color: rgba(0, 0, 0, 0.2);
       border-radius: 100vw;
     }
     .tabs::-webkit-scrollbar-button {
@@ -498,15 +498,23 @@
     transition: background-color 0.2s;
   }
   .button:hover {
-    background-color: var(--tab-hover-color);
+    background-color: var(--text);
+    color: var(--bg);
   }
   .button:active {
-    opacity: 0.8;
+    background-color: var(--main);
+    color: var(--bg);
   }
 
   .button-icon {
-    background-color: var(--ui-color);
     width: 0.9em;
     aspect-ratio: 1;
+  }
+  .button .button-icon {
+    background-color: var(--text);
+  }
+  .button:hover .button-icon,
+  .button:active .button-icon {
+    background-color: var(--bg);
   }
 </style>
