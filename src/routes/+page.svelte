@@ -52,7 +52,7 @@
 
   function firstTab() {
     tabsHandlers.newTab({
-      data: { id: -1, title: "Hello 👋", ops: [{insert: "Welcome to Not Notepad 🎉. v0.24"} ] },
+      data: { id: -1, title: "Hello 👋", ops: [{insert: "Welcome to Not Notepad 🎉. v0.25"} ] },
     });
   }
 

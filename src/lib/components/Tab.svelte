@@ -11,34 +11,10 @@
   export let onDragstart = (e: DragEvent) => {};
 
   let inputElm: HTMLInputElement;
-  let tabElm: HTMLButtonElement;
-
-  function handleTouchstart(e: TouchEvent) {
-    const timeout = setTimeout(() => {
-      // longpress
-      inputElm.focus();
-      e.stopPropagation();
-      e.preventDefault();
-    }, 500);
-
-    const cancel = () => {
-      clearTimeout(timeout);
-      tabElm.removeEventListener("touchmove", cancel);
-      tabElm.removeEventListener("touchend", cancel);
-    };
-
-    tabElm.addEventListener("touchstart", cancel);
-    tabElm.addEventListener("touchend", cancel);
-  }
-
-  onMount(() => {
-    tabElm.addEventListener("touchstart", handleTouchstart, { passive: false,  });
-  });
 </script>
 
 <div class="container" class:preventHover>
   <button
-    bind:this={tabElm}
     class="tab"
     class:active
     draggable="true"
