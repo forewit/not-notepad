@@ -4,7 +4,7 @@ import { auth } from "$lib/firebase/firebase.client";
 
 
 export type UserData = {
-    text?: string
+    tabs: string,
 }
 
 export const authStore = writable({

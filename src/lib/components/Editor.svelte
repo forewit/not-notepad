@@ -23,14 +23,14 @@
     quillEditor.setContents($tabsStore.tabs[$tabsStore.activeIndex].ops);
   }
 
-  // function saveContentToActiveTab() {
-  //   if (!quillEditor) return;
-  //   $tabsStore.tabs[$tabsStore.activeIndex].ops = quillEditor.getContents().ops;
-  // }
+  function saveContentToActiveTab() {
+    if (!quillEditor) return;
+    $tabsStore.tabs[$tabsStore.activeIndex].ops = quillEditor.getContents().ops;
+  }
 
   function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
     if (source === "user") {
-      $tabsStore.tabs[$tabsStore.activeIndex].ops.push(...newDelta.ops);
+      saveContentToActiveTab();
     }
   }
 

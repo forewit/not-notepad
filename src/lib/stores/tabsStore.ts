@@ -11,7 +11,7 @@ export type TabData = {
 
 export const tabsStore = writable({
     tabs: [] as TabData[],
-    activeIndex: -1,
+    activeIndex: 0,
     placeholderIndex: -1
 });
 

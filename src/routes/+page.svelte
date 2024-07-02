@@ -8,7 +8,7 @@
   import { tabsStore, tabsHandlers } from "../lib/stores/tabsStore";
   import { onMount } from "svelte";
   import { db } from "$lib/firebase/firebase.client";
-  import { doc, setDoc } from "firebase/firestore";
+  import { getDoc, doc, setDoc } from "firebase/firestore";
   import {
     authHandlers,
     authStore,
@@ -17,8 +17,7 @@
   import type { User } from "firebase/auth";
 
   let user: User;
-  let data: UserData;
-  let newText = "";
+  let data: UserData = { tabs: "" };
 
   // save data object to firestore
   async function publish() {
@@ -50,15 +49,20 @@
     if (curr.data) data = curr.data;
   });
 
-  function firstTab() {
-    tabsHandlers.newTab({
-      data: { id: -1, title: "Hello 👋", ops: [{insert: "Welcome to Not Notepad 🎉. v0.26"} ] },
-    });
-  }
+  // listen for tabStore updates
+  tabsStore.subscribe((curr) => {
+    const tabsString = JSON.stringify(curr.tabs);
+    if (data.tabs === tabsString) {
+      console.log("skipping update, no changes made");
+      return;
+    }
 
-  onMount(() => {
-    firstTab(); // TODO: remove
-  });
+    data.tabs = tabsString;
+    updateStoreUserData({
+      ...data,
+      tabs: tabsString,
+    });
+  }); 
 </script>
 
 {#if $authStore.currentUser}
