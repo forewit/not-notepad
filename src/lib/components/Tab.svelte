@@ -1,10 +1,7 @@
 <script lang="ts">
   import "$lib/styles/theme.css";
   import { base } from "$app/paths";
-  import type { ActionReturn } from "svelte/action";
-  interface Attributes {
-    "on:longpress"?: (e: CustomEvent<void>) => void;
-  }
+  import { onMount } from "svelte";
 
   export let title = "";
   export let active = false;
@@ -14,45 +11,37 @@
   export let onDragstart = (e: DragEvent) => {};
 
   let inputElm: HTMLInputElement;
+  let tabElm: HTMLButtonElement;
 
-  function longpress(
-    node: HTMLElement,
-    threshold = 500
-  ): ActionReturn<{}, Attributes> {
-    const handle_touchstart = () => {
-      let start = Date.now();
+  function handleTouchstart(e: TouchEvent) {
+    const timeout = setTimeout(() => {
+      // longpress
+      inputElm.focus();
+      e.stopPropagation();
+      e.preventDefault();
+    }, 500);
 
-      const timeout = setTimeout(() => {
-        node.dispatchEvent(new CustomEvent("longpress"));
-      }, threshold);
-
-      const cancel = () => {
-        clearTimeout(timeout);
-        node.removeEventListener("touchmove", cancel);
-        node.removeEventListener("touchend", cancel);
-      };
-
-      node.addEventListener("touchstart", cancel);
-      node.addEventListener("touchend", cancel);
+    const cancel = () => {
+      clearTimeout(timeout);
+      tabElm.removeEventListener("touchmove", cancel);
+      tabElm.removeEventListener("touchend", cancel);
     };
 
-    node.addEventListener("touchstart", handle_touchstart);
-
-    return {
-      destroy() {
-        node.removeEventListener("touchstart", handle_touchstart);
-      },
-    };
+    tabElm.addEventListener("touchstart", cancel);
+    tabElm.addEventListener("touchend", cancel);
   }
+
+  onMount(() => {
+    tabElm.addEventListener("touchstart", handleTouchstart, { passive: false,  });
+  });
 </script>
 
 <div class="container" class:preventHover>
   <button
+    bind:this={tabElm}
     class="tab"
     class:active
     draggable="true"
-    use:longpress
-    on:longpress|self|stopPropagation|preventDefault={() => inputElm.select()}
     on:dblclick|self={() => inputElm.select()}
     on:mousedown|self={onPointerdown}
     on:touchstart|self={onPointerdown}
@@ -92,6 +81,7 @@
   }
 
   .container {
+    user-select: none;
     position: relative;
     container-name: tab;
     container-type: inline-size;
@@ -199,7 +189,7 @@
     white-space: nowrap;
     outline: none;
     border: none;
-    pointer-events: none;
+    pointer-events:none;
     user-select: none;
     overflow: hidden;
   }
