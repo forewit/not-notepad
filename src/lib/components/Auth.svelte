@@ -112,6 +112,7 @@
   }
 
   .btn {
+    outline-color: var(--main);
     margin: 2px 0;
     padding: 0 18px;
     background-color: var(--bg); 
