@@ -3,18 +3,29 @@
   import "$lib/styles/reset.css";
   import "$lib/styles/theme.css";
   import { onMount } from "svelte";
-  import { authStore, type UserData } from "$lib/stores/authStore";
+  import { firebaseStore, type UserData } from "$lib/stores/firebaseStore";
   import { doc, getDoc, setDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
-  import { tabsStore, type TabData } from "$lib/stores/tabsStore";
+  import { tabsHandlers, tabsStore } from "$lib/stores/tabsStore";
+
+  function parseTabStrings(tabStrings: string[]) {
+    if (tabStrings.length === 0) return;
+    tabStrings.forEach((tabString) => {
+      try {
+        tabsHandlers.newTabFromString(tabString);
+      } catch (err) {
+        console.warn("Failed to parse tab!", tabString, err);
+        return;
+      }
+    });
+  }
 
   onMount(() => {
-    // update authStore on authentication state changes
+    // update firebaseStore on authentication state changes
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       // logged out
       if (!user) {
-        // update authStore
-        authStore.update((curr) => {
+        firebaseStore.update((curr) => {
           return {
             ...curr,
             isLoading: false,
@@ -24,10 +35,11 @@
         return;
       }
 
+      // logged in
       // get firestore document data
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
-      let dataToSetStoreTo: UserData = { tabs: "" };
+      let dataToSetStoreTo: UserData = { tabs: [], activeIndex: 0 };
 
       // create a new user doc if it doesn't exist
       if (!docSnap.exists()) {
@@ -39,22 +51,18 @@
         const userData = docSnap.data();
         dataToSetStoreTo = userData as UserData;
       }
-      // update authStore
-      authStore.update((curr) => {
+
+      // parse tabs to update tabsStore
+      parseTabStrings(dataToSetStoreTo.tabs);
+      tabsHandlers.setActiveIndex(dataToSetStoreTo.activeIndex);
+
+      // update firebaseStore
+      firebaseStore.update((curr) => {
         return {
           ...curr,
           isLoading: false,
           currentUser: user,
           data: dataToSetStoreTo,
-        };
-      });
-
-      // update tabsStore
-      const tabs = JSON.parse(dataToSetStoreTo.tabs);
-      tabsStore.update((curr) => {
-        return {
-          ...curr,
-          tabs: tabs
         };
       });
     });

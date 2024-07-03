@@ -5,78 +5,40 @@
   import Editor from "$lib/components/Editor.svelte";
   import Auth from "$lib/components/Auth.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
-  import { tabsStore, tabsHandlers } from "../lib/stores/tabsStore";
-  import { onMount } from "svelte";
-  import { db } from "$lib/firebase/firebase.client";
-  import { getDoc, doc, setDoc } from "firebase/firestore";
-  import {
-    authHandlers,
-    authStore,
-    type UserData,
-  } from "$lib/stores/authStore";
-  import type { User } from "firebase/auth";
+  import { tabsStore } from "$lib/stores/tabsStore";
+  import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
 
-  let user: User;
-  let data: UserData = { tabs: "" };
+  // update firebaseStore and publish whenever tabsStore changes
+  tabsStore.subscribe((curr) => {
+    const tabStrings = curr.tabs.map((tab) => {
+      return JSON.stringify(tab);
+    });
 
-  // save data object to firestore
-  async function publish() {
-    if (!$authStore.currentUser) return;
-    try {
-      const userRef = doc(db, "users", $authStore.currentUser.uid);
-      await setDoc(userRef, data, { merge: true });
-      console.log("Save successful!");
-    } catch (err) {
-      console.log("There was an error saving data!", err);
-    }
-  }
-
-  // update the authStore with new user data
-  function updateStoreUserData(newData: UserData) {
-    authStore.update((curr) => {
+    firebaseStore.update((curr) => {
       return {
         ...curr,
-        data: newData,
+        data: { activeIndex: $tabsStore.activeIndex, tabs: tabStrings },
       };
     });
 
-    publish();
-  }
-
-  // pull updates from the store
-  authStore.subscribe((curr) => {
-    if (curr.currentUser) user = curr.currentUser;
-    if (curr.data) data = curr.data;
+    firebaseHandlers.publish();
   });
-
-  // listen for tabStore updates
-  tabsStore.subscribe((curr) => {
-    const tabsString = JSON.stringify(curr.tabs);
-    if (data.tabs === tabsString) {
-      console.log("skipping update, no changes made");
-      return;
-    }
-
-    data.tabs = tabsString;
-    updateStoreUserData({
-      ...data,
-      tabs: tabsString,
-    });
-  }); 
 </script>
 
-{#if $authStore.currentUser}
-  <div class="container">
-    <Tabbar logout={authHandlers.logout} />
-    {#if $tabsStore.tabs.length > 0}
-      {#each $tabsStore.tabs as tab, i (tab)}
-        <Editor disabled={i !== $tabsStore.activeIndex} />
-      {/each}
-    {:else}
-      <div class="editor-placeholder" />
-    {/if}
-  </div>
-{:else if $authStore.isLoading}
+{#if $firebaseStore.currentUser}
+    <div class="container">
+      <Tabbar logout={firebaseHandlers.logout} />
+      {#if $tabsStore.tabs.length > 0}
+      {#key $tabsStore.activeIndex}
+        {#each $tabsStore.tabs as tab, i}
+          <Editor disabled={i !== $tabsStore.activeIndex} />
+        {/each}
+      {/key}
+      {:else}
+        <div class="editor-placeholder" />
+      {/if}
+    </div>
+{:else if $firebaseStore.isLoading}
   <Spinner />
 {:else}
   <Auth />

@@ -1,6 +1,6 @@
 <script lang="ts">
   import "$lib/styles/theme.css"
-  import { authHandlers } from "$lib/stores/authStore";
+  import { firebaseHandlers } from "$lib/stores/firebaseStore";
 
   let email = "";
   let password = "";
@@ -9,7 +9,7 @@
   async function handleSubmit() {
     try {
       failedLogin = false;
-      await authHandlers.login(email, password);
+      await firebaseHandlers.login(email, password);
     } catch (err) {
       console.log("Login failed!");
       failedLogin = true;
