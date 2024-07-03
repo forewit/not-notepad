@@ -5,8 +5,8 @@
     "start_url": "/not-notepad/",
     "scope": "/not-notepad/",
     "display": "standalone",
-    "background_color": "#0c1919",
-    "theme_color": "#0d222c",
+    "background_color": "#fffaf3",
+    "theme_color": "#fffaf3",
     "icons": [
         {
             "src": "images/field_512.png",

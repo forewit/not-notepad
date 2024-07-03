@@ -30,13 +30,18 @@ async function publishToFirestore() {
 
         await setDoc(userRef, data, { merge: true });
         console.log("Save successful!", data);
-    } catch (err) {
-        console.log("There was an error saving data!", err);
-    } finally {
         firebaseStore.update((curr) => {
-            curr.savingInProgress = false;
+            curr.savingStatus = "saved";
             return curr
         });
+    } catch (err) {
+        console.log("There was an error saving data!", err);
+        firebaseStore.update((curr) => {
+            curr.savingStatus = "error";
+            return curr
+        });
+    } finally {
+        
     }
 }
 const debouced_publishToFirestore = debounce(publishToFirestore, 2000);
@@ -47,7 +52,7 @@ export type UserData = {
 }
 
 export const firebaseStore = writable({
-    savingInProgress: false,
+    savingStatus: undefined as "saving" | "saved" | "error" | undefined,
     isLoading: true,
     currentUser: <User | null>null,
     data: <UserData | null>null
@@ -64,7 +69,7 @@ export const firebaseHandlers = {
     },
     publish: ()=> {
         firebaseStore.update((curr) => {
-            curr.savingInProgress = true;
+            curr.savingStatus = "saving";
             return curr
         });
         debouced_publishToFirestore();
