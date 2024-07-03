@@ -67,7 +67,7 @@
   }
 
   .editor-placeholder {
-    background-color: var(--bg-alt);
+    background-color: var(--bg);
   }
 
 
