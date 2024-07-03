@@ -24,7 +24,7 @@ async function publishToFirestore() {
     const user = get(firebaseStore).currentUser;
     const data = get(firebaseStore).data;
 
-    if (!user) return;
+    if (!user || !data) return;
     try {
         const userRef = doc(db, "users", user.uid);
 
@@ -32,6 +32,11 @@ async function publishToFirestore() {
         console.log("Save successful!", data);
     } catch (err) {
         console.log("There was an error saving data!", err);
+    } finally {
+        firebaseStore.update((curr) => {
+            curr.savingInProgress = false;
+            return curr
+        });
     }
 }
 const debouced_publishToFirestore = debounce(publishToFirestore, 2000);
@@ -42,6 +47,7 @@ export type UserData = {
 }
 
 export const firebaseStore = writable({
+    savingInProgress: false,
     isLoading: true,
     currentUser: <User | null>null,
     data: <UserData | null>null
@@ -56,5 +62,11 @@ export const firebaseHandlers = {
         // call firebase logout function
         await signOut(auth)
     },
-    publish: debouced_publishToFirestore
+    publish: ()=> {
+        firebaseStore.update((curr) => {
+            curr.savingInProgress = true;
+            return curr
+        });
+        debouced_publishToFirestore();
+    }
 }

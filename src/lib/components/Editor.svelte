@@ -67,7 +67,7 @@
     display: none !important;
   }
   .quill-editor-wrapper {
-    background-color: var(--bg-alt);
+    background-color: var(--bg);
     overflow-y: hidden;
 
     display: grid;

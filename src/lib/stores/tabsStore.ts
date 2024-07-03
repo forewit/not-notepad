@@ -8,8 +8,6 @@ function newTabFromString(str: string) {
     let data: TabData;
     try {
         data = <TabData>JSON.parse(str);
-        console.log(data)
-
     } catch (err) {
         throw err
     }
@@ -77,7 +75,6 @@ function moveTab(fromIndex: number, toIndex: number, callback = () => { }) {
     })
     callback();
 }
-
 
 export type TabData = {
     id: string;

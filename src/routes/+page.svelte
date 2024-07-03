@@ -26,18 +26,19 @@
 </script>
 
 {#if $firebaseStore.currentUser}
-    <div class="container">
-      <Tabbar logout={firebaseHandlers.logout} />
-      {#if $tabsStore.tabs.length > 0}
+  <div class="container">
+    <Tabbar logout={firebaseHandlers.logout} />
+    {#if $tabsStore.tabs.length > 0}
       {#key $tabsStore.activeIndex}
         {#each $tabsStore.tabs as tab, i}
           <Editor disabled={i !== $tabsStore.activeIndex} />
         {/each}
       {/key}
-      {:else}
-        <div class="editor-placeholder" />
-      {/if}
-    </div>
+    {:else}
+      <div class="editor-placeholder" />
+    {/if}
+    <div class="saved" class:saving={$firebaseStore.savingInProgress}></div>
+  </div>
 {:else if $firebaseStore.isLoading}
   <Spinner />
 {:else}
@@ -55,5 +56,22 @@
 
   .editor-placeholder {
     background-color: var(--bg-alt);
+  }
+
+  .saved {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    transform: rotate(45deg);
+    height: 24px;
+    width: 14px;
+    border-bottom: 6px solid var(--main);
+    border-right: 6px solid var(--main);
+  }
+  .saved.saving {
+    width: 12px;
+    height:12px;
+    border-radius: 50%;
+    background-color: var(--main);
   }
 </style>
