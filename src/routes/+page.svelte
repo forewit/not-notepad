@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "$lib/styles/theme.css";
   import "$lib/styles/quill.css";
   import Tabbar from "$lib/components/Tabbar.svelte";
   import Editor from "$lib/components/Editor.svelte";

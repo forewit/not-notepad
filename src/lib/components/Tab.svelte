@@ -1,7 +1,5 @@
 <script lang="ts">
-  import "$lib/styles/theme.css";
   import { base } from "$app/paths";
-  import { onMount } from "svelte";
 
   export let title = "";
   export let active = false;
@@ -38,7 +36,7 @@
       class="close-button"
       on:click|stopPropagation={onClose}
       draggable="true"
-      on:dragstart|stopPropagation
+      on:dragstart|stopPropagation|preventDefault
     >
       <!-- svg from url -->
       <span

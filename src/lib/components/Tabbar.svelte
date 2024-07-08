@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "$lib/styles/theme.css";
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
   import { tabsStore, tabsHandlers } from "../stores/tabsStore";

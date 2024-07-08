@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "$lib/styles/theme.css"
   import { firebaseHandlers } from "$lib/stores/firebaseStore";
 
   let email = "";

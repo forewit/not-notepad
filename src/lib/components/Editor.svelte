@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "$lib/styles/theme.css";
   import "quill/dist/quill.core.css";
   import "$lib/styles/quill.css";
   import type Quill from "quill/core";

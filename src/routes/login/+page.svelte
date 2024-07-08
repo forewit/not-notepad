@@ -2,12 +2,12 @@
   import Auth from "$lib/components/Auth.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
   import { firebaseStore } from "$lib/stores/firebaseStore";
-  import { appStore } from "$lib/stores/appStore";
+  import { settingsStore } from "$lib/stores/settingsStore";
   import { base } from "$app/paths";
   import { goto } from "$app/navigation";
 
   $: if ($firebaseStore.currentUser) {
-    goto(base+$appStore.authRedirect);
+    goto(base+$settingsStore.authRedirect);
   }
 </script>
 

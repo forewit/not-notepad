@@ -1,7 +1,7 @@
 <script lang="ts">
   import "$lib/styles/normalize.css";
   import "$lib/styles/reset.css";
-  import "$lib/styles/theme.css";
+  import "$lib/styles/global.css";
   import { onMount } from "svelte";
   import { firebaseStore, type UserData } from "$lib/stores/firebaseStore";
   import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -9,7 +9,7 @@
   import { tabsHandlers } from "$lib/stores/tabsStore";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
-
+  import ThemeWrapper from "$lib/components/ThemeWrapper.svelte";
 
   function parseTabStrings(tabStrings: string[]) {
     if (tabStrings.length === 0) return;
@@ -88,21 +88,23 @@
   />
 </svelte:head>
 
-<div class="container">
-  <div class="content">
-    <slot />
+<ThemeWrapper>
+  <div class="container">
+    <div class="content">
+      <slot />
+    </div>
   </div>
-</div>
+</ThemeWrapper>
 
 <style>
   .container {
     background-color: var(--bg);
     /* make fullscreen */
     position: fixed;
-    top: env(safe-area-inset-top);
-    left: env(safe-area-inset-left);
-    right: env(safe-area-inset-right);
-    bottom: env(safe-area-inset-bottom);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   .content {
@@ -110,5 +112,11 @@
     position: absolute;
     width: 100vw;
     height: 100vh;
+  }
+
+  /* global styles */
+  :global(::selection) {
+    background-color: var(--sub);
+    color: var(--bg);
   }
 </style>

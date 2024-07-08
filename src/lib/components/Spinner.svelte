@@ -1,7 +1,3 @@
-<script>
-  import "$lib/styles/theme.css";
-</script>
-
 <div class="spinner-container">
   <span class="spinner" />
 </div>

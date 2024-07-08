@@ -1,26 +1,49 @@
-<script>
-  import "$lib/styles/theme.css";
+<script lang="ts">
   import Spinner from "$lib/components/Spinner.svelte";
-  import { firebaseStore } from "$lib/stores/firebaseStore";
+  import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
+  import { settingsStore } from "$lib/stores/settingsStore";
+  import { themes, type ThemeNames } from "$lib/modules/themes";
+
+  function updateTheme(theme: ThemeNames) {
+    settingsStore.update((curr) => ({ ...curr, theme: theme }));
+  }
 </script>
 
 {#if $firebaseStore.currentUser}
   <div class="form-container">
-    <h1>Settings</h1>
     <form action="">
-      <!-- theme -->
-      <label for="theme">Theme</label>
-      <select name="theme" id="theme">
-        <option value="default">Default</option>
-        <option value="darkened">Darkened</option>
-      </select>
+      <h1>Settings</h1>
+      <section>
+        <div class="themes">
+          {#each themes as theme}
+            <button
+              class="theme-button themed-btn"
+              class:selected={$settingsStore.theme == theme.name}
+              on:click={() => updateTheme(theme.name)}
+              >{theme.name}
+            </button>
+          {/each}
+        </div>
+      </section>
 
-      <!-- spell check -->
-      <label for="spell-check">Spellcheck</label>
-      <input type="checkbox" name="spell-check" id="spell-check" checked />
+      <section>
+        <div class="checkbox">
+          <input
+            class="themed-input"
+            type="checkbox"
+            name="spell-check"
+            bind:checked={$settingsStore.spellCheck}
+          />
+          <label for="spell-check">Spellcheck</label>
+        </div>
+      </section>
 
-      <!-- sign out -->
-      <button type="submit">Sign out</button>
+      <section>
+        <button
+          class="sign-out-button themed-btn error"
+          on:click={() => firebaseHandlers.logout()}>Sign out</button
+        >
+      </section>
     </form>
   </div>
 {:else}
@@ -29,25 +52,47 @@
 
 <style>
   .form-container {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   form {
+    max-width: 400px;
+    margin-top: 40px;
+    margin-inline: 20px;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: left;
+    gap: 16px;
+  }
+
+  .checkbox {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
 
-  label {
+  .themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 
-  select {
+  .theme-button {
+    min-width: 160px;
+    flex-grow: 1;
   }
 
-  button {
+  .theme-button.selected {
   }
 
-  h1 {
-  }
-
-  h2 {
+  .sign-out-button {
+    margin-top: 20px;
+    width: 100px;
   }
 </style>
