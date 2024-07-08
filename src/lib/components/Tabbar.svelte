@@ -5,6 +5,7 @@
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
+  import { goto } from "$app/navigation";
 
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 140; // update in .tabs css also
@@ -370,11 +371,11 @@
       </button>
     </div>
     <div class="logout-container">
-      <button class="logout button" on:click={logout}>
+      <button class="logout button" on:click={()=>goto(base + "/settings")}>
         <span
           class="button-icon"
-          style="-webkit-mask: url({base}/images/svg/logout.svg) no-repeat center / contain;
-      mask: url({base}/images/svg/logout.svg) no-repeat center / contain;"
+          style="-webkit-mask: url({base}/images/svg/gear.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/gear.svg) no-repeat center / contain;"
         ></span>
       </button>
     </div>

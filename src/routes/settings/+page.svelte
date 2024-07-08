@@ -3,6 +3,8 @@
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { settingsStore } from "$lib/stores/settingsStore";
   import { themes, type ThemeNames } from "$lib/modules/themes";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
 
   function updateTheme(theme: ThemeNames) {
     settingsStore.update((curr) => ({ ...curr, theme: theme }));
@@ -12,6 +14,7 @@
 {#if $firebaseStore.currentUser}
   <div class="form-container">
     <form action="">
+      <a href="{base}/">Back</a>
       <h1>Settings</h1>
       <section>
         <div class="themes">
@@ -62,13 +65,18 @@
 
   form {
     max-width: 400px;
-    margin-top: 40px;
+    margin-top: 50px;
     margin-inline: 20px;
 
     display: grid;
     grid-template-columns: 1fr;
     justify-content: left;
     gap: 16px;
+  }
+  a {
+    text-decoration: underline;
+    color: var(--sub);
+    margin-bottom: 12px;
   }
 
   .checkbox {
@@ -93,6 +101,10 @@
 
   .sign-out-button {
     margin-top: 20px;
+    width: 100px;
+  }
+
+  .back-button {
     width: 100px;
   }
 </style>
