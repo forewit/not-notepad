@@ -3,7 +3,6 @@
   import "$lib/styles/quill.css";
   import Tabbar from "$lib/components/Tabbar.svelte";
   import Editor from "$lib/components/Editor.svelte";
-  import Auth from "$lib/components/Auth.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
   import { tabsStore } from "$lib/stores/tabsStore";
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
@@ -39,7 +38,7 @@
       <div class="editor-placeholder" />
     {/if}
     <div
-    class="status"
+      class="status"
       class:saving={$firebaseStore.savingStatus === "saving"}
       class:saved={$firebaseStore.savingStatus === "saved"}
       class:error={$firebaseStore.savingStatus === "error"}
@@ -51,10 +50,8 @@
       ></span>
     </div>
   </div>
-{:else if $firebaseStore.isLoading}
-  <Spinner />
 {:else}
-  <Auth />
+  <Spinner />
 {/if}
 
 <style>
@@ -69,7 +66,6 @@
   .editor-placeholder {
     background-color: var(--bg);
   }
-
 
   .status {
     position: absolute;
@@ -113,5 +109,4 @@
       transform: rotate(1turn);
     }
   }
-  
 </style>

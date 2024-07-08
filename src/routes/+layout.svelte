@@ -6,7 +6,11 @@
   import { firebaseStore, type UserData } from "$lib/stores/firebaseStore";
   import { doc, getDoc, setDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
-  import { tabsHandlers, tabsStore } from "$lib/stores/tabsStore";
+  import { tabsHandlers } from "$lib/stores/tabsStore";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
+
+  let loaded = false;
 
   function parseTabStrings(tabStrings: string[]) {
     if (tabStrings.length === 0) return;
@@ -18,6 +22,10 @@
         return;
       }
     });
+  }
+
+  $: if (!$firebaseStore.currentUser && loaded) {
+    goto(base + "/login");
   }
 
   onMount(() => {
@@ -32,6 +40,8 @@
             currentUser: user,
           };
         });
+
+        loaded = true;
         return;
       }
 
@@ -65,6 +75,7 @@
           data: dataToSetStoreTo,
         };
       });
+      loaded = true;
     });
   });
 </script>
@@ -84,12 +95,13 @@
 
 <style>
   .container {
+    background-color: var(--bg);
     /* make fullscreen */
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: env(safe-area-inset-top);
+    left: env(safe-area-inset-left);
+    right: env(safe-area-inset-right);
+    bottom: env(safe-area-inset-bottom);
   }
 
   .content {
