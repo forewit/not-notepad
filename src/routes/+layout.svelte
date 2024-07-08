@@ -10,7 +10,6 @@
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
 
-  let loaded = false;
 
   function parseTabStrings(tabStrings: string[]) {
     if (tabStrings.length === 0) return;
@@ -23,6 +22,8 @@
       }
     });
   }
+
+  let loaded = false;
 
   $: if (!$firebaseStore.currentUser && loaded) {
     goto(base + "/login");
