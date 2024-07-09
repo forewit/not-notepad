@@ -78,7 +78,7 @@
   }
   .tab:hover,
   .tab:not(.active):has(+ .tab-wrapper .close-button:hover) {
-    background-color: var(--text);
+    background-color: var(--sub);
   }
 
   .tab.active {
@@ -162,15 +162,14 @@
     white-space: nowrap;
     outline: none;
     border: none;
-    pointer-events:none;
+    pointer-events: none;
     overflow: hidden;
   }
   .tab-wrapper input:focus {
     pointer-events: all;
   }
-  .tab:hover ~ .tab-wrapper input,
-  .tab.active ~ .tab-wrapper input,
-  .tab-wrapper input:has(+ .close-button:hover) {
+
+  .tab.active ~ .tab-wrapper input {
     color: var(--bg);
   }
 
@@ -199,7 +198,6 @@
   .close-button:hover .close-icon {
     background-color: var(--text);
   }
-  .tab:hover ~ .tab-wrapper .close-button .close-icon,
   .tab.active ~ .tab-wrapper .close-button:not(:hover) .close-icon {
     background-color: var(--bg);
   }

@@ -1,5 +1,5 @@
 
-type Theme = {
+export type Theme = {
     name: ThemeNames,
     bg: string,
     bgAlt: string,
@@ -10,9 +10,12 @@ type Theme = {
     text: string,
 }
 
-export type ThemeNames = "One Dark" | "Rose Pine Dawn"
+export type ThemeNames = 
+    "One Dark" | "Rose Pine Dawn" | "Blueberry Light" | 
+    "Blueberry Dark" | "Dark" | "Paper" | "Dark Note" | 
+    "Carbon" | "Repose Dark" | | "Me" |"Custom"
 export const themes: Theme[] = [
-     {
+    {
         name: "One Dark",
         bg: "#2f343f",
         bgAlt: "#262b34",
@@ -32,4 +35,84 @@ export const themes: Theme[] = [
         sub: "#c4a7e7",
         text: "#286983",
     },
+    {
+        name: "Blueberry Light",
+        bg: "#dae0f5",
+        bgAlt: "#c1c7df",
+        main: "#506477",
+        caret: "#df4576",
+        error: "#df4576",
+        sub: "#92a4be",
+        text: "#678198",
+    },
+    {
+        name: "Blueberry Dark",
+        bg: "#212b42",
+        bgAlt: "#1b2334",
+        main: "#add7ff",
+        caret: "#962f7e",
+        error: "#df4576",
+        sub: "#5c7da5",
+        text: "#91b4d5",
+    },
+    {
+        name: "Dark",
+        bg: "#111111",
+        bgAlt: "#191919",
+        main: "#eeeeee",
+        caret: "#eeeeee",
+        error: "#da3333",
+        sub: "#444444",
+        text: "#eeeeee",
+    },
+    {
+        name: "Paper",
+        bg: "#eeeeee",
+        bgAlt: "#dddddd",
+        main: "#444444",
+        caret: "#444444",
+        error: "#d70000",
+        sub: "#b2b2b2",
+        text: "#444444",
+    },
+    {
+        name: "Dark Note",
+        bg: "#1f1f1f",
+        bgAlt: "#141414",
+        main: "#f2c17b",
+        caret: "#e3dce0",
+        error: "#ff0000",
+        sub: "#768f95",
+        text: "#d2dff4",
+    },
+    {
+        name: "Carbon",
+        bg: "#313131",
+        bgAlt: "#2b2b2b",
+        main: "#f66e0d",
+        caret: "#f66e0d",
+        error: "#e72d2d",
+        sub: "#616161",
+        text: "#f5e6c8",
+    },
+    {
+        name: "Repose Dark",
+        bg: "#2f3338",
+        bgAlt: "#3a3c3d",
+        main: "#d6d2bc",
+        caret: "#d6d2bc",
+        error: "#ff4a59",
+        sub: "#8f8e84",
+        text: "#d6d2bc",
+    },
+    {
+        name: "Me",
+        bg: "#ffffff",
+        bgAlt: "#eeeeee",
+        main: "#a1a1a1",
+        caret: "#5599aa",
+        error: "#551111",
+        sub: "#cccccc",
+        text: "#222222",
+    }
 ]

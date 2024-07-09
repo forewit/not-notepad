@@ -5,8 +5,10 @@
   $: css = updateCSS($settingsStore.theme);
 
   function updateCSS(themeName: string) {
-    console.log(themeName);
-    const theme = themes.find((t) => t.name === themeName);
+    const theme =
+      themeName === "Custom"
+        ? $settingsStore.customTheme
+        : themes.find((t) => t.name === themeName);
     if (!theme) return "";
 
     return `<style>

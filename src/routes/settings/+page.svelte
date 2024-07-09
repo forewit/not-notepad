@@ -3,7 +3,6 @@
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { settingsStore } from "$lib/stores/settingsStore";
   import { themes, type ThemeNames } from "$lib/modules/themes";
-  import { goto } from "$app/navigation";
   import { base } from "$app/paths";
 
   function updateTheme(theme: ThemeNames) {
@@ -21,18 +20,26 @@
           {#each themes as theme}
             <button
               class="theme-button themed-btn"
-              class:selected={$settingsStore.theme == theme.name}
+              class:chosen={$settingsStore.theme === theme.name}
               on:click={() => updateTheme(theme.name)}
+              style="--bg: {theme.bg}; --bg-alt: {theme.bgAlt}; --main: {theme.main}; --caret: {theme.caret}; --error: {theme.error}; --sub: {theme.sub}; --text: {theme.text};"
               >{theme.name}
             </button>
           {/each}
+          <button
+            class="theme-button themed-btn"
+            class:chosen={$settingsStore.theme === "Custom"}
+            on:click={() => updateTheme("Custom")}
+            style="--bg: {$settingsStore.customTheme.bg}; --bg-alt: {$settingsStore.customTheme.bgAlt}; --main: {$settingsStore.customTheme.main}; --caret: {$settingsStore.customTheme.caret}; --error: {$settingsStore.customTheme.error}; --sub: {$settingsStore.customTheme.sub}; --text: {$settingsStore.customTheme.text};"
+            >Custom
+          </button>
         </div>
       </section>
 
       <section>
         <div class="checkbox">
           <input
-            class="themed-input"
+            class="themed-checkbox"
             type="checkbox"
             name="spell-check"
             bind:checked={$settingsStore.spellCheck}
@@ -64,7 +71,8 @@
   }
 
   form {
-    max-width: 400px;
+    width: 80%;
+    max-width: 800px;
     margin-top: 50px;
     margin-inline: 20px;
 
@@ -86,25 +94,18 @@
   }
 
   .themes {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;
   }
 
-  .theme-button {
-    min-width: 160px;
-    flex-grow: 1;
-  }
-
-  .theme-button.selected {
+  .theme-button:active,
+  .theme-button.chosen {
+    outline: 3px solid var(--caret);
   }
 
   .sign-out-button {
     margin-top: 20px;
-    width: 100px;
-  }
-
-  .back-button {
     width: 100px;
   }
 </style>

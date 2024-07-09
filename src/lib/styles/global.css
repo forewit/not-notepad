@@ -65,7 +65,8 @@
     font-size: var(--font-size);
     background-color: var(--bg-alt);
     color: var(--text);
-    padding: 5px;
+    padding: 8px;
+    margin: 2px;
     border-radius: 5px;
   }
   .themed-btn.error {
@@ -86,10 +87,10 @@
   }
 
 
-  .themed-input[type="checkbox"] {
+  .themed-checkbox {
     --gap: 2px;
-    --height: 18px;
-    --width: 32px;
+    --height: 20px;
+    --width: 40px;
 
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -104,29 +105,29 @@
     border: none;
     cursor: pointer;
     background-color: var(--bg-alt);
-    transition: background-color ease-in-out var(--transition-speed);
   }
   
-  .themed-input[type="checkbox"]:before {
+  .themed-checkbox:before {
     content: "";
     display: block;
     position: absolute;
     z-index: 2;
     width: calc(var(--height) - var(--gap) * 2);
     aspect-ratio: 1;
-    background: var(--bg);
+    background-color: var(--main);
     left: var(--gap);
     top: var(--gap);
     border-radius: 50%;
     transition: all ease-in-out var(--transition-speed);
   }
   
-  .themed-input[type="checkbox"]:checked {
+  .themed-checkbox:checked {
     background-color: var(--main);
   }
   
-  .themed-input[type="checkbox"]:checked:before {
+  .themed-checkbox:checked:before {
     left: calc(var(--width) - var(--height) + var(--gap));
+    background-color: var(--bg);
   }
 
   /* Examples:
