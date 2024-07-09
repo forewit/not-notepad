@@ -12,7 +12,7 @@
   width: var(--editor-scrollbar-size);
 }
 .ql-editor::-webkit-scrollbar-thumb {
-  background-color: var(--editor-scrollbar-color);
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 100vw;
 }
 .ql-editor::-webkit-scrollbar-button {

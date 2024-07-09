@@ -26,7 +26,7 @@
       <section>
         <h2>Theme</h2>
         <p>Current theme: {$settingsStore.theme}</p>
-        <br/>
+        <br />
         <div class="themes">
           {#each themes as theme}
             <button
@@ -43,7 +43,7 @@
       <section>
         <h2>Account</h2>
         <p>Email: {$firebaseStore.currentUser.email}</p>
-        <br/>
+        <br />
         <button
           class="sign-out-button themed-btn error"
           on:click={() => firebaseHandlers.logout()}>Sign out</button
@@ -57,18 +57,30 @@
 
 <style>
   .form-container {
-    width: 100%;
     height: 100%;
+    margin-right: 0.2em;
     background-color: var(--bg);
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: scroll;
+  }
+
+  .form-container::-webkit-scrollbar {
+    width: var(--editor-scrollbar-size);
+  }
+  .form-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 100vw;
+  }
+  .form-container::-webkit-scrollbar-button {
+    height: 0.2rem;
   }
 
   form {
     width: 80%;
     max-width: 800px;
-    margin-top: 50px;
+    margin-block: 50px;
     margin-inline: 20px;
 
     display: grid;
