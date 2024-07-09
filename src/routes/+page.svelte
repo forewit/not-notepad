@@ -3,20 +3,18 @@
   import Editor from "$lib/components/Editor.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
   import { tabsStore } from "$lib/stores/tabsStore";
-  import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
-  import { settingsStore } from "$lib/stores/settingsStore";
+  import { firebaseStore } from "$lib/stores/firebaseStore";
 
+  $: activeTab = $tabsStore.tabs[$tabsStore.activeIndex];
 </script>
 
 {#if $firebaseStore.currentUser}
   <div class="container">
     <Tabbar />
     {#if $tabsStore.tabs.length > 0}
-      {#key $tabsStore.activeIndex}
-        {#each $tabsStore.tabs as tab, i}
-          <Editor disabled={i !== $tabsStore.activeIndex} />
+        {#each $tabsStore.tabs as tab}
+          <Editor disabled={tab.id !== activeTab.id} tabID={tab.id}/>
         {/each}
-      {/key}
     {:else}
       <div class="editor-placeholder" />
     {/if}

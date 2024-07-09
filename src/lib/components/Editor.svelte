@@ -7,6 +7,7 @@
   import { tabsStore } from "../stores/tabsStore";
 
   export let disabled = false;
+  export let tabID: string;
 
   let quillEditor: Quill;
   let editorDiv: HTMLElement;
@@ -17,19 +18,23 @@
     quillEditor?.enable();
   }
 
-  function loadContentFromActiveTab() {
+  function loadContentFromTab() {
     if (!quillEditor) return;
-    quillEditor.setContents($tabsStore.tabs[$tabsStore.activeIndex].ops);
+    const ops = $tabsStore.tabs.find((tab) => tab.id === tabID)?.ops;
+    if (!ops) return;
+    quillEditor.setContents(ops);
   }
 
-  function saveContentToActiveTab() {
+  function saveContentToTab() {
     if (!quillEditor) return;
-    $tabsStore.tabs[$tabsStore.activeIndex].ops = quillEditor.getContents().ops;
+    const tabIndex = $tabsStore.tabs.findIndex((tab) => tab.id === tabID);
+    if (tabIndex === -1) return;
+    $tabsStore.tabs[tabIndex].ops = quillEditor.getContents().ops;
   }
 
   function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
     if (source === "user") {
-      saveContentToActiveTab();
+      saveContentToTab();
     }
   }
 
@@ -41,7 +46,7 @@
       placeholder: "Enter text here",
     });
 
-    loadContentFromActiveTab();
+    loadContentFromTab();
     quillEditor.on("text-change", handleQuillInput);
 
     quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
