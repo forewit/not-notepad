@@ -4,7 +4,6 @@
   import { settingsStore } from "$lib/stores/settingsStore";
   import { themes } from "$lib/modules/themes";
   import { base } from "$app/paths";
-  import SyncStatus from "$lib/components/SyncStatus.svelte";
 </script>
 
 {#if $firebaseStore.currentUser}
@@ -28,7 +27,7 @@
         <h2>Theme</h2>
         <p>Current theme: {$settingsStore.theme}</p>
         <br/>
-        <div class="custom-themes">
+        <div class="themes">
           {#each themes as theme}
             <button
               class="theme-button themed-btn"
@@ -89,7 +88,7 @@
     gap: 12px;
   }
 
-  .custom-themes {
+  .themes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;

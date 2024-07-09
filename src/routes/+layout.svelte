@@ -3,15 +3,44 @@
   import "$lib/styles/reset.css";
   import "$lib/styles/global.css";
   import { onMount } from "svelte";
-  import { firebaseStore, type UserData } from "$lib/stores/firebaseStore";
+  import {
+    firebaseHandlers,
+    firebaseStore,
+    type UserData,
+  } from "$lib/stores/firebaseStore";
+  import { tabsStore } from "$lib/stores/tabsStore";
   import { doc, getDoc, setDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
   import { tabsHandlers } from "$lib/stores/tabsStore";
+  import { settingsStore } from "$lib/stores/settingsStore";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
   import { authRedirect } from "$lib/stores/settingsStore";
   import ThemeWrapper from "$lib/components/ThemeWrapper.svelte";
   import SyncStatus from "$lib/components/SyncStatus.svelte";
+
+  function publishToFirestore() {
+    const tabStrings = $tabsStore.tabs.map((tab) => {
+      return JSON.stringify(tab);
+    });
+
+    firebaseStore.update((curr) => {
+      return {
+        ...curr,
+        data: {
+          activeIndex: $tabsStore.activeIndex,
+          tabs: tabStrings,
+          settings: $settingsStore,
+        },
+      };
+    });
+
+    firebaseHandlers.publish();
+  }
+
+  // publish to firestore when settingsStore or tabsStore changes
+  tabsStore.subscribe(publishToFirestore);
+  settingsStore.subscribe(publishToFirestore);
 
   function parseTabStrings(tabStrings: string[]) {
     if (tabStrings.length === 0) return;
@@ -26,11 +55,8 @@
   }
 
   let loaded = false;
-
   $: if (!$firebaseStore.currentUser && loaded) {
-    // set redirect url to the current path
     $authRedirect = window.location.pathname;
-    // then forward to the login page
     goto(base + "/login");
   }
 
@@ -72,9 +98,10 @@
         dataToSetStoreTo = userData as UserData;
       }
 
-      // parse tabs to update tabsStore
+      // save user data to tabsStore and settingsStore
       parseTabStrings(dataToSetStoreTo.tabs);
       tabsHandlers.setActiveIndex(dataToSetStoreTo.activeIndex);
+      $settingsStore = dataToSetStoreTo.settings;
 
       // update firebaseStore
       firebaseStore.update((curr) => {
