@@ -118,7 +118,7 @@
     left: var(--gap);
     top: var(--gap);
     border-radius: 50%;
-    transition: all ease-in-out var(--transition-speed);
+    transition: left ease-in-out var(--transition-speed);
   }
   
   .themed-checkbox:checked {

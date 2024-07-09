@@ -1,14 +1,11 @@
 <script lang="ts">
   import { settingsStore } from "$lib/stores/settingsStore";
-  import { themes } from "$lib/modules/themes";
+  import { themes, type ThemeNames } from "$lib/modules/themes";
 
   $: css = updateCSS($settingsStore.theme);
 
-  function updateCSS(themeName: string) {
-    const theme =
-      themeName === "Custom"
-        ? $settingsStore.customTheme
-        : themes.find((t) => t.name === themeName);
+  function updateCSS(themeName: ThemeNames) {
+    const theme = themes.find((t) => t.name === themeName);
     if (!theme) return "";
 
     return `<style>

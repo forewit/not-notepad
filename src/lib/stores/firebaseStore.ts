@@ -3,6 +3,7 @@ import { writable, get } from "svelte/store";
 import { auth } from "$lib/firebase/firebase.client";
 import { db } from "$lib/firebase/firebase.client";
 import { doc, setDoc } from "firebase/firestore";
+import { type Settings } from "./settingsStore";
 
 
 // a debounce function that only triggers on the trailing edge
@@ -49,6 +50,7 @@ const debouced_publishToFirestore = debounce(publishToFirestore, 2000);
 export type UserData = {
     tabs: string[],
     activeIndex: number
+    settings: Settings
 }
 
 export const firebaseStore = writable({

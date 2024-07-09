@@ -9,7 +9,9 @@
   import { tabsHandlers } from "$lib/stores/tabsStore";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
+  import { authRedirect } from "$lib/stores/settingsStore";
   import ThemeWrapper from "$lib/components/ThemeWrapper.svelte";
+  import SyncStatus from "$lib/components/SyncStatus.svelte";
 
   function parseTabStrings(tabStrings: string[]) {
     if (tabStrings.length === 0) return;
@@ -26,6 +28,9 @@
   let loaded = false;
 
   $: if (!$firebaseStore.currentUser && loaded) {
+    // set redirect url to the current path
+    $authRedirect = window.location.pathname;
+    // then forward to the login page
     goto(base + "/login");
   }
 
@@ -50,7 +55,11 @@
       // get firestore document data
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
-      let dataToSetStoreTo: UserData = { tabs: [], activeIndex: 0 };
+      let dataToSetStoreTo: UserData = {
+        tabs: [],
+        activeIndex: 0,
+        settings: { theme: "Canvas", spellCheck: true },
+      };
 
       // create a new user doc if it doesn't exist
       if (!docSnap.exists()) {
@@ -92,6 +101,9 @@
   <div class="container">
     <div class="content">
       <slot />
+      <div class="sync-status">
+        <SyncStatus></SyncStatus>
+      </div>
     </div>
   </div>
 </ThemeWrapper>
@@ -114,9 +126,9 @@
     height: 100vh;
   }
 
-  /* global styles */
-  :global(::selection) {
-    background-color: var(--sub);
-    color: var(--bg);
+  .sync-status {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
   }
 </style>

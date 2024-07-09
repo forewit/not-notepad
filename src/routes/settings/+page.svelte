@@ -2,12 +2,9 @@
   import Spinner from "$lib/components/Spinner.svelte";
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { settingsStore } from "$lib/stores/settingsStore";
-  import { themes, type ThemeNames } from "$lib/modules/themes";
+  import { themes } from "$lib/modules/themes";
   import { base } from "$app/paths";
-
-  function updateTheme(theme: ThemeNames) {
-    settingsStore.update((curr) => ({ ...curr, theme: theme }));
-  }
+  import SyncStatus from "$lib/components/SyncStatus.svelte";
 </script>
 
 {#if $firebaseStore.currentUser}
@@ -15,27 +12,6 @@
     <form action="">
       <a href="{base}/">Back</a>
       <h1>Settings</h1>
-      <section>
-        <div class="themes">
-          {#each themes as theme}
-            <button
-              class="theme-button themed-btn"
-              class:chosen={$settingsStore.theme === theme.name}
-              on:click={() => updateTheme(theme.name)}
-              style="--bg: {theme.bg}; --bg-alt: {theme.bgAlt}; --main: {theme.main}; --caret: {theme.caret}; --error: {theme.error}; --sub: {theme.sub}; --text: {theme.text};"
-              >{theme.name}
-            </button>
-          {/each}
-          <button
-            class="theme-button themed-btn"
-            class:chosen={$settingsStore.theme === "Custom"}
-            on:click={() => updateTheme("Custom")}
-            style="--bg: {$settingsStore.customTheme.bg}; --bg-alt: {$settingsStore.customTheme.bgAlt}; --main: {$settingsStore.customTheme.main}; --caret: {$settingsStore.customTheme.caret}; --error: {$settingsStore.customTheme.error}; --sub: {$settingsStore.customTheme.sub}; --text: {$settingsStore.customTheme.text};"
-            >Custom
-          </button>
-        </div>
-      </section>
-
       <section>
         <div class="checkbox">
           <input
@@ -49,6 +25,26 @@
       </section>
 
       <section>
+        <h2>Theme</h2>
+        <p>Current theme: {$settingsStore.theme}</p>
+        <br/>
+        <div class="custom-themes">
+          {#each themes as theme}
+            <button
+              class="theme-button themed-btn"
+              class:chosen={$settingsStore.theme === theme.name}
+              on:click={() => ($settingsStore.theme = theme.name)}
+              style="--bg: {theme.bg}; --bg-alt: {theme.bgAlt}; --main: {theme.main}; --caret: {theme.caret}; --error: {theme.error}; --sub: {theme.sub}; --text: {theme.text};"
+              >{theme.name}
+            </button>
+          {/each}
+        </div>
+      </section>
+
+      <section>
+        <h2>Account</h2>
+        <p>Email: {$firebaseStore.currentUser.email}</p>
+        <br/>
         <button
           class="sign-out-button themed-btn error"
           on:click={() => firebaseHandlers.logout()}>Sign out</button
@@ -93,7 +89,7 @@
     gap: 12px;
   }
 
-  .themes {
+  .custom-themes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;
@@ -105,7 +101,6 @@
   }
 
   .sign-out-button {
-    margin-top: 20px;
     width: 100px;
   }
 </style>
