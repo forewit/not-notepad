@@ -19,11 +19,14 @@
   import ThemeWrapper from "$lib/components/ThemeWrapper.svelte";
   import SyncStatus from "$lib/components/SyncStatus.svelte";
 
+  let preventPublishing = true;
+
   function publishToFirestore() {
+    if (preventPublishing) return;
+
     const tabStrings = $tabsStore.tabs.map((tab) => {
       return JSON.stringify(tab);
     });
-
     firebaseStore.update((curr) => {
       return {
         ...curr,
@@ -34,12 +37,13 @@
         },
       };
     });
-
     firebaseHandlers.publish();
   }
 
   // publish to firestore when settingsStore or tabsStore changes
-  tabsStore.subscribe(publishToFirestore);
+  tabsStore.subscribe(()=> { 
+    publishToFirestore();
+  });
   settingsStore.subscribe(publishToFirestore);
 
   function parseTabStrings(tabStrings: string[]) {
@@ -113,6 +117,7 @@
         };
       });
       loaded = true;
+      preventPublishing = false;
     });
   });
 </script>
