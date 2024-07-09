@@ -60,7 +60,8 @@
 
   let loaded = false;
   $: if (!$firebaseStore.currentUser && loaded) {
-    $authRedirect = window.location.pathname;
+    // window.location.pathname without the base
+    $authRedirect = window.location.pathname.slice(base.length);
     goto(base + "/login");
   }
 

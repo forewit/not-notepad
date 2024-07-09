@@ -23,8 +23,6 @@
   async function rebuildHistoryStack(stack: HistoryStack) {
     if (!quillEditor) return;
     const { Delta: Delta, Range: Range } = await import("quill/core");
-    console.log("Rebuilding history stack", stack);
-
     if (stack.undo.length > 0) {
       for (var i = 0; i < stack.undo.length; i++) {
         const index = stack.undo[i].range?.index;
