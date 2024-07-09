@@ -18,17 +18,6 @@
     --error: ${theme.error};
     --sub: ${theme.sub};
     --text: ${theme.text};
-    --font: ${theme.font};
-    --font-size: ${theme.fontSize};
-    --ui-font: ${theme.uiFont};
-    --ui-font-size: ${theme.uiFontSize};
-    --transition-speed: ${theme.transitionSpeed};
-    --tabbar-scrollbar-size: ${theme.tabbarScrollbarSize};
-    --tabbar-height: ${theme.tabbarHeight};
-    --tab-height: ${theme.tabHeight};
-    --tab-radius: ${theme.tabRadius};
-    --tab-gaps: ${theme.tabGaps};
-    --editor-scrollbar-size: ${theme.editorScrollbarSize};
     }
     </style>`;
   }
