@@ -14,8 +14,6 @@
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
-  export let logout = () => {};
-
   let tabsElm: HTMLDivElement;
   let tabElms: HTMLElement[] = [];
   let lockWidth = 0;

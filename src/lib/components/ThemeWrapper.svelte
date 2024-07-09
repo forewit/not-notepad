@@ -5,7 +5,7 @@
   $: css = updateCSS($settingsStore.theme);
 
   function updateCSS(themeName: string) {
-    console.log(themeName)
+    console.log(themeName);
     const theme = themes.find((t) => t.name === themeName);
     if (!theme) return "";
 
@@ -34,8 +34,5 @@
   }
 </script>
 
-<svelte:head>
-  {@html css}
-</svelte:head>
-
+{@html css}
 <slot />
