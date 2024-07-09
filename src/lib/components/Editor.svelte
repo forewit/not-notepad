@@ -3,6 +3,8 @@
   import "$lib/styles/quill.css";
   import type Quill from "quill/core";
   import type { Delta } from "quill/core";
+  import type { HistoryStack } from "$lib/stores/tabsStore";
+  import type { StackItem } from "quill/modules/history";
   import { onMount } from "svelte";
   import { tabsStore } from "../stores/tabsStore";
 
@@ -18,18 +20,57 @@
     quillEditor?.enable();
   }
 
+  async function rebuildHistoryStack(stack: HistoryStack) {
+    if (!quillEditor) return;
+    const { Delta: Delta, Range: Range } = await import("quill/core");
+    console.log("Rebuilding history stack", stack);
+
+    if (stack.undo.length > 0) {
+      for (var i = 0; i < stack.undo.length; i++) {
+        const index = stack.undo[i].range?.index;
+        const length = stack.undo[i].range?.length;
+
+        const item: StackItem = {
+          delta: new Delta(stack.undo[i].delta.ops),
+          range: (index !== undefined && length !== undefined) ? new Range(index, length) : null,
+        };
+        quillEditor.history.stack.undo.push(item);
+      }
+    }
+    if (stack.redo.length > 0) {
+      for (var i = 0; i < stack.redo.length; i++) {
+        const index = stack.redo[i].range?.index;
+        const length = stack.redo[i].range?.length;
+
+        const item: StackItem = {
+          delta: new Delta(stack.redo[i].delta.ops),
+          range: (index !== undefined && length !== undefined) ? new Range(index, length) : null,
+        };
+        quillEditor.history.stack.redo.push(item);
+      }
+    }
+  }
+
   function loadContentFromTab() {
     if (!quillEditor) return;
-    const ops = $tabsStore.tabs.find((tab) => tab.id === tabID)?.ops;
-    if (!ops) return;
+    const tabIndex = $tabsStore.tabs.findIndex((tab) => tab.id === tabID);
+    if (tabIndex === -1) return;
+
+    const ops = $tabsStore.tabs[tabIndex].ops;
     quillEditor.setContents(ops);
+
+    const history = $tabsStore.tabs[tabIndex].history;
+    rebuildHistoryStack(history);
   }
 
   function saveContentToTab() {
     if (!quillEditor) return;
     const tabIndex = $tabsStore.tabs.findIndex((tab) => tab.id === tabID);
     if (tabIndex === -1) return;
+
     $tabsStore.tabs[tabIndex].ops = quillEditor.getContents().ops;
+    const history = structuredClone(quillEditor.history.stack);
+    $tabsStore.tabs[tabIndex].history = history;
   }
 
   function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
@@ -51,6 +92,7 @@
 
     quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
       quillEditor.format("code", !quillEditor.getFormat().code);
+      console.log(quillEditor.history);
     });
     quillEditor.keyboard.addBinding({ key: "-", altKey: true }, () => {
       quillEditor.format("strike", !quillEditor.getFormat().strike);

@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import type { Op } from "quill/core";
+import type { StackItem } from "quill/modules/history";
 
 function generateUUID() {
     return crypto.randomUUID();
@@ -19,7 +20,7 @@ function newTabFromString(str: string) {
 }
 function newTab(options?: { data?: TabData, index?: number, callback?: () => void }) {
 
-    const { data = { id: generateUUID(), title: "Untitled", ops: [] }, index = -1, callback = () => { } } = options || {};
+    const { data = { id: generateUUID(), title: "Untitled", ops: [], history: { undo: [], redo: [] } }, index = -1, callback = () => { } } = options || {};
 
     tabsStore.update(curr => {
         if (curr.tabs.some((tab) => tab.id == data.id)) return curr;
@@ -76,10 +77,16 @@ function moveTab(fromIndex: number, toIndex: number, callback = () => { }) {
     callback();
 }
 
+export type HistoryStack = {
+    undo: StackItem[],
+    redo: StackItem[]
+}
+
 export type TabData = {
     id: string;
     title: string;
     ops: Op[];
+    history: HistoryStack;
 }
 
 export const tabsStore = writable({
