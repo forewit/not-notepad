@@ -1,1 +1,0 @@
-import{w as e}from"./paths.C34Vadu8.js";const a=e({authRedirect:"/",theme:"Custom",spellCheck:!0,customTheme:{name:"Custom",bg:"#ffffff",bgAlt:"#eeeeee",main:"#a1a1a1",caret:"#5599aa",error:"#551111",sub:"#cccccc",text:"#222222"}});export{a as s};
