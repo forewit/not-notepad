@@ -7,6 +7,7 @@
   import type { StackItem } from "quill/modules/history";
   import { onMount } from "svelte";
   import { tabsStore } from "../stores/tabsStore";
+  import { settingsStore } from "../stores/settingsStore";
 
   export let disabled = false;
   export let tabID: string;
@@ -19,6 +20,9 @@
   } else {
     quillEditor?.enable();
   }
+
+  $: quillEditor?.root.setAttribute("spellcheck", $settingsStore.spellCheck.toString());
+  
 
   async function rebuildHistoryStack(stack: HistoryStack) {
     if (!quillEditor) return;

@@ -64,6 +64,7 @@
     flex-direction: column;
     align-items: center;
     overflow-y: scroll;
+    overflow-x: hidden;
   }
 
   .form-container::-webkit-scrollbar {
