@@ -9,30 +9,23 @@
 </script>
 
 {#if $firebaseStore.currentUser}
-  <div class="container">
+  <div class="page-container">
     <Tabbar />
-    {#if $metadataStore.order.length > 0}
-        {#each Object.keys($tabsStore) as id}
-          <Editor disabled={id !== activeTabID} tabID={id}/>
-        {/each}
-    {:else}
-      <div class="editor-placeholder" />
-    {/if}
+    {#each Object.keys($tabsStore) as id}
+      <Editor disabled={id !== activeTabID} tabID={id} />
+    {/each}
   </div>
 {:else}
   <Spinner />
 {/if}
 
 <style>
-  .container {
-    position: relative;
+  .page-container {
+    background-color: var(--bg);
     height: 100%;
+    position: relative;
     display: grid;
     grid-template-rows: min-content 1fr;
     grid-template-columns: 100%;
-  }
-
-  .editor-placeholder {
-    background-color: var(--bg);
   }
 </style>

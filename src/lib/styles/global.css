@@ -41,6 +41,11 @@
     color: var(--bg);
   }
 
+  body {
+    background-color: var(--bg);
+    height: 100vh;
+  }
+
   h1 {
     font-family: var(--ui-font);
     color: var(--sub);
@@ -72,10 +77,6 @@
   }
   .themed-btn.error {
     background-color: var(--error);
-    color: var(--bg);
-  }
-  .themed-btn.selected {
-    background-color: var(--main);
     color: var(--bg);
   }
   .themed-btn:hover {

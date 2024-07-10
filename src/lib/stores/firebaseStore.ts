@@ -2,7 +2,7 @@ import { signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
 import { writable, get } from "svelte/store";
 import { auth } from "$lib/firebase/firebase.client";
 import { db } from "$lib/firebase/firebase.client";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { type Settings } from "./settingsStore";
 
 
@@ -28,8 +28,8 @@ async function publishToFirestore() {
     if (!user || !data) return;
     try {
         const userRef = doc(db, "users", user.uid);
-
-        await setDoc(userRef, data, { merge: true });
+        await updateDoc(userRef, data)
+        //await setDoc(userRef, data, { merge: true });
         console.log("Save successful!", data);
         firebaseStore.update((curr) => {
             curr.savingStatus = "saved";

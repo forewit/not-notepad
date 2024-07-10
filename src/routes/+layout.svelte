@@ -43,6 +43,7 @@
   settingsStore.subscribe(publishToFirestore);
 
   function parseTabStrings(tabStrings: Record<string, string>) {
+    if (!tabStrings) return;
     Object.entries(tabStrings).forEach(([id, tabString]) => {
       try {
         tabsHandlers.newTabFromString(id, tabString);
@@ -126,31 +127,19 @@
 
 <ThemeWrapper>
   <div class="container">
-    <div class="content">
+    <!-- <div class="content"> -->
       <slot />
       <div class="sync-status">
         <SyncStatus></SyncStatus>
       </div>
-    </div>
+    <!-- </div> -->
   </div>
 </ThemeWrapper>
 
 <style>
   .container {
     background-color: var(--bg);
-    /* make fullscreen */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  .content {
-    /* fill container */
-    position: absolute;
-    width: 100vw;
-    height: 100vh;
+    height: 100%;
   }
 
   .sync-status {
