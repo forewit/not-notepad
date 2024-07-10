@@ -8,7 +8,11 @@
     firebaseStore,
     type UserData,
   } from "$lib/stores/firebaseStore";
-  import { tabsStore, tabsHandlers, metadataStore } from "$lib/stores/tabsStore";
+  import {
+    tabsStore,
+    tabsHandlers,
+    metadataStore,
+  } from "$lib/stores/tabsStore";
   import { doc, getDoc, setDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
   import { settingsStore } from "$lib/stores/settingsStore";
@@ -19,6 +23,7 @@
   import SyncStatus from "$lib/components/SyncStatus.svelte";
 
   let preventPublishing = true;
+  let layoutContainer: HTMLElement;
 
   function publishToFirestore() {
     if (preventPublishing) return;
@@ -26,15 +31,15 @@
     let tabStrings: Record<string, string> = {};
     Object.entries($tabsStore).forEach(([id, tab]) => {
       tabStrings[id] = JSON.stringify(tab);
-    })
+    });
 
     const userData: UserData = {
       activeIndex: $metadataStore.activeIndex,
       settings: $settingsStore,
-      tabs: tabStrings
-    }
+      tabs: tabStrings,
+    };
 
-    firebaseStore.update((curr) => ({...curr, data: userData}));
+    firebaseStore.update((curr) => ({ ...curr, data: userData }));
     firebaseHandlers.publish();
   }
 
@@ -51,7 +56,27 @@
         console.warn("Failed to parse tab!", tabString, err);
         return;
       }
-    })
+    });
+  }
+
+  function handleOrientationChange() {
+    switch (screen.orientation.type) {
+      case "portrait-primary":
+      document.documentElement.style.setProperty('--safe-area-top', 'env(safe-area-inset-top)');
+      document.documentElement.style.setProperty('--safe-area-left', '0px');
+      document.documentElement.style.setProperty('--safe-area-right', '0px');
+        break;
+      case "landscape-primary":
+        document.documentElement.style.setProperty('--safe-area-top', '0px');
+        document.documentElement.style.setProperty('--safe-area-left', 'env(safe-area-inset-left)');
+        document.documentElement.style.setProperty('--safe-area-right', '0px');
+        break;
+      case "landscape-secondary":
+        document.documentElement.style.setProperty('--safe-area-top', '0px');
+        document.documentElement.style.setProperty('--safe-area-left', '0px');
+        document.documentElement.style.setProperty('--safe-area-right', 'env(safe-area-inset-right)');
+        break;
+    }
   }
 
   let loaded = false;
@@ -61,6 +86,8 @@
   }
 
   onMount(() => {
+    screen.orientation.addEventListener("change", handleOrientationChange);
+
     // update firebaseStore on authentication state changes
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       // logged out
@@ -126,18 +153,16 @@
 </svelte:head>
 
 <ThemeWrapper>
-  <div class="container">
-    <!-- <div class="content"> -->
-      <slot />
-      <div class="sync-status">
-        <SyncStatus></SyncStatus>
-      </div>
-    <!-- </div> -->
+  <div bind:this={layoutContainer} class="layout-container">
+    <slot />
+    <div class="sync-status">
+      <SyncStatus></SyncStatus>
+    </div>
   </div>
 </ThemeWrapper>
 
 <style>
-  .container {
+  .layout-container {
     background-color: var(--bg);
     position: fixed;
     top: 0;

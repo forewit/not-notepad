@@ -372,8 +372,8 @@
         ></span>
       </button>
     </div>
-    <div class="logout-container">
-      <button class="logout button" on:click={()=>goto(base + "/settings")}>
+    <div class="settings-container">
+      <button class="button" on:click={()=>goto(base + "/settings")}>
         <span
           class="button-icon"
           style="-webkit-mask: url({base}/images/svg/gear.svg) no-repeat center / contain;
@@ -399,7 +399,7 @@
     background-color: var(--bg);
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr 40px;
+    grid-template-columns: auto 1fr calc(42px + var(--safe-area-right));
     align-items: end;
     height: var(--tabbar-height);
   }
@@ -413,7 +413,7 @@
     margin-bottom: var(--tab-gaps);
     display: flex;
   }
-  .logout-container {
+  .settings-container {
     margin-bottom: var(--tab-gaps);
   }
 
@@ -426,7 +426,7 @@
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
     gap: var(--tab-gaps);
     overflow-x: scroll;
-    padding-inline: calc(var(--tab-radius) + 8px) var(--tab-radius);
+    padding-inline: calc(var(--tab-radius) + 8px + var(--safe-area-left)) var(--tab-radius);
   }
 
   .tabs::-webkit-scrollbar {
