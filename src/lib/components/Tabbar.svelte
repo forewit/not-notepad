@@ -67,10 +67,10 @@
       unlockWidth();
     }
 
-    if (index == $metadataStore.order.length - 1) {
-      tabsHandlers.setActiveIndex(index - 1);
-    } else if (index == $metadataStore.activeIndex) {
-      tabsHandlers.setActiveIndex(index + 1);
+    // pre-emtive tab switching if you close the active tab
+    if (index == $metadataStore.activeIndex) {
+      if (index == $metadataStore.order.length - 1) tabsHandlers.setActiveIndex(index - 1);
+      else tabsHandlers.setActiveIndex(index + 1);
     }
 
     animateSimple({
@@ -386,7 +386,7 @@
       <Tab title={draggedTabTitle} active={!draggingOutside} preventHover />
     </div>
   </div>
-  <div class="separator"></div>
+  <div class="divider"></div>
 </div>
 
 <style>
@@ -405,9 +405,9 @@
     height: var(--tabbar-height);
   }
 
-  .separator {
+  .divider {
     background-color: var(--main);
-    height: var(--tabbar-scrollbar-size);
+    height: var(--tabbar-divider-size);
   }
 
   .new-tab-container {

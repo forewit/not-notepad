@@ -29,8 +29,6 @@ async function publishToFirestore() {
     try {
         const userRef = doc(db, "users", user.uid);
         await updateDoc(userRef, data)
-        //await setDoc(userRef, data, { merge: true });
-        console.log("Save successful!", data);
         firebaseStore.update((curr) => {
             curr.savingStatus = "saved";
             return curr

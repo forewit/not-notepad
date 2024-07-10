@@ -34,7 +34,7 @@
     />
     <button
       class="close-button"
-      on:click|stopPropagation={onClose}
+      on:click|stopPropagation|preventDefault={onClose}
       draggable="true"
       on:dragstart|stopPropagation|preventDefault
     >
@@ -125,10 +125,10 @@
   }
 
   @container tab (width < 60px) {
-    .tab:not(.active) ~ .close-button {
+    .tab:not(.active) ~ .tab-wrapper .close-button {
       display: none;
     }
-    .tab:not(.active) ~ input {
+    .tab:not(.active) ~ .tab-wrapper input {
       margin-inline: 6px;
     }
   }
@@ -150,6 +150,7 @@
     display: grid;
     grid-auto-flow: column;
     align-items: center;
+    overflow: hidden;
   }
 
   .tab-wrapper input {
@@ -164,7 +165,6 @@
     outline: none;
     border: none;
     pointer-events: none;
-    overflow: hidden;
   }
   .tab-wrapper input:focus {
     pointer-events: all;
@@ -176,9 +176,8 @@
 
   .close-button {
     pointer-events: all;
-    width: 1.5em;
-    height: 1.5em;
-    aspect-ratio: 1;
+    width: 24px;
+    height: 24px;
     margin-inline: 3px 0.4em;
     border-radius: 50%;
 
@@ -192,8 +191,8 @@
   }
 
   .close-icon {
-    width: 0.7em;
-    aspect-ratio: 1;
+    width: 12px;
+    height: 12px;
   }
   .close-icon,
   .close-button:hover .close-icon {

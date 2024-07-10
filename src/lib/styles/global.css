@@ -25,16 +25,13 @@
     --transition-speed: 200ms;
   
     /* tabbar */
-    --tabbar-scrollbar-size: 0.3rem;
+    --tabbar-divider-size: 0.3rem;
     --tabbar-height: 60px;
   
     /* tabs */
     --tab-height: 40px;
     --tab-radius: 12px;
     --tab-gaps: 6px;
-  
-    /* Editor */
-    --editor-scrollbar-size: 0.3rem;
   }
 
 
