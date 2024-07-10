@@ -162,7 +162,7 @@
   // Drag-and-drop handlers
   function dragstartHandler(e: DragEvent) {
     if (!e.target || !e.dataTransfer) return;
-    e.dataTransfer.setData("text/plain", draggedTabIndex.toString());
+    e.dataTransfer.setData("text/plain", activeTabID);
     e.dataTransfer.setDragImage(new Image(), 0, 0);
   }
 
