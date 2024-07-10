@@ -205,10 +205,10 @@
     const tabWidth = tabElms[0].getBoundingClientRect().width;
     let moveToIndex = -1;
 
-    if (x > farLeft + $tabsStore.tabs.length * tabWidth) {
-      moveToIndex = $tabsStore.tabs.length - 1;
+    if (x > farLeft + $metadataStore.order.length * tabWidth) {
+      moveToIndex = $metadataStore.order.length - 1;
     } else {
-      for (let i = 0; i < $tabsStore.tabs.length; i++) {
+      for (let i = 0; i < $metadataStore.order.length; i++) {
         if (x > farLeft + i * tabWidth && x < farLeft + (i + 1) * tabWidth) {
           moveToIndex = i;
           break;
@@ -226,8 +226,8 @@
       scrollBy = 0;
     }
 
-    if (moveToIndex == -1 || moveToIndex == $tabsStore.placeholderIndex) return;
-    animateMovingTab($tabsStore.placeholderIndex, moveToIndex);
+    if (moveToIndex == -1 || moveToIndex == $metadataStore.placeholderIndex) return;
+    animateMovingTab($metadataStore.placeholderIndex, moveToIndex);
   }
 
   let last = 0;
@@ -343,7 +343,7 @@
 <div bind:this={tabbarContainerElm}>
   <div class="tabbar">
     <div class="tabs" bind:this={tabsElm}>
-      {#each Object.entries($tabsStore) as [id, tab], i}
+      {#each $metadataStore.order as id, i (id)}
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
           bind:this={tabElms[i]}
@@ -351,8 +351,8 @@
           class:placeholder={placeholderTabID == id}
           use:animateTabOpening
         >
-          <Tab
-            bind:title={tab.title}
+      b    <Tab
+            bind:title={$tabsStore[id].title}
             active={activeTabID == id}
             {preventHover}
             onClose={() => closeTab(id)}
