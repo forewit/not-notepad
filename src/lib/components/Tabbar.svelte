@@ -351,7 +351,7 @@
           class:placeholder={placeholderTabID == id}
           use:animateTabOpening
         >
-      b    <Tab
+          <Tab
             bind:title={$tabsStore[id].title}
             active={activeTabID == id}
             {preventHover}
