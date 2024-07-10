@@ -8,16 +8,10 @@
   color: var(--text) !important;
 }
 
-.ql-editor::-webkit-scrollbar {
-  width: var(--editor-scrollbar-size);
-}
-.ql-editor::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 100vw;
-}
-.ql-editor::-webkit-scrollbar-button {
-  height: 0.6rem;
-}
+.ql-editor{
+  scrollbar-width: thin;;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+} 
 
 .ql-editor code {
   font-size: 85%;

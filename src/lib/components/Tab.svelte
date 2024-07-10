@@ -156,6 +156,7 @@
     color: var(--text);
     font-family: var(--ui-font);
     font-size: var(--ui-font-size);
+    min-width: 0;
     background-color: transparent;
     padding: 0;
     margin-inline-start: 0.7em;

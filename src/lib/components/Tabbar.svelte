@@ -393,6 +393,7 @@
   * {
     user-select: none;
     -webkit-user-select: none;
+    -moz-user-select: none;
   }
 
   .tabbar {
@@ -427,27 +428,11 @@
     gap: var(--tab-gaps);
     overflow-x: scroll;
     padding-inline: calc(var(--tab-radius) + 8px + var(--safe-area-left)) var(--tab-radius);
+    scrollbar-width: none;
   }
 
   .tabs::-webkit-scrollbar {
     display: none;
-  }
-
-  @supports (scrollbar-width: thin) {
-    .tabs {
-      margin-bottom: calc(-1 * var(--tabbar-scrollbar-size));
-    }
-    .tabs::-webkit-scrollbar {
-      height: var(--tabbar-scrollbar-size);
-      display: block;
-    }
-    .tabs::-webkit-scrollbar-thumb {
-      background-color: rgba(0, 0, 0, 0.2);
-      border-radius: 100vw;
-    }
-    .tabs::-webkit-scrollbar-button {
-      width: 0.15rem;
-    }
   }
 
   .tab-container {
