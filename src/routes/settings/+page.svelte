@@ -65,18 +65,11 @@
     align-items: center;
     overflow-y: scroll;
     overflow-x: hidden;
+
+    scrollbar-width: thin;;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
   }
 
-  .form-container::-webkit-scrollbar {
-    width: var(--editor-scrollbar-size);
-  }
-  .form-container::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 100vw;
-  }
-  .form-container::-webkit-scrollbar-button {
-    height: 0.2rem;
-  }
 
   form {
     width: 80%;
