@@ -150,6 +150,7 @@
     name="viewport"
     content="width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
   />
+  <meta name="theme-color" content="var(--bg)" />
 </svelte:head>
 
 <ThemeWrapper>
@@ -174,6 +175,6 @@
   .sync-status {
     position: absolute;
     bottom: 1rem;
-    right: 1rem;
+    right: calc(1.2rem + var(--safe-area-right));
   }
 </style>

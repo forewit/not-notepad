@@ -22,17 +22,8 @@
     </style>`;
   }
 
-  function updateThemeColor() {
-    const theme = themes.find((t) => t.name === $settingsStore.theme);
-      if (!theme) return;
-      document
-        .querySelector('meta[name="theme-color"]')
-        ?.setAttribute("content", theme.bg);
-  }
-
   onMount(() => {
     updateCSS($settingsStore.theme);
-    settingsStore.subscribe(updateThemeColor);
   });
 </script>
 
