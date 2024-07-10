@@ -48,8 +48,8 @@ async function publishToFirestore() {
 const debouced_publishToFirestore = debounce(publishToFirestore, 2000);
 
 export type UserData = {
-    tabs: string[],
-    activeIndex: number
+    tabs: Record<string, string>,
+    activeIndex: number,
     settings: Settings
 }
 

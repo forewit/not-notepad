@@ -1,7 +1,7 @@
 <script lang="ts">
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
-  import { tabsStore, tabsHandlers } from "../stores/tabsStore";
+  import { tabsStore, tabsHandlers, metadataStore } from "../stores/tabsStore";
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
@@ -13,6 +13,9 @@
   const TAB_ANIMATION_DURATION = 200;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
+
+  $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
+  $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
 
   let tabsElm: HTMLDivElement;
   let tabElms: HTMLElement[] = [];
@@ -31,7 +34,6 @@
   let tabbarContainerElm: HTMLElement;
   let preventHover = false;
 
-  // Utility functions
   const debounce = (func: Function, timeout = 300) => {
     // @ts-ignore
     let timer;
@@ -46,27 +48,28 @@
     };
   };
 
-  // Tab management functions
   function newTab() {
     tabsHandlers.newTab();
-  }
+  };
 
-  const closeTab = (index: number) => {
-    if (!tabElms[index]) {
+  const closeTab = (id: string) => {
+    const index = $metadataStore.order.findIndex((tab) => tab === id);
+
+    if (index < 0 || !tabElms[index]) {
       console.warn("Cannot close tab!");
       return;
     }
 
     lockWidth = tabElms[index].getBoundingClientRect().width;
 
-    if (index < $tabsStore.tabs.length - 1) {
+    if (index < $metadataStore.order.length - 1) {
       tabsElm.style.setProperty("--tab-max-width", `${lockWidth}px`);
       unlockWidth();
     }
 
-    if (index == $tabsStore.tabs.length - 1) {
+    if (index == $metadataStore.order.length - 1) {
       tabsHandlers.setActiveIndex(index - 1);
-    } else if (index == $tabsStore.activeIndex) {
+    } else if (index == $metadataStore.activeIndex) {
       tabsHandlers.setActiveIndex(index + 1);
     }
 
@@ -81,7 +84,7 @@
       },
       onEnd: () => {
         tabsElm.style.gridTemplateColumns = "";
-        tabsHandlers.removeTab(index);
+        tabsHandlers.removeTab(id);
       },
     });
   };
@@ -114,10 +117,10 @@
       duration: TAB_ANIMATION_DURATION,
       easing: cubicInOut,
       onStep: (t: number, u: number) => {
-        if ($tabsStore.tabs.length == 1)
+        if ($metadataStore.order.length == 1)
           tabsElm.style.gridTemplateColumns = `minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
         else
-          tabsElm.style.gridTemplateColumns = `repeat(${$tabsStore.tabs.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
+          tabsElm.style.gridTemplateColumns = `repeat(${$metadataStore.order.length - 1}, minmax(var(--tab-min-width), var(--tab-max-width))) minmax(${t * TAB_MIN_WIDTH}px, ${t * targetWidth}px)`;
         tabsElm.scrollLeft = tabsElm.scrollWidth;
       },
       onEnd: () => {
@@ -215,10 +218,10 @@
 
     if (x < 20) {
       scrollBy = -TAB_SCROLL_SPEED;
-      requestAnimationFrame(scrollWhileDragging);
+      requestAnimationFrame(keepScrollingWhileDragging);
     } else if (x > tabsElm.clientWidth - 10) {
       scrollBy = TAB_SCROLL_SPEED;
-      requestAnimationFrame(scrollWhileDragging);
+      requestAnimationFrame(keepScrollingWhileDragging);
     } else {
       scrollBy = 0;
     }
@@ -228,7 +231,7 @@
   }
 
   let last = 0;
-  function scrollWhileDragging(timestamp: number) {
+  function keepScrollingWhileDragging(timestamp: number) {
     if (!dragging || scrollBy == 0) {
       last = 0;
       return;
@@ -239,7 +242,7 @@
     last = timestamp;
 
     tabsElm.scrollBy({ left: scrollBy * elapsed });
-    requestAnimationFrame(scrollWhileDragging);
+    requestAnimationFrame(keepScrollingWhileDragging);
   }
 
   // Touch and mouse handlers
@@ -276,8 +279,9 @@
     clone.style.width = `${originalRect.width}px`;
     clone.style.left = `${originalRect.left}px`;
     clone.style.top = `${originalRect.top}px`;
+
     draggedTabIndex = index;
-    draggedTabTitle = $tabsStore.tabs[index].title;
+    draggedTabTitle = $tabsStore[$metadataStore.order[index]].title;
   }
 
   function pointerMoveHandler(e: MouseEvent | TouchEvent) {
@@ -339,19 +343,19 @@
 <div bind:this={tabbarContainerElm}>
   <div class="tabbar">
     <div class="tabs" bind:this={tabsElm}>
-      {#each $tabsStore.tabs as tab, i (tab)}
+      {#each Object.entries($tabsStore) as [id, tab], i}
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
           bind:this={tabElms[i]}
           class="tab-container"
-          class:placeholder={$tabsStore.placeholderIndex == i}
+          class:placeholder={placeholderTabID == id}
           use:animateTabOpening
         >
           <Tab
-            bind:title={$tabsStore.tabs[i].title}
-            active={$tabsStore.activeIndex == i}
+            bind:title={tab.title}
+            active={activeTabID == id}
             {preventHover}
-            onClose={() => closeTab(i)}
+            onClose={() => closeTab(id)}
             onPointerdown={(e) => pointerDownHandler(e, i)}
             onDragstart={dragstartHandler}
           />

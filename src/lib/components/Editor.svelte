@@ -6,7 +6,7 @@
   import type { HistoryStack } from "$lib/stores/tabsStore";
   import type { StackItem } from "quill/modules/history";
   import { onMount } from "svelte";
-  import { tabsStore } from "../stores/tabsStore";
+  import { tabsStore, metadataStore } from "../stores/tabsStore";
   import { settingsStore } from "../stores/settingsStore";
 
   export let disabled = false;
@@ -21,8 +21,10 @@
     quillEditor?.enable();
   }
 
-  $: quillEditor?.root.setAttribute("spellcheck", $settingsStore.spellCheck.toString());
-  
+  $: quillEditor?.root.setAttribute(
+    "spellcheck",
+    $settingsStore.spellCheck.toString()
+  );
 
   async function rebuildHistoryStack(stack: HistoryStack) {
     if (!quillEditor) return;
@@ -34,7 +36,10 @@
 
         const item: StackItem = {
           delta: new Delta(stack.undo[i].delta.ops),
-          range: (index !== undefined && length !== undefined) ? new Range(index, length) : null,
+          range:
+            index !== undefined && length !== undefined
+              ? new Range(index, length)
+              : null,
         };
         quillEditor.history.stack.undo.push(item);
       }
@@ -46,7 +51,10 @@
 
         const item: StackItem = {
           delta: new Delta(stack.redo[i].delta.ops),
-          range: (index !== undefined && length !== undefined) ? new Range(index, length) : null,
+          range:
+            index !== undefined && length !== undefined
+              ? new Range(index, length)
+              : null,
         };
         quillEditor.history.stack.redo.push(item);
       }
@@ -54,25 +62,21 @@
   }
 
   function loadContentFromTab() {
-    if (!quillEditor) return;
-    const tabIndex = $tabsStore.tabs.findIndex((tab) => tab.id === tabID);
-    if (tabIndex === -1) return;
+    if (!quillEditor || !$tabsStore[tabID]) return;
 
-    const ops = $tabsStore.tabs[tabIndex].ops;
+    const ops = $tabsStore[tabID].ops;
     quillEditor.setContents(ops);
 
-    const history = $tabsStore.tabs[tabIndex].history;
+    const history = $tabsStore[tabID].history;
     rebuildHistoryStack(history);
   }
 
   function saveContentToTab() {
-    if (!quillEditor) return;
-    const tabIndex = $tabsStore.tabs.findIndex((tab) => tab.id === tabID);
-    if (tabIndex === -1) return;
+    if (!quillEditor || !$tabsStore[tabID]) return;
 
-    $tabsStore.tabs[tabIndex].ops = quillEditor.getContents().ops;
+    $tabsStore[tabID].ops = quillEditor.getContents().ops;
     const history = structuredClone(quillEditor.history.stack);
-    $tabsStore.tabs[tabIndex].history = history;
+    $tabsStore[tabID].history = history;
   }
 
   function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {

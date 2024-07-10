@@ -8,10 +8,9 @@
     firebaseStore,
     type UserData,
   } from "$lib/stores/firebaseStore";
-  import { tabsStore } from "$lib/stores/tabsStore";
+  import { tabsStore, tabsHandlers, metadataStore } from "$lib/stores/tabsStore";
   import { doc, getDoc, setDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
-  import { tabsHandlers } from "$lib/stores/tabsStore";
   import { settingsStore } from "$lib/stores/settingsStore";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
@@ -24,38 +23,34 @@
   function publishToFirestore() {
     if (preventPublishing) return;
 
-    const tabStrings = $tabsStore.tabs.map((tab) => {
-      return JSON.stringify(tab);
-    });
-    firebaseStore.update((curr) => {
-      return {
-        ...curr,
-        data: {
-          activeIndex: $tabsStore.activeIndex,
-          tabs: tabStrings,
-          settings: $settingsStore,
-        },
-      };
-    });
+    let tabStrings: Record<string, string> = {};
+    Object.entries($tabsStore).forEach(([id, tab]) => {
+      tabStrings[id] = JSON.stringify(tab);
+    })
+
+    const userData: UserData = {
+      activeIndex: $metadataStore.activeIndex,
+      settings: $settingsStore,
+      tabs: tabStrings
+    }
+
+    firebaseStore.update((curr) => ({...curr, data: userData}));
     firebaseHandlers.publish();
   }
 
   // publish to firestore when settingsStore or tabsStore changes
-  tabsStore.subscribe(()=> { 
-    publishToFirestore();
-  });
+  tabsStore.subscribe(publishToFirestore);
   settingsStore.subscribe(publishToFirestore);
 
-  function parseTabStrings(tabStrings: string[]) {
-    if (tabStrings.length === 0) return;
-    tabStrings.forEach((tabString) => {
+  function parseTabStrings(tabStrings: Record<string, string>) {
+    Object.entries(tabStrings).forEach(([id, tabString]) => {
       try {
-        tabsHandlers.newTabFromString(tabString);
+        tabsHandlers.newTabFromString(id, tabString);
       } catch (err) {
         console.warn("Failed to parse tab!", tabString, err);
         return;
       }
-    });
+    })
   }
 
   let loaded = false;
@@ -86,7 +81,7 @@
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
       let dataToSetStoreTo: UserData = {
-        tabs: [],
+        tabs: {},
         activeIndex: 0,
         settings: { theme: "Canvas", spellCheck: true },
       };

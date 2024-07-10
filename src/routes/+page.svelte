@@ -2,18 +2,18 @@
   import Tabbar from "$lib/components/Tabbar.svelte";
   import Editor from "$lib/components/Editor.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
-  import { tabsStore } from "$lib/stores/tabsStore";
+  import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
   import { firebaseStore } from "$lib/stores/firebaseStore";
 
-  $: activeTab = $tabsStore.tabs[$tabsStore.activeIndex];
+  $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
 </script>
 
 {#if $firebaseStore.currentUser}
   <div class="container">
     <Tabbar />
-    {#if $tabsStore.tabs.length > 0}
-        {#each $tabsStore.tabs as tab}
-          <Editor disabled={tab.id !== activeTab.id} tabID={tab.id}/>
+    {#if $metadataStore.order.length > 0}
+        {#each Object.keys($tabsStore) as id}
+          <Editor disabled={id !== activeTabID} tabID={id}/>
         {/each}
     {:else}
       <div class="editor-placeholder" />
