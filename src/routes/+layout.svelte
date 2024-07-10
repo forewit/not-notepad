@@ -174,7 +174,7 @@
 
   .sync-status {
     position: absolute;
-    bottom: 1rem;
+    bottom: 1.2rem;
     right: calc(1.2rem + var(--safe-area-right));
   }
 </style>
