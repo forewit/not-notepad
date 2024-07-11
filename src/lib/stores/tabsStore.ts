@@ -2,11 +2,35 @@ import { writable, get } from "svelte/store";
 import type { Op } from "quill/core";
 import type { StackItem } from "quill/modules/history";
 
+
+const replacementMap = {
+    '{"retain":': "⒜",
+    '},{"delete":': "⒝",
+    '}]},"range":{"index":': "⒞",
+    ',"length":': "⒟",
+    '}]},"range":null': "⒠",
+    '},{"delta":{"ops":[': "⒡",
+    '"insert":': "⒢",
+    '"attributes":{': "⒣",
+    '"code":true': "⒤",
+    '"code":false': "⒥",
+}
+const invertedReplacementMap = Object.fromEntries(Object.entries(replacementMap).map(([key, value]) => [value, key]));
+
+
+function replaceSubstrings(str: string, replacements: Record<string, string>) {
+    for (const [key, value] of Object.entries(replacements)) {
+        str = str.split(key).join(value);
+    }
+    return str;
+}
 function generateUUID() {
     return crypto.randomUUID();
 }
 function newTabFromString(id: string, str: string) {
     let data: TabData;
+    //let unpackedStr = str.replaceAll();
+
     try {
         data = <TabData>JSON.parse(str);
     } catch (err) {
@@ -18,10 +42,25 @@ function newTabFromString(id: string, str: string) {
     }
     newTab({ id, data })
 }
+
+function packTabs() {
+    let packedTabs: Record<string, string> = {};
+    Object.entries(get(tabsStore)).forEach(([id, tab]) => {
+        const str = JSON.stringify(tab);
+        packedTabs[id] = replaceSubstrings(str, replacementMap);;
+    });
+    return packedTabs;
+}
+function loadPackedTabs(tabs: Record<string, string>) {
+    Object.entries(tabs).forEach(([id, str]) => {
+        const replaced = replaceSubstrings(str, invertedReplacementMap);
+        newTabFromString(id, replaced);
+    });
+}
 function newTab(options?: { id?: string, data?: TabData, index?: number, callback?: () => void }) {
-    const {id = generateUUID(), data = { title: "Untitled", ops: [], history: { undo: [], redo: [] } }, index = -1, callback = () => { } } = options || {};
+    const { id = generateUUID(), data = { title: "Untitled", ops: [], history: { undo: [], redo: [] } }, index = -1, callback = () => { } } = options || {};
     tabsStore.update(curr => {
-        if (curr[id]) { 
+        if (curr[id]) {
             curr[id] = data;
             return curr;
         }
@@ -48,9 +87,9 @@ function newTab(options?: { id?: string, data?: TabData, index?: number, callbac
 function removeTab(id: string) {
     if (!get(tabsStore)[id]) return;
 
-    tabsStore.update (curr => {
+    tabsStore.update(curr => {
         delete curr[id];
-        return curr
+        return curr;
     })
 
     metadataStore.update(curr => {
@@ -83,7 +122,7 @@ function moveTab(fromIndex: number, toIndex: number, callback = () => { }) {
     if (fromIndex == toIndex) return;
     metadataStore.update(curr => {
         if (fromIndex < 0 || fromIndex >= curr.order.length || toIndex < 0 || toIndex >= curr.order.length) return curr;
-        
+
         const id = curr.order[fromIndex];
         curr.order.splice(fromIndex, 1);
         curr.order.splice(toIndex, 0, id);
@@ -95,7 +134,8 @@ function moveTab(fromIndex: number, toIndex: number, callback = () => { }) {
 }
 
 export const tabsHandlers = {
-    newTabFromString,
+    loadPackedTabs,
+    packTabs,
     newTab,
     removeTab,
     setActiveIndex,

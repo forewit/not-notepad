@@ -25,18 +25,17 @@
   let preventPublishing = true;
   let layoutContainer: HTMLElement;
 
+
+
   function publishToFirestore() {
     if (preventPublishing) return;
 
-    let tabStrings: Record<string, string> = {};
-    Object.entries($tabsStore).forEach(([id, tab]) => {
-      tabStrings[id] = JSON.stringify(tab);
-    });
+    const packedTabs = tabsHandlers.packTabs();
 
     const userData: UserData = {
       activeIndex: $metadataStore.activeIndex,
       settings: $settingsStore,
-      tabs: tabStrings,
+      tabs: packedTabs,
     };
 
     firebaseStore.update((curr) => ({ ...curr, data: userData }));
@@ -46,18 +45,6 @@
   // publish to firestore when settingsStore or tabsStore changes
   tabsStore.subscribe(publishToFirestore);
   settingsStore.subscribe(publishToFirestore);
-
-  function parseTabStrings(tabStrings: Record<string, string>) {
-    if (!tabStrings) return;
-    Object.entries(tabStrings).forEach(([id, tabString]) => {
-      try {
-        tabsHandlers.newTabFromString(id, tabString);
-      } catch (err) {
-        console.warn("Failed to parse tab!", tabString, err);
-        return;
-      }
-    });
-  }
 
   function handleOrientationChange() {
     switch (screen.orientation.type) {
@@ -126,7 +113,7 @@
       }
 
       // save user data to tabsStore and settingsStore
-      parseTabStrings(dataToSetStoreTo.tabs);
+      tabsHandlers.loadPackedTabs(dataToSetStoreTo.tabs);
       tabsHandlers.setActiveIndex(dataToSetStoreTo.activeIndex);
       $settingsStore = dataToSetStoreTo.settings;
 
