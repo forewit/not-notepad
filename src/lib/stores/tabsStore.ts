@@ -22,6 +22,9 @@ const replacementMap = {
     '"underline":false': "⒫",
     '"strike":true': "⒬",
     '"strike":false': "⒭",
+    '{"undo":[{"delta":{"ops":[': "⒮",
+    '{"delete":': "⒯",
+    '],"redo":[': "⒰",
 }
 const invertedReplacementMap = Object.fromEntries(Object.entries(replacementMap).map(([key, value]) => [value, key]));
 
@@ -35,34 +38,30 @@ function replaceSubstrings(str: string, replacements: Record<string, string>) {
 function generateUUID() {
     return crypto.randomUUID();
 }
-function newTabFromString(id: string, str: string) {
-    let data: TabData;
-    //let unpackedStr = str.replaceAll();
-
-    try {
-        data = <TabData>JSON.parse(str);
-    } catch (err) {
-        throw err
-    }
-
-    if (!data || !data.title || !data.ops || !data.history) {
-        throw new Error("Invalid tab data!");
-    }
-    newTab({ id, data })
-}
 
 function packTabs() {
-    let packedTabs: Record<string, string> = {};
+    let packedTabs: PackedTabs = {};
     Object.entries(get(tabsStore)).forEach(([id, tab]) => {
-        const str = JSON.stringify(tab);
-        packedTabs[id] = replaceSubstrings(str, replacementMap);;
+        const ops = replaceSubstrings(JSON.stringify(tab.ops), replacementMap);
+        const history = replaceSubstrings(JSON.stringify(tab.history), replacementMap);
+        packedTabs[id] = { title: tab.title, ops, history: history };
     });
     return packedTabs;
 }
-function loadPackedTabs(tabs: Record<string, string>) {
-    Object.entries(tabs).forEach(([id, str]) => {
-        const replaced = replaceSubstrings(str, invertedReplacementMap);
-        newTabFromString(id, replaced);
+function loadPackedTabs(packedTabs: PackedTabs) {
+    Object.entries(packedTabs).forEach(([id, packedTab]) => {
+        const unpackedOps = replaceSubstrings(packedTab.ops, invertedReplacementMap);
+        const unpackedHistory = replaceSubstrings(packedTab.history, invertedReplacementMap);
+        try {
+            const tabData: TabData = {
+                title: packedTab.title,
+                ops: JSON.parse(unpackedOps),
+                history: JSON.parse(unpackedHistory)
+            };
+            newTab({ id, data: tabData })
+        } catch (err) {
+            throw err
+        }
     });
 }
 function newTab(options?: { id?: string, data?: TabData, index?: number, callback?: () => void }) {
@@ -161,6 +160,9 @@ export type TabData = {
     ops: Op[];
     history: HistoryStack;
 }
+
+export type PackedTabs = Record<string, { title: string, ops: string, history: string }>;
+
 
 export const tabsStore = writable({} as Record<string, TabData>);
 

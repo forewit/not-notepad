@@ -2,8 +2,9 @@ import { signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
 import { writable, get } from "svelte/store";
 import { auth } from "$lib/firebase/firebase.client";
 import { db } from "$lib/firebase/firebase.client";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
-import { type Settings } from "./settingsStore";
+import { doc, getDocs, collection, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
+import { type PackedTabs } from "$lib/stores/tabsStore";
+import { type Settings } from "$lib/stores/settingsStore";
 
 
 // a debounce function that only triggers on the trailing edge
@@ -23,30 +24,35 @@ const debounce = (func: Function, timeout = 300) => {
 
 async function publishToFirestore() {
     const user = get(firebaseStore).currentUser;
-    const data = get(firebaseStore).data;
+    const userData = get(firebaseStore).userData;
+    const packedTabs = get(firebaseStore).packedTabs;
 
-    if (!user || !data) return;
+    if (!user || !userData || !packedTabs) {
+        console.warn("User not signed in or no data to save!");
+        return;
+    }
+
     try {
+        // update user data
         const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, data)
-        firebaseStore.update((curr) => {
-            curr.savingStatus = "saved";
-            return curr
+        await updateDoc(userRef, userData)
+
+        // update tabs data
+        const tabsCollection = collection(userRef, "tabs");
+        Object.entries(packedTabs).forEach(async ([key, value]) => {
+            await setDoc(doc(tabsCollection, key), value)
         });
-    } catch (err) {
-        console.log("There was an error saving data!", err);
-        firebaseStore.update((curr) => {
-            curr.savingStatus = "error";
-            return curr
-        });
-    } finally {
+        //TODO: delete old tabs from firestore
         
+        firebaseStore.update(curr => ({ ...curr, savingStatus: "saved" }));
+    } catch (err) {
+        console.warn("There was an error saving data!", err);
+        firebaseStore.update(curr => ({ ...curr, savingStatus: "error" }));
     }
 }
 const debouced_publishToFirestore = debounce(publishToFirestore, 2000);
 
 export type UserData = {
-    tabs: Record<string, string>,
     activeIndex: number,
     order: string[],
     settings: Settings
@@ -54,9 +60,9 @@ export type UserData = {
 
 export const firebaseStore = writable({
     savingStatus: undefined as "saving" | "saved" | "error" | undefined,
-    isLoading: true,
     currentUser: <User | null>null,
-    data: <UserData | null>null
+    userData: <UserData | null>null,
+    packedTabs: <PackedTabs | null>null
 })
 
 export const firebaseHandlers = {
@@ -68,7 +74,7 @@ export const firebaseHandlers = {
         // call firebase logout function
         await signOut(auth)
     },
-    publish: ()=> {
+    publish: () => {
         firebaseStore.update((curr) => {
             curr.savingStatus = "saving";
             return curr
