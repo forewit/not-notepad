@@ -34,6 +34,7 @@
 
     const userData: UserData = {
       activeIndex: $metadataStore.activeIndex,
+      order: $metadataStore.order,
       settings: $settingsStore,
       tabs: packedTabs,
     };
@@ -98,6 +99,7 @@
       let dataToSetStoreTo: UserData = {
         tabs: {},
         activeIndex: 0,
+        order: [],
         settings: { theme: "Canvas", spellCheck: true },
       };
 
@@ -114,6 +116,7 @@
 
       // save user data to tabsStore and settingsStore
       tabsHandlers.loadPackedTabs(dataToSetStoreTo.tabs);
+      $metadataStore.order = dataToSetStoreTo.order;
       tabsHandlers.setActiveIndex(dataToSetStoreTo.activeIndex);
       $settingsStore = dataToSetStoreTo.settings;
 

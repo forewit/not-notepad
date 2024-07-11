@@ -48,6 +48,7 @@ const debouced_publishToFirestore = debounce(publishToFirestore, 2000);
 export type UserData = {
     tabs: Record<string, string>,
     activeIndex: number,
+    order: string[],
     settings: Settings
 }
 

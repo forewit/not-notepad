@@ -14,6 +14,14 @@ const replacementMap = {
     '"attributes":{': "⒣",
     '"code":true': "⒤",
     '"code":false': "⒥",
+    '"bold":true': "⒦",
+    '"bold":false': "⒧",
+    '"italic":true': "⒨",
+    '"italic":false': "⒩",
+    '"underline":true': "⒪",
+    '"underline":false': "⒫",
+    '"strike":true': "⒬",
+    '"strike":false': "⒭",
 }
 const invertedReplacementMap = Object.fromEntries(Object.entries(replacementMap).map(([key, value]) => [value, key]));
 
