@@ -4,12 +4,20 @@
   import { settingsStore } from "$lib/stores/settingsStore";
   import { themes } from "$lib/modules/themes";
   import { base } from "$app/paths";
+  import { goto } from "$app/navigation";
 </script>
 
 {#if $firebaseStore.currentUser}
   <div class="form-container">
     <form action="">
-      <a href="{base}/">Back</a>
+      <a href="{base}/" class="back themed-btn">
+        <span
+          class="back-icon"
+          style="-webkit-mask: url({base}/images/svg/home.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/home.svg) no-repeat center / contain;"
+        ></span>
+        Home
+      </a>
       <h1>Settings</h1>
       <section>
         <div class="checkbox">
@@ -66,26 +74,21 @@
     overflow-y: scroll;
     overflow-x: hidden;
 
-    scrollbar-width: thin;;
+    scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
   }
-
 
   form {
     width: 80%;
     max-width: 800px;
-    margin-block: 50px;
+    margin-top: 20px;
+    margin-bottom: 50px;
     margin-inline: 20px;
 
     display: grid;
     grid-template-columns: 1fr;
     justify-content: left;
     gap: 16px;
-  }
-  a {
-    text-decoration: underline;
-    color: var(--sub);
-    margin-bottom: 12px;
   }
 
   .checkbox {
@@ -107,5 +110,36 @@
 
   .sign-out-button {
     width: 100px;
+  }
+
+  .back {
+    width: 70px;
+    margin-inline-end: 14px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color var(--transition-speed);
+  }
+  .back:hover {
+    background-color: var(--text);
+    color: var(--bg);
+  }
+  .back:active {
+    background-color: var(--main);
+    color: var(--bg);
+  }
+
+  .back-icon {
+    width: 0.9em;
+    aspect-ratio: 1;
+    margin-right: 6px;
+  }
+  .back .back-icon {
+    background-color: var(--text);
+  }
+  .back:hover .back-icon,
+  .back:active .back-icon {
+    background-color: var(--bg);
   }
 </style>

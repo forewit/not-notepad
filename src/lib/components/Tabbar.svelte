@@ -373,13 +373,13 @@
       </button>
     </div>
     <div class="settings-container">
-      <button class="button" on:click={()=>goto(base + "/settings")}>
+      <a class="button" href="{base}/settings">
         <span
           class="button-icon"
           style="-webkit-mask: url({base}/images/svg/gear.svg) no-repeat center / contain;
       mask: url({base}/images/svg/gear.svg) no-repeat center / contain;"
         ></span>
-      </button>
+      </a>
     </div>
 
     <div bind:this={clone} class="clone" class:dragging>

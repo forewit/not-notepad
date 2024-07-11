@@ -20,22 +20,25 @@ function newTabFromString(id: string, str: string) {
 }
 function newTab(options?: { id?: string, data?: TabData, index?: number, callback?: () => void }) {
     const {id = generateUUID(), data = { title: "Untitled", ops: [], history: { undo: [], redo: [] } }, index = -1, callback = () => { } } = options || {};
-
     tabsStore.update(curr => {
+        if (curr[id]) { 
+            curr[id] = data;
+            return curr;
+        }
         curr[id] = data;
 
         if (index < 0 || index > get(metadataStore).order.length) {
             metadataStore.update(curr => {
                 curr.order.push(id);
                 curr.activeIndex = curr.order.length - 1;
-                return curr
+                return curr;
             })
         }
         else {
             metadataStore.update(curr => {
                 curr.order.splice(index, 0, id);
                 curr.activeIndex = index;
-                return curr
+                return curr;
             })
         }
         return curr;
