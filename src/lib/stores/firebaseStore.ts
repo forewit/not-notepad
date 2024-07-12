@@ -89,15 +89,9 @@ async function loadFromFirestore() {
     firebaseStore.update((curr) => ({ ...curr, isLoading: false }));
 
 }
-const debouced_loadFromFirestore = debounce_leading(loadFromFirestore, 2000);
+const debouced_leading_loadFromFirestore = debounce_leading(loadFromFirestore, 2000);
 
 async function publishToFirestore() {
-    if (get(firebaseStore).isLoading) {
-        console.warn("Cannot publish while loading!");
-        return;
-    }
-
-    firebaseStore.update((curr) => ({ ...curr, savingStatus: "saving" }));
     const user = get(firebaseStore).currentUser;
     const packedTabs = tabsHandlers.packTabs();
     const userData: UserData = {
@@ -148,6 +142,10 @@ export const firebaseHandlers = {
         await signInWithEmailAndPassword(auth, email, password)
     },
     logout: async () => { await signOut(auth) },
-    publishToFirestore: debouced_publishToFirestore,
-    loadFromFirestore: debouced_loadFromFirestore
+    publishToFirestore: () => {
+        if (get(firebaseStore).isLoading) return;
+        firebaseStore.update((curr) => ({ ...curr, savingStatus: "saving" }));
+        debouced_publishToFirestore()
+    },
+    loadFromFirestore: debouced_leading_loadFromFirestore
 }
