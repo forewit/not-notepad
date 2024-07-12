@@ -1,7 +1,7 @@
 <script>
  import { fade } from "svelte/transition";
 </script>
-<div class="spinner-container" out:fade={{ duration: 100 }}>
+<div class="spinner-container" out:fade={{ duration: 200 }}>
   <span class="spinner" />
 </div>
 

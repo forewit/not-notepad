@@ -11,7 +11,7 @@
   }
 </script>
 
-{#if $firebaseStore.currentUser || $firebaseStore.isAuthenticating}
+{#if $firebaseStore.currentUser || $firebaseStore.isLoading}
   <Spinner />
 {:else}
   <Auth />

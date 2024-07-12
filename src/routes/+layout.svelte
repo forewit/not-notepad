@@ -2,7 +2,7 @@
   import "$lib/styles/normalize.css";
   import "$lib/styles/reset.css";
   import "$lib/styles/global.css";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import {
     firebaseHandlers,
     firebaseStore,
@@ -14,12 +14,11 @@
     metadataStore,
     type PackedTabs,
   } from "$lib/stores/tabsStore";
+  import { settingsStore, authRedirect } from "$lib/stores/settingsStore";
   import { doc, getDoc, setDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
-  import { settingsStore } from "$lib/stores/settingsStore";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
-  import { authRedirect } from "$lib/stores/settingsStore";
   import ThemeWrapper from "$lib/components/ThemeWrapper.svelte";
   import SyncStatus from "$lib/components/SyncStatus.svelte";
 

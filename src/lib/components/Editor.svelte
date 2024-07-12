@@ -21,9 +21,9 @@
     quillEditor?.enable();
   }
 
-  settingsStore.subscribe((curr) => {
-    quillEditor?.root.setAttribute("spellcheck", curr.spellCheck.toString());
-  });
+  $: if (quillEditor) {
+    quillEditor.root.setAttribute("spellcheck", $settingsStore.spellCheck.toString());
+  }
 
   async function rebuildHistoryStack(stack: HistoryStack) {
     if (!quillEditor) return;
@@ -105,7 +105,6 @@
   }
 
   onMount(() => {
-    console.log("hi")
     addEditor();
   });
 </script>
