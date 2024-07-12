@@ -124,9 +124,7 @@
   settingsStore.subscribe(publishToFirestore);
 
   function preventCloseIfSaving(e: BeforeUnloadEvent) {
-    if ($firebaseStore.savingStatus === "saving") {
-      e.preventDefault();
-    }
+    if ($firebaseStore.savingStatus === "saving") e.preventDefault();
   }
 
   onMount(() => {
