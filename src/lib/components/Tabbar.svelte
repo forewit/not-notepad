@@ -5,7 +5,6 @@
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
-  import { goto } from "$app/navigation";
 
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 140; // update in .tabs css also
@@ -13,6 +12,8 @@
   const TAB_ANIMATION_DURATION = 200;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
+
+  export let refreshClicked = ()=>{};
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
@@ -373,6 +374,13 @@
       </button>
     </div>
     <div class="settings-container">
+      <button class="refresh button" on:click={refreshClicked}>
+        <span
+          class="button-icon"
+          style="-webkit-mask: url({base}/images/svg/refresh.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/refresh.svg) no-repeat center / contain;"
+        ></span>
+      </button>
       <a class="button" href="{base}/settings">
         <span
           class="button-icon"
@@ -380,6 +388,7 @@
       mask: url({base}/images/svg/gear.svg) no-repeat center / contain;"
         ></span>
       </a>
+      
     </div>
 
     <div bind:this={clone} class="clone" class:dragging>
@@ -400,7 +409,7 @@
     background-color: var(--bg);
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr calc(42px + var(--safe-area-right));
+    grid-template-columns: auto 1fr auto;
     align-items: end;
     height: var(--tabbar-height);
   }
@@ -416,6 +425,9 @@
   }
   .settings-container {
     margin-bottom: var(--tab-gaps);
+    margin-inline-end: calc(14px + var(--safe-area-right));
+    display: flex;
+    gap: 5px;
   }
 
   .tabs {
@@ -456,10 +468,9 @@
   }
 
   .button {
-    width: 1.7em;
-    aspect-ratio: 1;
+    width: 27px;
+    height: 27px;
     margin: 4px;
-    margin-inline-end: 14px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -476,8 +487,8 @@
   }
 
   .button-icon {
-    width: 0.9em;
-    aspect-ratio: 1;
+    width: 14px;
+    height: 14px;
   }
   .button .button-icon {
     background-color: var(--text);

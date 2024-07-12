@@ -3,18 +3,14 @@
   import Editor from "$lib/components/Editor.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
-  import { firebaseStore } from "$lib/stores/firebaseStore";
+  import { firebaseStore, firebaseHandlers } from "$lib/stores/firebaseStore";
 
-  let activeTabID: string;
-
-  metadataStore.subscribe((curr) => {
-    activeTabID = curr.order[curr.activeIndex];
-  })
+  $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
   <div class="page-container">
-    <Tabbar />
+    <Tabbar refreshClicked={firebaseHandlers.loadFromFirestore} />
     {#each Object.keys($tabsStore) as id (id)}
       <Editor disabled={id !== activeTabID} tabID={id} />
     {/each}
