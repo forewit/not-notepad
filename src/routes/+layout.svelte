@@ -15,7 +15,7 @@
     type PackedTabs,
   } from "$lib/stores/tabsStore";
   import { settingsStore, authRedirect } from "$lib/stores/settingsStore";
-  import { doc, getDoc, setDoc } from "firebase/firestore";
+  import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
   import { goto } from "$app/navigation";
   import { base } from "$app/paths";
@@ -131,7 +131,7 @@
     screen.orientation.addEventListener("change", handleOrientationChange);
 
     // update firebaseStore on authentication state changes
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       // logged out
       if (!user) {
         firebaseStore.update((curr) => {
@@ -189,6 +189,7 @@
   }
 
   .sync-status {
+    pointer-events: none;
     position: absolute;
     bottom: 1.2rem;
     right: calc(1.2rem + var(--safe-area-right));
