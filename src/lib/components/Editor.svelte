@@ -15,15 +15,16 @@
   let quillEditor: Quill;
   let editorDiv: HTMLElement;
 
-  $: if (disabled && quillEditor) {
-    quillEditor.disable();
+  $: if (disabled) {
+    quillEditor?.disable();
   } else {
-    quillEditor.enable();
+    quillEditor?.enable();
   }
 
-  $: if (quillEditor) {
-    quillEditor.root.setAttribute("spellcheck", $settingsStore.spellCheck.toString());
-  }
+  $: quillEditor?.root.setAttribute(
+    "spellcheck",
+    $settingsStore.spellCheck.toString()
+  );
 
   async function rebuildHistoryStack(stack: HistoryStack) {
     if (!quillEditor) return;
