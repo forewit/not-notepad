@@ -24,7 +24,10 @@ const replacementMap = {
     '"strike":false': "⒭",
     '{"undo":[{"delta":{"ops":[': "⒮",
     '{"delete":': "⒯",
-    '],"redo":[': "⒰",
+    '],"redo":[]}': "⒰",
+    '{"undo":[': "⒱",
+    '],"redo":[': "⒲",
+
 }
 const invertedReplacementMap = Object.fromEntries(Object.entries(replacementMap).map(([key, value]) => [value, key]));
 
@@ -53,14 +56,17 @@ function loadPackedTabs(packedTabs: PackedTabs) {
         const unpackedOps = replaceSubstrings(packedTab.ops, invertedReplacementMap);
         const unpackedHistory = replaceSubstrings(packedTab.history, invertedReplacementMap);
         try {
+            const parsedOps = JSON.parse(unpackedOps)
+            const parsedHistory = JSON.parse(unpackedHistory)
+
             const tabData: TabData = {
                 title: packedTab.title,
-                ops: JSON.parse(unpackedOps),
-                history: JSON.parse(unpackedHistory)
+                ops: parsedOps,
+                history: parsedHistory
             };
             newTab({ id, data: tabData })
         } catch (err) {
-            throw err
+            console.log("Failed to load tab", err)
         }
     });
 }
@@ -68,6 +74,7 @@ function newTab(options?: { id?: string, data?: TabData, index?: number, callbac
     const { id = generateUUID(), data = { title: "Untitled", ops: [], history: { undo: [], redo: [] } }, index = -1, callback = () => { } } = options || {};
     tabsStore.update(curr => {
         if (curr[id]) {
+
             curr[id] = data;
             return curr;
         }
@@ -92,8 +99,6 @@ function newTab(options?: { id?: string, data?: TabData, index?: number, callbac
     callback();
 }
 function removeTab(id: string) {
-    if (!get(tabsStore)[id]) return;
-
     tabsStore.update(curr => {
         delete curr[id];
         return curr;
@@ -108,6 +113,7 @@ function removeTab(id: string) {
 
         if (index == curr.activeIndex - 1) curr.activeIndex = Math.max(0, index);
         else curr.activeIndex = Math.min(curr.activeIndex, curr.order.length - 1);
+
         return curr;
     })
 }

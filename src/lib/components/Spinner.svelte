@@ -1,4 +1,7 @@
-<div class="spinner-container">
+<script>
+ import { fade } from "svelte/transition";
+</script>
+<div class="spinner-container" out:fade={{ duration: 100 }}>
   <span class="spinner" />
 </div>
 
@@ -7,11 +10,13 @@
     background-color: var(--bg);
     width: 100%;
     height: 100%;
-    position: relative
+    position: relative;
+    transition: background-color var(--transition-speed);
   }
 
   .spinner {
     color: var(--main);
+    transition: color var(--transition-speed);
     font-size: 10px;
     width: 1em;
     height: 1em;
@@ -22,6 +27,7 @@
     text-indent: -9999em;
     animation: mulShdSpin 1.3s infinite linear;
     transform: translateZ(0);
+
   }
 
   @keyframes mulShdSpin {

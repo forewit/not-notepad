@@ -14,7 +14,7 @@
     metadataStore,
     type PackedTabs,
   } from "$lib/stores/tabsStore";
-  import { doc, getDoc, setDoc, getDocs, collection } from "firebase/firestore";
+  import { doc, getDoc, setDoc } from "firebase/firestore";
   import { auth, db } from "$lib/firebase/firebase.client";
   import { settingsStore } from "$lib/stores/settingsStore";
   import { goto } from "$app/navigation";
@@ -24,25 +24,6 @@
   import SyncStatus from "$lib/components/SyncStatus.svelte";
 
   let preventPublishing = true;
-
-  function publishToFirestore() {
-    if (preventPublishing) return;
-
-    const packedTabs = tabsHandlers.packTabs();
-    const userData: UserData = {
-      activeIndex: $metadataStore.activeIndex,
-      order: $metadataStore.order,
-      settings: $settingsStore,
-    };
-
-    firebaseStore.update((curr) => ({ ...curr, userData, packedTabs }));
-
-    try {
-      firebaseHandlers.publish();
-    } catch (err) {
-      console.warn("Failed to publish to firestore", err);
-    }
-  }
 
   async function loadFromFirestore() {
     const user = $firebaseStore.currentUser;
@@ -71,21 +52,17 @@
     else {
       console.log("Fetching firestore user doc...");
       const userData = userSnap.data();
-      // merge userData with userDataToSetStoreTo
       userDataToSetStoreTo = { ...userDataToSetStoreTo, ...userData };
 
-      const tabsQuerySnapshot = await getDocs(collection(userRef, "tabs"));
-      tabsQuerySnapshot.forEach((doc) => {
-        packedTabsToSetStoreTo[doc.id] = doc.data() as PackedTabs[0];
-      });
-    }
-
-    // verify that the userDataToSetStoreTo.order only includes valid Tab IDs
-    for (let i = 0; i < userDataToSetStoreTo.order.length; i++) {
-      const tabID = userDataToSetStoreTo.order[i];
-      if (!packedTabsToSetStoreTo[tabID]) {
-        userDataToSetStoreTo.order.splice(i, 1);
-        i--;
+      for (let i = 0; i < userDataToSetStoreTo.order.length; i++) {
+        const tabID = userDataToSetStoreTo.order[i];
+        const tabSnap = await getDoc(doc(userRef, "tabs", tabID));
+        if (!tabSnap.exists()) {
+          userDataToSetStoreTo.order.splice(i, 1);
+          i--;
+          continue;
+        }
+        packedTabsToSetStoreTo[tabID] = tabSnap.data() as PackedTabs[0];
       }
     }
 
@@ -101,15 +78,17 @@
         ...curr,
         isAuthenticating: false,
         userData: userDataToSetStoreTo,
-        tabsData: packedTabsToSetStoreTo,
+        packedTabs: packedTabsToSetStoreTo,
       };
     });
     preventPublishing = false;
   }
 
-  // publish to firestore when settingsStore or tabsStore changes
-  tabsStore.subscribe(publishToFirestore);
-  settingsStore.subscribe(publishToFirestore);
+  function publishToFirestore() {
+    if (!preventPublishing) {
+      firebaseHandlers.publish();
+    }
+  }
 
   function handleOrientationChange() {
     switch (screen.orientation.type) {
@@ -140,7 +119,9 @@
     }
   }
 
-
+  // publish to firestore when settingsStore or tabsStore changes
+  tabsStore.subscribe(publishToFirestore);
+  settingsStore.subscribe(publishToFirestore);
 
   onMount(() => {
     screen.orientation.addEventListener("change", handleOrientationChange);
@@ -162,15 +143,16 @@
         return;
       }
 
-      firebaseStore.update((curr) => {
-        return {
-          ...curr,
-          currentUser: user,
-        };
-      });
-
       // logged in
+      firebaseStore.update((curr) => ({
+        ...curr,
+        isLoading: true,
+        currentUser: user,
+      }));
+
       await loadFromFirestore();
+
+      firebaseStore.update((curr) => ({ ...curr, isLoading: false }));
     });
   });
 </script>

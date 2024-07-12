@@ -5,14 +5,18 @@
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
   import { firebaseStore } from "$lib/stores/firebaseStore";
 
-  $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
+  let activeTabID = "";
+  metadataStore.subscribe((curr) => {
+    activeTabID = curr.order[curr.activeIndex];
+  })
+
 </script>
 
-{#if $firebaseStore.currentUser}
+{#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
   <div class="page-container">
     <Tabbar />
-    {#each Object.keys($tabsStore) as id}
-      <Editor disabled={id !== activeTabID} tabID={id} />
+    {#each Object.keys($tabsStore) as id (id)}
+      <Editor disabled={id != activeTabID} tabID={id} />
     {/each}
   </div>
 {:else}

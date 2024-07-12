@@ -6,11 +6,11 @@
   import type { HistoryStack } from "$lib/stores/tabsStore";
   import type { StackItem } from "quill/modules/history";
   import { onMount } from "svelte";
-  import { tabsStore, metadataStore } from "../stores/tabsStore";
+  import { tabsStore } from "../stores/tabsStore";
   import { settingsStore } from "../stores/settingsStore";
 
-  export let disabled = false;
   export let tabID: string;
+  export let disabled = false;
 
   let quillEditor: Quill;
   let editorDiv: HTMLElement;
@@ -21,10 +21,9 @@
     quillEditor?.enable();
   }
 
-  $: quillEditor?.root.setAttribute(
-    "spellcheck",
-    $settingsStore.spellCheck.toString()
-  );
+  settingsStore.subscribe((curr) => {
+    quillEditor?.root.setAttribute("spellcheck", curr.spellCheck.toString());
+  });
 
   async function rebuildHistoryStack(stack: HistoryStack) {
     if (!quillEditor) return;
@@ -106,6 +105,7 @@
   }
 
   onMount(() => {
+    console.log("hi")
     addEditor();
   });
 </script>
@@ -114,7 +114,7 @@
   <div class="quill-editor" bind:this={editorDiv} />
 </div>
 
-<style global="true">
+<style>
   .disabled {
     display: none !important;
   }
