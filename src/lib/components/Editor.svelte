@@ -15,10 +15,10 @@
   let quillEditor: Quill;
   let editorDiv: HTMLElement;
 
-  $: if (disabled) {
-    quillEditor?.disable();
+  $: if (disabled && quillEditor) {
+    quillEditor.disable();
   } else {
-    quillEditor?.enable();
+    quillEditor.enable();
   }
 
   $: if (quillEditor) {
