@@ -79,5 +79,12 @@ export const firebaseHandlers = {
             return curr
         });
         debouced_publishToFirestore();
+    },
+    forcePublish: () => {
+        firebaseStore.update((curr) => {
+            curr.savingStatus = "saving";
+            return curr
+        });
+        publishToFirestore();
     }
 }

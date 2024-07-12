@@ -2,7 +2,7 @@
   import "$lib/styles/normalize.css";
   import "$lib/styles/reset.css";
   import "$lib/styles/global.css";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import {
     firebaseHandlers,
     firebaseStore,
@@ -123,7 +123,14 @@
   tabsStore.subscribe(publishToFirestore);
   settingsStore.subscribe(publishToFirestore);
 
+  function preventCloseIfSaving(e: BeforeUnloadEvent) {
+    if ($firebaseStore.savingStatus === "saving") {
+      e.preventDefault();
+    }
+  }
+
   onMount(() => {
+    window.addEventListener("beforeunload", preventCloseIfSaving);
     screen.orientation.addEventListener("change", handleOrientationChange);
 
     // update firebaseStore on authentication state changes
