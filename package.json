@@ -26,6 +26,7 @@
 	"type": "module",
 	"dependencies": {
 		"firebase": "^10.12.1",
-		"quill": "^2.0.2"
+		"quill": "^2.0.2",
+		"quill-magic-url": "^4.2.0"
 	}
 }

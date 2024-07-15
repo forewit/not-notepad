@@ -87,9 +87,15 @@
 
   async function addEditor() {
     const { default: Quill } = await import("quill");
+    const { default: MagicUrl } = await import("quill-magic-url");
+
+    Quill.register("modules/magicUrl", MagicUrl);
 
     quillEditor = new Quill(editorDiv, {
-      formats: ["bold", "italic", "underline", "strike", "code"],
+      modules: {
+        magicUrl: true,
+      },
+      formats: ["bold", "italic", "underline", "strike", "code", "link"],
       placeholder: "Enter text here",
     });
 
