@@ -147,5 +147,8 @@ export const firebaseHandlers = {
         firebaseStore.update((curr) => ({ ...curr, savingStatus: "saving" }));
         debouced_publishToFirestore()
     },
-    loadFromFirestore: debouced_leading_loadFromFirestore
+    loadFromFirestore: ()=> {
+        if (get(firebaseStore).savingStatus === "saving") return;
+        debouced_leading_loadFromFirestore();
+    }
 }

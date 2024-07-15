@@ -5,6 +5,7 @@
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
+  import { firebaseStore } from "$lib/stores/firebaseStore";
 
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 140; // update in .tabs css also
@@ -374,7 +375,7 @@
       </button>
     </div>
     <div class="settings-container">
-      <button class="refresh button" on:click={refreshClicked}>
+      <button class="refresh button" on:click={refreshClicked} disabled={$firebaseStore.savingStatus === "saving"}>
         <span
           class="button-icon"
           style="-webkit-mask: url({base}/images/svg/refresh.svg) no-repeat center / contain;
@@ -476,6 +477,7 @@
     justify-content: center;
     align-items: center;
     transition: background-color var(--transition-speed);
+    transition: opacity var(--transition-speed);
   }
   .button:hover {
     background-color: var(--text);
@@ -484,6 +486,10 @@
   .button:active {
     background-color: var(--main);
     color: var(--bg);
+  }
+  .button:disabled {
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .button-icon {

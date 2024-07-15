@@ -23,9 +23,7 @@
 }
 
 .ql-editor a {
-
     text-decoration: underline;
-
 }
 
 .ql-editor.ql-blank:focus::before {

@@ -26,6 +26,21 @@
     $settingsStore.spellCheck.toString()
   );
 
+  // a debounce function that only triggers on the trailing edge
+  const debounce = (func: Function, timeout = 300) => {
+    // @ts-ignore
+    let timer;
+    // @ts-ignore
+    return (...args) => {
+      // @ts-ignore
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        // @ts-ignore
+        func.apply(this, args);
+      }, timeout);
+    };
+  };
+
   async function rebuildHistoryStack(stack: HistoryStack) {
     if (!quillEditor) return;
     const { Delta: Delta, Range: Range } = await import("quill/core");
@@ -78,29 +93,67 @@
     const history = structuredClone(quillEditor.history.stack);
     $tabsStore[tabID].history = history;
   }
+  function formatLinks() {
+    if (!quillEditor) return;
+    quillEditor.formatText(0, quillEditor.getLength(), "link", false, "api");
+    const text = quillEditor.getText();
 
-  function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
-    if (source === "user") {
-      saveContentToTab();
+    const urlRegex = /https?:\/\/\S+/gi;
+    const urlMatches = text.matchAll(urlRegex);
+    for (const match of urlMatches) {
+      quillEditor.formatText(
+        match.index,
+        match[0].length,
+        "link",
+        match[0],
+        "api"
+      );
+    }
+
+    const emailRegex = /.+\@.+\..+/gi;
+    const emailMatches = text.matchAll(emailRegex);
+    for (const match of emailMatches) {
+      console.log(match);
+      quillEditor.formatText(
+        match.index,
+        match[0].length,
+        "link",
+        "mailto:" + match[0],
+        "api"
+      );
+    }
+
+    // make links clickable
+    document.querySelectorAll(".ql-editor a").forEach((a) => {
+      a.addEventListener("click", handleClickingLink);
+    });
+  }
+
+  function handleClickingLink(e: Event) {
+    if (quillEditor && quillEditor.getSelection()?.length === 0) {
+      window.open((e.target as HTMLAnchorElement).href, "_blank");
     }
   }
 
+  function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
+    if (source === "user") {
+      formatLinks();
+      saveContentToTab();
+    }
+  }
+  const debounced_handleQuillInput = debounce(handleQuillInput, 500);
+
   async function addEditor() {
     const { default: Quill } = await import("quill");
-    const { default: MagicUrl } = await import("quill-magic-url");
-
-    Quill.register("modules/magicUrl", MagicUrl);
 
     quillEditor = new Quill(editorDiv, {
-      modules: {
-        magicUrl: true,
-      },
       formats: ["bold", "italic", "underline", "strike", "code", "link"],
       placeholder: "Enter text here",
     });
 
     loadContentFromTab();
-    quillEditor.on("text-change", handleQuillInput);
+    formatLinks();
+    quillEditor.on("text-change", debounced_handleQuillInput);
 
     quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
       quillEditor.format("code", !quillEditor.getFormat().code);
