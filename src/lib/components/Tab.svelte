@@ -16,8 +16,9 @@
     on:mousedown|self={onPointerdown}
     on:touchstart|self={onPointerdown}
     on:dragstart|self={onDragstart}
-  />
-  <p class="title">{title}</p>
+  >
+  <span class="title">{title}</span>
+</button>
 </div>
 
 <style>
@@ -93,21 +94,15 @@
     color: var(--text);
     font-family: var(--ui-font);
     font-size: var(--ui-font-size);
-
-    align-self: center;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: var(--tab-gaps);
-
+    display: block;
     margin-inline: 8px;
+    text-align: start;
     text-wrap: nowrap;
     overflow: hidden;
     pointer-events: none;
   }
-  .tab.active ~ .title,
-  .tab:hover ~ .title {
+  .tab.active .title,
+  .tab:hover .title {
     color: var(--bg);
   }
   /* .tab:not(.active) ~ .tab-wrapper .close-button {
