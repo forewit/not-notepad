@@ -4,11 +4,8 @@
   export let title = "";
   export let active = false;
   export let preventHover = false;
-  // export let onClose = () => {};
   export let onPointerdown = (e: MouseEvent | TouchEvent) => {};
   export let onDragstart = (e: DragEvent) => {};
-
-  let inputElm: HTMLInputElement;
 </script>
 
 <div class="tab-container" class:preventHover>
@@ -16,35 +13,11 @@
     class="tab"
     class:active
     draggable="true"
-    on:dblclick|self={() => inputElm.select()}
     on:mousedown|self={onPointerdown}
     on:touchstart|self={onPointerdown}
     on:dragstart|self={onDragstart}
   />
   <p class="title">{title}</p>
-
-  <!-- <div class="tab-wrapper">
-    <input
-      bind:this={inputElm}
-      bind:value={title}
-      autocorrect="off"
-      autocomplete="off"
-      spellcheck="false"
-      type="text"
-    />
-    <button
-      class="close-button"
-      on:click|stopPropagation|preventDefault={onClose}
-      draggable="true"
-      on:dragstart|stopPropagation|preventDefault
-    >
-      <span
-        class="close-icon"
-        style="-webkit-mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;
-        mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;"
-      ></span>
-    </button>
-  </div> -->
 </div>
 
 <style>
@@ -97,26 +70,25 @@
   .tab.active::before {
     display: block;
     left: calc(var(--tab-radius) * -1);
-    width: calc(var(--tab-radius));
+    width: var(--tab-radius);
     aspect-ratio: 1;
     background-image: radial-gradient(
       circle at 0 0,
       transparent var(--tab-radius),
-      var(--main) calc(var(--tab-radius) + 1px)
+      var(--main) var(--tab-radius)
     );
   }
   .tab.active::after {
     display: block;
     right: calc(var(--tab-radius) * -1);
-    width: calc(var(--tab-radius));
+    width: var(--tab-radius);
     aspect-ratio: 1;
     background-image: radial-gradient(
       circle at 100% 0,
       transparent var(--tab-radius),
-      var(--main) calc(var(--tab-radius) + 1px)
+      var(--main) var(--tab-radius)
     );
   }
-
   .title {
     color: var(--text);
     font-family: var(--ui-font);

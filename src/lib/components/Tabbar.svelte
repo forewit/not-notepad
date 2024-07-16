@@ -349,7 +349,6 @@
   <div class="tabbar">
     <div class="tabs" bind:this={tabsElm}>
       {#each $metadataStore.order as id, i (id)}
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
           bind:this={tabElms[i]}
           class="tab-container"

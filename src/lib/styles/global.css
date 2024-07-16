@@ -31,8 +31,8 @@
   
     /* tabs */
     --tab-height: 40px;
-    --tab-radius: 6px;
-    --tab-gaps: 4px;
+    --tab-radius: 8px;
+    --tab-gaps: 3px;
   }
 
 
