@@ -20,10 +20,10 @@
     on:mousedown|self={onPointerdown}
     on:touchstart|self={onPointerdown}
     on:dragstart|self={onDragstart}
-  >
-  </button>
+  />
+  <p class="title">{title}</p>
 
-  <div class="tab-wrapper">
+  <!-- <div class="tab-wrapper">
     <input
       bind:this={inputElm}
       bind:value={title}
@@ -32,7 +32,7 @@
       spellcheck="false"
       type="text"
     />
-    <!-- <button
+    <button
       class="close-button"
       on:click|stopPropagation|preventDefault={onClose}
       draggable="true"
@@ -43,8 +43,8 @@
         style="-webkit-mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;
         mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;"
       ></span>
-    </button> -->
-  </div>
+    </button>
+  </div> -->
 </div>
 
 <style>
@@ -60,6 +60,7 @@
   }
 
   .tab {
+    padding-inline: var(--tab-gaps);
     background-color: var(--bg-alt);
     border-radius: var(--tab-radius);
     transition: background-color var(--transition-speed);
@@ -67,14 +68,9 @@
     outline-offset: -2px;
     min-width: 0;
     width: 100%;
-    position: relative;
-    display: grid;
-    grid-auto-flow: column;
     margin-bottom: var(--tab-gaps);
-    align-items: center;
   }
-  .tab:hover,
-  .tab:not(.active):has(+ .tab-wrapper .close-button:hover) {
+  .tab:hover {
     background-color: var(--sub);
   }
 
@@ -121,13 +117,33 @@
     );
   }
 
+  .title {
+    color: var(--text);
+    font-family: var(--ui-font);
+    font-size: var(--ui-font-size);
+
+    align-self: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: var(--tab-gaps);
+
+    margin-inline: 8px;
+    text-wrap: nowrap;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .tab.active ~ .title,
+  .tab:hover ~ .title {
+    color: var(--bg);
+  }
   /* .tab:not(.active) ~ .tab-wrapper .close-button {
     display: none;
   } 
   .tab:not(.active) ~ .tab-wrapper input {
     margin-inline: 0.4em;
-  } */
-
+  }  
   .tab-wrapper {
     position: absolute;
     left: 0;
@@ -163,7 +179,7 @@
     color: var(--bg);
   }
 
-  /* .close-button {
+  .close-button {
     pointer-events: all;
     width: 24px;
     height: 24px;

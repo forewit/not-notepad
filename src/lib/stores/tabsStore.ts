@@ -27,7 +27,6 @@ const replacementMap = {
     '],"redo":[]}': "⒰",
     '{"undo":[': "⒱",
     '],"redo":[': "⒲",
-
 }
 const invertedReplacementMap = Object.fromEntries(Object.entries(replacementMap).map(([key, value]) => [value, key]));
 
