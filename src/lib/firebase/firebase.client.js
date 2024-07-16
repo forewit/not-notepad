@@ -1,8 +1,9 @@
 // Import the functions you need from the SDKs you need
-import { getApps, initializeApp, getApp, deleteApp} from "firebase/app";
+import { getApps, initializeApp, getApp, deleteApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import firebase from "firebase/compat/app";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -25,4 +26,9 @@ if (!getApps().length) {
 }
 
 export const auth = getAuth(firebaseApp);
-export const db = getFirestore(firebaseApp);
+export const db = initializeFirestore(firebaseApp, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+})
+
+//export const db = getFirestore(firebaseApp, );
+

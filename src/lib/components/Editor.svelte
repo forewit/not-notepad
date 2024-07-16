@@ -93,7 +93,6 @@
   }
 
   function saveContentToTab() {
-    console.log("saving content to tab")
     if (!quillEditor || !$tabsStore[tabID]) return;
 
     $tabsStore[tabID].ops = quillEditor.getContents().ops;
@@ -103,7 +102,6 @@
   const debounced_saveContentToTab = debounce(saveContentToTab, 500);
 
   function formatLinks() {
-    console.log("formatting links")
     if (!quillEditor) return;
     quillEditor.formatText(0, quillEditor.getLength(), "link", false, "api");
     const text = quillEditor.getText();
@@ -123,7 +121,6 @@
     const emailRegex = /.+\@.+\..+/gi;
     const emailMatches = text.matchAll(emailRegex);
     for (const match of emailMatches) {
-      console.log(match);
       quillEditor.formatText(
         match.index,
         match[0].length,
@@ -164,7 +161,6 @@
 
     quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
       quillEditor.format("code", !quillEditor.getFormat().code);
-      console.log(quillEditor.history);
     });
     quillEditor.keyboard.addBinding({ key: "-", altKey: true }, () => {
       quillEditor.format("strike", !quillEditor.getFormat().strike);

@@ -76,7 +76,7 @@
     background-image: radial-gradient(
       circle at 0 0,
       transparent var(--tab-radius),
-      var(--main) var(--tab-radius)
+      var(--main) calc(var(--tab-radius) + 1px)
     );
   }
   .tab.active::after {
@@ -87,7 +87,7 @@
     background-image: radial-gradient(
       circle at 100% 0,
       transparent var(--tab-radius),
-      var(--main) var(--tab-radius)
+      var(--main) calc(var(--tab-radius) + 1px)
     );
   }
   .title {
