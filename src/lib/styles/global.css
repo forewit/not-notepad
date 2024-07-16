@@ -1,138 +1,39 @@
 /* the theme variables are based on https://www.monkeytype.com/settings#group_theme */
 
-/* DEFAULT THEME */
 :root {
-    --bg: #fffaf3; /* background */
-    --bg-alt: #f0e9df; /* input background */
-  
-    --main: #56949f; /* selected background*/
-    --caret: #ea9d34; /* caret */
-    --error: #b4637a; /* error background */
-  
-    --sub: #c4a7e7; /* headings, :active background */
-    --text: #286983; /* text, :hover background */
-  
-    --safe-area-left: 0px; /* overwritten in layout.svelte */
-    --safe-area-right: 0px; /* overwritten in layout.svelte */
-    --safe-area-top: 0px; /* overwritten in layout.svelte */
-    
-    --font: "Consolas", monospace;
-    --font-size: 14px;
-  
-    --ui-font: "Segoe UI", sans-serif;
-    --ui-font-weight: 400;
-    --ui-font-size: 16px;
-  
-    --transition-speed: 200ms;
-  
-    /* tabbar */
-    --tabbar-divider-size: 6px;
-    --tabbar-height: 44px;
-  
-    /* tabs */
-    --tab-height: 40px;
-    --tab-radius: 8px;
-    --tab-gaps: 3px;
-  }
+  /* theme */
+  --bg: #fffaf3; /* background */
+  --bg-alt: #f0e9df; /* input background */
+  --main: #56949f; /* selected background*/
+  --caret: #ea9d34; /* caret */
+  --error: #b4637a; /* error background */
+  --sub: #c4a7e7; /* headings, :active background */
+  --text: #286983; /* text, :hover background */
 
+  /* fonts */
+  --font: "Consolas", monospace;
+  --font-size: 14px;
+  --ui-font: "Segoe UI", sans-serif;
+  --ui-font-weight: 400;
+  --ui-font-size: 16px;
 
-  /* global css */
-  ::selection {
-    background-color: var(--sub);
-    color: var(--bg);
-  }
+  /* tabbar */
+  --tabbar-divider-size: 6px;
+  --tabbar-height: 44px;
+  --tab-height: 40px;
+  --tab-radius: 8px;
+  --tab-gaps: 3px;
 
-  body, html {
-    background-color: var(--bg);
-  }
+  /* other */
+  --transition-speed: 200ms;
+  --safe-area-left: 0px; /* overwritten in +layout by env("safe-area-inset-left") */
+  --safe-area-right: 0px; /* overwritten in +layout by env("safe-area-inset-right") */
+  --safe-area-top: 0px; /* overwritten in +layout by env("safe-area-inset-top") */
+}
 
-  h1 {
-    font-family: var(--ui-font);
-    color: var(--sub);
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
+/* global css */
 
-  h2 {
-    font-family: var(--ui-font);
-    color: var(--sub);
-    font-size: 1.1rem;
-    margin-bottom:0.5rem;
-  }
-
-  p, a, label {
-    font-family: var(--font);
-    font-size: var(--font-size);
-    color: var(--text);
-  }
-
-  .themed-btn {
-    font-family: var(--font);
-    font-size: var(--font-size);
-    background-color: var(--bg-alt);
-    color: var(--text);
-    padding: 8px;
-    margin: 2px;
-    border-radius: 5px;
-  }
-  .themed-btn.error {
-    background-color: var(--error);
-    color: var(--bg);
-  }
-  .themed-btn:hover {
-    background-color: var(--text);
-    color: var(--bg);
-  }
-  .themed-btn:active {
-    background-color: var(--sub);
-    color: var(--bg);
-  }
-
-
-  .themed-checkbox {
-    --gap: 2px;
-    --height: 20px;
-    --width: 40px;
-
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: var(--width);
-    height: var(--height);
-    display: inline-block;
-    position: relative;
-    border-radius: 50vh;
-    overflow: hidden;
-    outline: none;
-    border: none;
-    cursor: pointer;
-    background-color: var(--bg-alt);
-  }
-  
-  .themed-checkbox:before {
-    content: "";
-    display: block;
-    position: absolute;
-    z-index: 2;
-    width: calc(var(--height) - var(--gap) * 2);
-    aspect-ratio: 1;
-    background-color: var(--main);
-    left: var(--gap);
-    top: var(--gap);
-    border-radius: 50%;
-    transition: left ease-in-out var(--transition-speed);
-  }
-  
-  .themed-checkbox:checked {
-    background-color: var(--main);
-  }
-  
-  .themed-checkbox:checked:before {
-    left: calc(var(--width) - var(--height) + var(--gap));
-    background-color: var(--bg);
-  }
-
-  /* Examples:
+/* Examples:
   SELECTOR	      BACKGROUND 	TEXT COLOR
   
   button		      --bg-alt	  --text
@@ -144,5 +45,101 @@
   
   text, link:hover            --text
   h1, h2, h3, link            --sub
-  */
-  
+*/
+
+::selection {
+  background-color: var(--sub);
+  color: var(--bg);
+}
+
+body,
+html {
+  background-color: var(--bg);
+}
+
+h1 {
+  font-family: var(--ui-font);
+  color: var(--sub);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  font-family: var(--ui-font);
+  color: var(--sub);
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+p,
+a,
+label {
+  font-family: var(--font);
+  font-size: var(--font-size);
+  color: var(--text);
+}
+
+.themed-btn {
+  font-family: var(--font);
+  font-size: var(--font-size);
+  background-color: var(--bg-alt);
+  color: var(--text);
+  padding: 8px;
+  margin: 2px;
+  border-radius: 5px;
+}
+.themed-btn.error {
+  background-color: var(--error);
+  color: var(--bg);
+}
+.themed-btn:hover {
+  background-color: var(--text);
+  color: var(--bg);
+}
+.themed-btn:active {
+  background-color: var(--sub);
+  color: var(--bg);
+}
+
+.themed-checkbox {
+  --gap: 2px;
+  --height: 20px;
+  --width: 40px;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: var(--width);
+  height: var(--height);
+  display: inline-block;
+  position: relative;
+  border-radius: 50vh;
+  overflow: hidden;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  background-color: var(--bg-alt);
+}
+
+.themed-checkbox:before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 2;
+  width: calc(var(--height) - var(--gap) * 2);
+  aspect-ratio: 1;
+  background-color: var(--main);
+  left: var(--gap);
+  top: var(--gap);
+  border-radius: 50%;
+  transition: left ease-in-out var(--transition-speed);
+}
+
+.themed-checkbox:checked {
+  background-color: var(--main);
+}
+
+.themed-checkbox:checked:before {
+  left: calc(var(--width) - var(--height) + var(--gap));
+  background-color: var(--bg);
+}
