@@ -12,26 +12,27 @@
     --sub: #c4a7e7; /* headings, :active background */
     --text: #286983; /* text, :hover background */
   
-    --safe-area-left: 0px;
-    --safe-area-right: 0px;
-    --safe-area-top: 0px;
+    --safe-area-left: 0px; /* overwritten in layout.svelte */
+    --safe-area-right: 0px; /* overwritten in layout.svelte */
+    --safe-area-top: 0px; /* overwritten in layout.svelte */
     
     --font: "Consolas", monospace;
     --font-size: 14px;
   
     --ui-font: "Segoe UI", sans-serif;
+    --ui-font-weight: 400;
     --ui-font-size: 16px;
   
     --transition-speed: 200ms;
   
     /* tabbar */
-    --tabbar-divider-size: 0.3rem;
-    --tabbar-height: 60px;
+    --tabbar-divider-size: 6px;
+    --tabbar-height: 44px;
   
     /* tabs */
     --tab-height: 40px;
-    --tab-radius: 12px;
-    --tab-gaps: 6px;
+    --tab-radius: 6px;
+    --tab-gaps: 4px;
   }
 
 

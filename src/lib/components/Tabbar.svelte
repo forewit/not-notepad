@@ -8,13 +8,13 @@
   import { firebaseStore } from "$lib/stores/firebaseStore";
 
   const MIN_DRAG_DISTANCE = 12;
-  const TAB_MAX_WIDTH = 140; // update in .tabs css also
-  const TAB_MIN_WIDTH = 70; // update in .tabs css also
+  const TAB_MAX_WIDTH = 200; // update in css also
+  const TAB_MIN_WIDTH = 24; // update in css also
   const TAB_ANIMATION_DURATION = 200;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
-  export let refreshClicked = ()=>{};
+  export let refreshClicked = () => {};
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
@@ -52,7 +52,7 @@
 
   function newTab() {
     tabsHandlers.newTab();
-  };
+  }
 
   const closeTab = (id: string) => {
     const index = $metadataStore.order.findIndex((tab) => tab === id);
@@ -71,7 +71,8 @@
 
     // pre-emtive tab switching if you close the active tab
     if (index == $metadataStore.activeIndex) {
-      if (index == $metadataStore.order.length - 1) tabsHandlers.setActiveIndex(index - 1);
+      if (index == $metadataStore.order.length - 1)
+        tabsHandlers.setActiveIndex(index - 1);
       else tabsHandlers.setActiveIndex(index + 1);
     }
 
@@ -188,8 +189,8 @@
       }
 
       // Dragging outside the tabbar
-      clone.style.left = `${x + offsetX}px`;
-      clone.style.top = `${y + offsetY}px`;
+      clone.style.left = `${x + offsetX}px`; // or x + offsetX
+      clone.style.top = `${y - originalRect.height/2}px`; // or y + offsetY
       draggingOutside = true;
       return;
     }
@@ -228,7 +229,8 @@
       scrollBy = 0;
     }
 
-    if (moveToIndex == -1 || moveToIndex == $metadataStore.placeholderIndex) return;
+    if (moveToIndex == -1 || moveToIndex == $metadataStore.placeholderIndex)
+      return;
     animateMovingTab($metadataStore.placeholderIndex, moveToIndex);
   }
 
@@ -321,6 +323,7 @@
     window.removeEventListener("dragend", pointerUpHandler);
     window.removeEventListener("blur", pointerUpHandler);
 
+
     startPosition = null;
     draggingOutside = false;
     draggedTabIndex = -1;
@@ -357,7 +360,6 @@
             bind:title={$tabsStore[id].title}
             active={activeTabID == id}
             {preventHover}
-            onClose={() => closeTab(id)}
             onPointerdown={(e) => pointerDownHandler(e, i)}
             onDragstart={dragstartHandler}
           />
@@ -375,7 +377,21 @@
       </button>
     </div>
     <div class="settings-container">
-      <button class="refresh button" on:click={refreshClicked} disabled={$firebaseStore.savingStatus === "saving"}>
+      <button
+        class="close button"
+        on:click={() => closeTab(activeTabID)}
+      >
+        <span
+          class="button-icon"
+          style="-webkit-mask: url({base}/images/svg/trash.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/trash.svg) no-repeat center / contain;"
+        ></span>
+      </button>
+      <button
+        class="refresh button"
+        on:click={refreshClicked}
+        disabled={$firebaseStore.savingStatus === "saving"}
+      >
         <span
           class="button-icon"
           style="-webkit-mask: url({base}/images/svg/refresh.svg) no-repeat center / contain;
@@ -389,7 +405,6 @@
       mask: url({base}/images/svg/gear.svg) no-repeat center / contain;"
         ></span>
       </a>
-      
     </div>
 
     <div bind:this={clone} class="clone" class:dragging>
@@ -428,19 +443,20 @@
     margin-bottom: var(--tab-gaps);
     margin-inline-end: calc(14px + var(--safe-area-right));
     display: flex;
-    gap: 5px;
+    margin-left: 6px;
   }
 
   .tabs {
-    --tab-max-width: 140px;
-    --tab-min-width: 70px;
+    --tab-max-width: 200px; /* update in JS also*/
+    --tab-min-width: 24px; /* update in JS also*/
     width: 100%;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
     gap: var(--tab-gaps);
     overflow-x: scroll;
-    padding-inline: calc(var(--tab-radius) + 8px + var(--safe-area-left)) var(--tab-radius);
+    padding-inline: calc(var(--tab-radius) + 8px + var(--safe-area-left))
+      var(--tab-radius);
     scrollbar-width: none;
   }
 

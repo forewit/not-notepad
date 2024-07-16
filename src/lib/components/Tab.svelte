@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { base } from "$app/paths";
+  // import { base } from "$app/paths";
 
   export let title = "";
   export let active = false;
   export let preventHover = false;
-  export let onClose = () => {};
+  // export let onClose = () => {};
   export let onPointerdown = (e: MouseEvent | TouchEvent) => {};
   export let onDragstart = (e: DragEvent) => {};
 
   let inputElm: HTMLInputElement;
 </script>
 
-<div class="container" class:preventHover>
+<div class="tab-container" class:preventHover>
   <button
     class="tab"
     class:active
@@ -32,19 +32,18 @@
       spellcheck="false"
       type="text"
     />
-    <button
+    <!-- <button
       class="close-button"
       on:click|stopPropagation|preventDefault={onClose}
       draggable="true"
       on:dragstart|stopPropagation|preventDefault
     >
-      <!-- svg from url -->
       <span
         class="close-icon"
         style="-webkit-mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;
         mask: url({base}/images/svg/cancel.svg) no-repeat center / contain;"
       ></span>
-    </button>
+    </button> -->
   </div>
 </div>
 
@@ -54,10 +53,8 @@
     -webkit-user-select: none;
   }
 
-  .container {
+  .tab-container {
     position: relative;
-    container-name: tab;
-    container-type: inline-size;
     height: 100%;
     display: flex;
   }
@@ -99,7 +96,7 @@
     width: calc(2 * var(--tab-radius));
     height: var(--tab-radius);
     background-color: transparent;
-    z-index: -1;
+    z-index: 1;
   }
   .tab.active::before {
     display: block;
@@ -124,20 +121,12 @@
     );
   }
 
-  @container tab (width < 60px) {
-    .tab:not(.active) ~ .tab-wrapper .close-button {
-      display: none;
-    }
-    .tab:not(.active) ~ .tab-wrapper input {
-      margin-inline: 6px;
-    }
-  }
-  /* this should only happen during the tab opening/closing animation */
-  @container tab (width < 38px) {
-    .tab ~ .close-button {
-      display: none;
-    }
-  }
+  /* .tab:not(.active) ~ .tab-wrapper .close-button {
+    display: none;
+  } 
+  .tab:not(.active) ~ .tab-wrapper input {
+    margin-inline: 0.4em;
+  } */
 
   .tab-wrapper {
     position: absolute;
@@ -160,7 +149,7 @@
     min-width: 0;
     background-color: transparent;
     padding: 0;
-    margin-inline-start: 0.7em;
+    margin-inline: 0.4em;
     white-space: nowrap;
     outline: none;
     border: none;
@@ -174,7 +163,7 @@
     color: var(--bg);
   }
 
-  .close-button {
+  /* .close-button {
     pointer-events: all;
     width: 24px;
     height: 24px;
@@ -203,7 +192,7 @@
   }
   .tab.active ~ .tab-wrapper .close-button:hover .close-icon {
     background-color: var(--main);
-  }
+  } */
 
   .preventHover * {
     pointer-events: none !important;

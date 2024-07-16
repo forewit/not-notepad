@@ -48,7 +48,7 @@
   onMount(() => {
     window.addEventListener("beforeunload", preventCloseIfSaving);
     screen.orientation.addEventListener("change", handleOrientationChange);
-    
+
     // publish to firestore when settingsStore or tabsStore changes
     tabsStore.subscribe(firebaseHandlers.publishToFirestore);
     settingsStore.subscribe(firebaseHandlers.publishToFirestore);
@@ -82,9 +82,11 @@
 <ThemeWrapper>
   <div class="layout-container">
     <slot />
-    <div class="sync-status">
-      <SyncStatus></SyncStatus>
-    </div>
+    {#if !$firebaseStore.isLoading}
+      <div class="sync-status">
+        <SyncStatus></SyncStatus>
+      </div>
+    {/if}
   </div>
 </ThemeWrapper>
 

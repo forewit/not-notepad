@@ -76,6 +76,12 @@
     }
   }
 
+  function handleClickingLink(e: Event) {
+    if (quillEditor && quillEditor.getSelection()?.length === 0) {
+      window.open((e.target as HTMLAnchorElement).href, "_blank");
+    }
+  }
+
   function loadContentFromTab() {
     if (!quillEditor || !$tabsStore[tabID]) return;
 
@@ -87,13 +93,17 @@
   }
 
   function saveContentToTab() {
+    console.log("saving content to tab")
     if (!quillEditor || !$tabsStore[tabID]) return;
 
     $tabsStore[tabID].ops = quillEditor.getContents().ops;
     const history = structuredClone(quillEditor.history.stack);
     $tabsStore[tabID].history = history;
   }
+  const debounced_saveContentToTab = debounce(saveContentToTab, 500);
+
   function formatLinks() {
+    console.log("formatting links")
     if (!quillEditor) return;
     quillEditor.formatText(0, quillEditor.getLength(), "link", false, "api");
     const text = quillEditor.getText();
@@ -128,20 +138,17 @@
       a.addEventListener("click", handleClickingLink);
     });
   }
-
-  function handleClickingLink(e: Event) {
-    if (quillEditor && quillEditor.getSelection()?.length === 0) {
-      window.open((e.target as HTMLAnchorElement).href, "_blank");
-    }
-  }
+  const debounced_formatLinks = debounce(formatLinks, 500);
 
   function handleQuillInput(newDelta: Delta, oldDelta: Delta, source: string) {
     if (source === "user") {
-      formatLinks();
-      saveContentToTab();
+      const firstLine = quillEditor.getText().split("\n")[0].trim();
+      $tabsStore[tabID].title = firstLine === "" ? "Untitled" : firstLine;
+
+      debounced_formatLinks();
+      debounced_saveContentToTab();
     }
   }
-  const debounced_handleQuillInput = debounce(handleQuillInput, 500);
 
   async function addEditor() {
     const { default: Quill } = await import("quill");
@@ -153,7 +160,7 @@
 
     loadContentFromTab();
     formatLinks();
-    quillEditor.on("text-change", debounced_handleQuillInput);
+    quillEditor.on("text-change", handleQuillInput);
 
     quillEditor.keyboard.addBinding({ key: "/", altKey: true }, () => {
       quillEditor.format("code", !quillEditor.getFormat().code);
