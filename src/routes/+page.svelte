@@ -27,13 +27,17 @@
         class="drawing-container"
         class:disabled={$metadataStore.activeTool !== "pencil"}
       >
-        <Drawing
-          {color}
-          {stroke}
-          {radius}
-          {smoothness}
-          disabled={$metadataStore.activeTool !== "pencil"}
-        />
+        {#each Object.keys($tabsStore) as id (id)}
+          <Drawing
+            {color}
+            {stroke}
+            {radius}
+            {smoothness}
+            tabID={id}
+            hide={id !== activeTabID}
+            disabled={id !== activeTabID || $metadataStore.activeTool !== "pencil"}
+          />
+        {/each}
       </div>
     </div>
   </div>

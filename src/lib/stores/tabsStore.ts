@@ -2,7 +2,6 @@ import { writable, get } from "svelte/store";
 import type { Op } from "quill/core";
 import type { StackItem } from "quill/modules/history";
 
-
 const replacementMap = {
     '{"retain":': "⒜",
     '},{"delete":': "⒝",
@@ -27,6 +26,8 @@ const replacementMap = {
     '],"redo":[]}': "⒰",
     '{"undo":[': "⒱",
     '],"redo":[': "⒲",
+    '},{"x":': "⒳",
+    ',"y":': "⒴",
 }
 const invertedReplacementMap = Object.fromEntries(Object.entries(replacementMap).map(([key, value]) => [value, key]));
 
@@ -46,7 +47,8 @@ function packTabs() {
     Object.entries(get(tabsStore)).forEach(([id, tab]) => {
         const ops = replaceSubstrings(JSON.stringify(tab.ops), replacementMap);
         const history = replaceSubstrings(JSON.stringify(tab.history), replacementMap);
-        packedTabs[id] = { title: tab.title, ops, history: history };
+        const paths = replaceSubstrings(JSON.stringify(tab.paths), replacementMap);
+        packedTabs[id] = { title: tab.title, ops: ops, history: history, paths: paths };
     });
     return packedTabs;
 }
@@ -54,14 +56,17 @@ function loadPackedTabs(packedTabs: PackedTabs) {
     Object.entries(packedTabs).forEach(([id, packedTab]) => {
         const unpackedOps = replaceSubstrings(packedTab.ops, invertedReplacementMap);
         const unpackedHistory = replaceSubstrings(packedTab.history, invertedReplacementMap);
+        const unpackedPaths = replaceSubstrings(packedTab.paths, invertedReplacementMap);
         try {
             const parsedOps = JSON.parse(unpackedOps)
             const parsedHistory = JSON.parse(unpackedHistory)
+            const parsedPaths = JSON.parse(unpackedPaths)
 
             const tabData: TabData = {
                 title: packedTab.title,
                 ops: parsedOps,
-                history: parsedHistory
+                history: parsedHistory,
+                paths: parsedPaths
             };
             newTab({ id, data: tabData })
         } catch (err) {
@@ -70,10 +75,9 @@ function loadPackedTabs(packedTabs: PackedTabs) {
     });
 }
 function newTab(options?: { id?: string, data?: TabData, index?: number, callback?: () => void }) {
-    const { id = generateUUID(), data = { title: "Untitled", ops: [], history: { undo: [], redo: [] } }, index = -1, callback = () => { } } = options || {};
+    const { id = generateUUID(), data = { title: "Untitled", ops: [], history: { undo: [], redo: [] }, paths: [] }, index = -1, callback = () => { } } = options || {};
     tabsStore.update(curr => {
         if (curr[id]) {
-
             curr[id] = data;
             return curr;
         }
@@ -160,13 +164,21 @@ export type HistoryStack = {
     redo: StackItem[]
 }
 
+export type Path = {
+    points: { x: number; y: number }[];
+    lineWidths: number[];
+    ctrlPoints: { x: number; y: number }[];
+    color: string;
+}
+
 export type TabData = {
     title: string;
     ops: Op[];
     history: HistoryStack;
+    paths: Path[];
 }
 
-export type PackedTabs = Record<string, { title: string, ops: string, history: string }>;
+export type PackedTabs = Record<string, { title: string, ops: string, history: string, paths: string }>;
 
 
 export const tabsStore = writable({} as Record<string, TabData>);

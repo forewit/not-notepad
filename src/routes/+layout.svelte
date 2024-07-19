@@ -105,5 +105,6 @@
     position: absolute;
     bottom: 1.2rem;
     right: calc(1.2rem + var(--safe-area-right));
+    z-index: 1;
   }
 </style>

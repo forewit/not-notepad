@@ -1,6 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import * as gestures from "$lib/modules/gestures.js";
+  import { tabsStore } from "$lib/stores/tabsStore";
+
+  // reduces storage needed to render a path
+  const DECIMAL_PRECISION = 2;
 
   // public variables
   export let radius = 3; // radius should usually be at least 2x smoothness
@@ -9,6 +13,8 @@
   export let pressureScaler = 5;
   export let color = "#000000";
   export let disabled = false;
+  export let hide = false;
+  export let tabID = "";
   export function clear() {
     ctx.clearRect(0, 0, width, height);
     savedPaths = [];
@@ -27,6 +33,13 @@
     }
   }
 
+  type Path = {
+    points: { x: number; y: number }[];
+    lineWidths: number[];
+    ctrlPoints: { x: number; y: number }[];
+    color: string;
+  }
+
   // internal variables
   $: strokeWidth = Math.max(stroke, 1);
   let canvas: HTMLCanvasElement;
@@ -38,15 +51,10 @@
   let dpi: number;
   let drawing = false;
   let log: HTMLDivElement;
-
-  interface Path {
-    points: { x: number; y: number }[];
-    lineWidths: number[];
-    ctrlPoints: { x: number; y: number }[];
-    color: string;
-  }
   let currentPath: Path;
+  let resizeObserver: ResizeObserver;
   let savedPaths: Path[] = []; // used to re-draw the paths if needed
+
 
   $: if (disabled) {
     disableDrawing();
@@ -58,23 +66,23 @@
     if (!canvas) return;
     gestures.enable(canvas);
     window.addEventListener("keydown", keydownHandler);
+    resizeObserver.observe(canvas);
     console.log("drawing enabled");
   }
   function disableDrawing() {
     if (!canvas) return;
     gestures.disable(canvas);
     window.removeEventListener("keydown", keydownHandler);
+    resizeObserver.disconnect();
     console.log("drawing disabled");
   }
 
-  // helper distance function
   const dist = (x1: number, y1: number, x2: number, y2: number) => {
     var a = x2 - x1;
     var b = y2 - y1;
     return Math.sqrt(a * a + b * b);
   };
 
-  // helper debounce function
   // TODO: update so that resizing isn't jittery?
   const debounce = (func: Function, timeout = 300) => {
     // @ts-ignore
@@ -145,6 +153,26 @@
       ctx.beginPath();
       ctx.moveTo(path.ctrlPoints[i].x, path.ctrlPoints[i].y);
     }
+  }
+
+  function savePathsToTab() {
+    if (!$tabsStore[tabID]) return;
+    $tabsStore[tabID].paths = savedPaths;
+  }
+  function loadPathsFromTab() {
+    if (!$tabsStore[tabID]) return;
+    savedPaths = $tabsStore[tabID].paths;
+    resize();
+  }
+
+  function truncatePoint(point: { x: number; y: number }) {
+    return {
+      x: truncateNumber(point.x),
+      y: truncateNumber(point.y),
+    }
+  }
+  function truncateNumber(num: number) {
+    return Number(num.toFixed(DECIMAL_PRECISION));
   }
 
   // custom event handlers
@@ -231,16 +259,19 @@
     ctx.moveTo(xc, yc);
 
     // add control point and new point to the current path
-    currentPath.points.push(lastPoint);
-    currentPath.ctrlPoints.push({ x: xc, y: yc });
-    currentPath.lineWidths.push(lastLineWidth);
+    currentPath.points.push(truncatePoint(lastPoint));
+    currentPath.ctrlPoints.push(truncatePoint({ x: xc, y: yc }));
+    currentPath.lineWidths.push(truncateNumber(lastLineWidth));
 
     // update last point
     lastPoint = newPoint;
   }
 
   function dragEndHandler() {
-    if (drawing) savedPaths.push(currentPath);
+    if (drawing) {
+      savedPaths.push(currentPath);
+      savePathsToTab();
+    }
     drawing = false;
   }
 
@@ -248,6 +279,7 @@
     // listen to Ctrl + Z to undo
     if (e.ctrlKey && e.key == "z") {
       undo();
+      savePathsToTab();
     }
     e.preventDefault();
   }
@@ -279,16 +311,16 @@
     }) as EventListener);
 
     // setup resize observer
-    let resizeObserver = new ResizeObserver(debounce(resize, 0));
-    resizeObserver.observe(canvas);
+    resizeObserver = new ResizeObserver(debounce(resize, 0));
+    loadPathsFromTab();
 
     disabled = disabled; // trigger reactivity
   });
 </script>
 
 <!-- current path -->
-<canvas id="canvas" class:disabled bind:this={canvas} />
-<div class="log" bind:this={log}>LOG</div>
+<canvas id="canvas" class:disabled class:hide bind:this={canvas} />
+<div class="log" class:hide bind:this={log}>LOG</div>
 
 <style>
   canvas {
@@ -311,5 +343,8 @@
   }
   .disabled {
     pointer-events: none;
+  }
+  .hide {
+    display: none;
   }
 </style>

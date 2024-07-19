@@ -6,8 +6,8 @@
   import type { HistoryStack } from "$lib/stores/tabsStore";
   import type { StackItem } from "quill/modules/history";
   import { onMount } from "svelte";
-  import { tabsStore } from "../stores/tabsStore";
-  import { settingsStore } from "../stores/settingsStore";
+  import { tabsStore } from "$lib/stores/tabsStore";
+  import { settingsStore } from "$lib/stores/settingsStore";
 
   export let tabID: string;
   export let disabled = false;
