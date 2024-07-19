@@ -323,7 +323,7 @@
 
   onDestroy(() => {
     if (resizeObserver) resizeObserver.disconnect();
-    window.removeEventListener("keydown", keydownHandler);
+    disableDrawing();
   });
 </script>
 
