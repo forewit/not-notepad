@@ -174,5 +174,6 @@ export const tabsStore = writable({} as Record<string, TabData>);
 export const metadataStore = writable({
     order: [] as string[],
     activeIndex: 0,
-    placeholderIndex: -1
+    placeholderIndex: -1,
+    activeTool: undefined as "pencil" | undefined
 });

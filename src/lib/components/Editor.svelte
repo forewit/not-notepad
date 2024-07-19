@@ -183,6 +183,8 @@
   .quill-editor-wrapper {
     background-color: var(--bg);
     overflow-y: hidden;
+    height: 100%;
+    width: 100%;
 
     display: grid;
     grid-template-rows: 1fr auto;

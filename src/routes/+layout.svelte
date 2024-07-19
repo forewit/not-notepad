@@ -2,7 +2,7 @@
   import "$lib/styles/normalize.css";
   import "$lib/styles/reset.css";
   import "$lib/styles/global.css";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { tabsStore } from "$lib/stores/tabsStore";
   import { settingsStore, authRedirect } from "$lib/stores/settingsStore";

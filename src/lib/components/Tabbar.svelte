@@ -9,12 +9,15 @@
 
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 200; // update in css also
-  const TAB_MIN_WIDTH = 24; // update in css also
+  const TAB_MIN_WIDTH = 32; // update in css also
   const TAB_ANIMATION_DURATION = 200;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
   export let refreshClicked = () => {};
+  export let pencilClicked = () => {
+    $metadataStore.activeTool = $metadataStore.activeTool === "pencil" ? undefined : "pencil";
+  };
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
@@ -355,7 +358,7 @@
           class:placeholder={placeholderTabID == id}
           use:animateTabOpening
         >
-          <Tab
+          <Tab 
             bind:title={$tabsStore[id].title}
             active={activeTabID == id}
             {preventHover}
@@ -397,6 +400,18 @@
       mask: url({base}/images/svg/refresh.svg) no-repeat center / contain;"
         ></span>
       </button>
+      <button
+        class="pencil button"
+        class:selected={$metadataStore.activeTool === "pencil"}
+        on:click={pencilClicked}
+      >
+        <span
+          class="button-icon"
+          style="-webkit-mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;"
+        ></span>
+      </button>
+      
       <a class="button" href="{base}/settings">
         <span
           class="button-icon"
@@ -447,7 +462,7 @@
 
   .tabs {
     --tab-max-width: 200px; /* update in JS also*/
-    --tab-min-width: 24px; /* update in JS also*/
+    --tab-min-width: 32px; /* update in JS also*/
     width: 100%;
     display: grid;
     grid-auto-flow: column;
@@ -498,7 +513,8 @@
     background-color: var(--text);
     color: var(--bg);
   }
-  .button:active {
+  .button:active,
+  .button.selected {
     background-color: var(--main);
     color: var(--bg);
   }
@@ -515,7 +531,8 @@
     background-color: var(--text);
   }
   .button:hover .button-icon,
-  .button:active .button-icon {
+  .button:active .button-icon,
+  .button.selected .button-icon {
     background-color: var(--bg);
   }
 </style>
