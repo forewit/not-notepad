@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import * as gestures from "$lib/modules/gestures.js";
   import { tabsStore } from "$lib/stores/tabsStore";
 
@@ -66,14 +66,12 @@
     if (!canvas) return;
     gestures.enable(canvas);
     window.addEventListener("keydown", keydownHandler);
-    resizeObserver.observe(canvas);
     console.log("drawing enabled");
   }
   function disableDrawing() {
     if (!canvas) return;
     gestures.disable(canvas);
     window.removeEventListener("keydown", keydownHandler);
-    resizeObserver.disconnect();
     console.log("drawing disabled");
   }
 
@@ -111,6 +109,7 @@
   // handle resizing
   function resize() {
     console.log("resizing");
+    if (!canvas) return;
 
     // stop drawing if you already are
     dragEndHandler();
@@ -275,7 +274,7 @@
     drawing = false;
   }
 
-  function keydownHandler(e: KeyboardEvent) {
+  const keydownHandler = function (e: KeyboardEvent) {
     // listen to Ctrl + Z to undo
     if (e.ctrlKey && e.key == "z") {
       undo();
@@ -312,9 +311,19 @@
 
     // setup resize observer
     resizeObserver = new ResizeObserver(debounce(resize, 0));
+    resizeObserver.observe(canvas);
     loadPathsFromTab();
 
-    disabled = disabled; // trigger reactivity
+    if (disabled) {
+      disableDrawing();
+    } else {
+      enableDrawing();
+    }
+  });
+
+  onDestroy(() => {
+    if (resizeObserver) resizeObserver.disconnect();
+    window.removeEventListener("keydown", keydownHandler);
   });
 </script>
 

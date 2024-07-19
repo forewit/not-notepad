@@ -3,15 +3,18 @@
   import Editor from "$lib/components/Editor.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
+  import { settingsStore } from "$lib/stores/settingsStore";
+  import { themes } from "$lib/modules/themes";
   import { firebaseStore, firebaseHandlers } from "$lib/stores/firebaseStore";
   import Drawing from "$lib/components/Drawing.svelte";
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
+  $: themeIndex = themes.find((t) => t.name === $settingsStore.theme);
 
   let stroke = 10;
   let radius = 3;
   let smoothness = 2;
-  let color = "#429A53";
+  let color = "#fddd4d";
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
