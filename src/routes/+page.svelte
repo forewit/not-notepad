@@ -9,12 +9,11 @@
   import Drawing from "$lib/components/Drawing.svelte";
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
-  $: themeIndex = themes.find((t) => t.name === $settingsStore.theme);
-
+  
   let stroke = 10;
   let radius = 3;
   let smoothness = 2;
-  let color = "#fddd4d";
+  let color = "rgba(253, 221, 77, 0.2)";
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}

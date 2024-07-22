@@ -38,7 +38,7 @@
     lineWidths: number[];
     ctrlPoints: { x: number; y: number }[];
     color: string;
-  }
+  };
 
   // internal variables
   $: strokeWidth = Math.max(stroke, 1);
@@ -54,7 +54,6 @@
   let currentPath: Path;
   let resizeObserver: ResizeObserver;
   let savedPaths: Path[] = []; // used to re-draw the paths if needed
-
 
   $: if (disabled) {
     disableDrawing();
@@ -168,7 +167,7 @@
     return {
       x: truncateNumber(point.x),
       y: truncateNumber(point.y),
-    }
+    };
   }
   function truncateNumber(num: number) {
     return Number(num.toFixed(DECIMAL_PRECISION));
@@ -206,7 +205,6 @@
 
   function dragHandle(x: number, y: number, pressure: number) {
     if (!drawing) return;
-
     let newPoint = screenToCanvas(x, y);
 
     // if using a drawing circle
@@ -281,7 +279,7 @@
       savePathsToTab();
     }
     e.preventDefault();
-  }
+  };
 
   onMount(() => {
     // setup onscreen canvas context
@@ -328,14 +326,20 @@
 </script>
 
 <!-- current path -->
-<canvas id="canvas" class:disabled class:hide bind:this={canvas} />
-<div class="log" class:hide bind:this={log}>LOG</div>
+ <div class="canvas-container" class:hide>
+  <canvas id="canvas" class:disabled bind:this={canvas} />
+  <div class="log" bind:this={log}>LOG</div>
+ </div>
 
 <style>
-  canvas {
-    position: absolute;
+  .canvas-container {
+    position: relative;
     height: 100%;
     width: 100%;
+  }
+  canvas {
+    width: 100%;
+    height: 100%;
 
     /* fix ghost margin below html5 canvas: https://stackoverflow.com/questions/9878090/eliminate-ghost-margin-below-html5-canvas-element */
     vertical-align: bottom;
