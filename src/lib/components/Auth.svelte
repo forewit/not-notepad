@@ -1,6 +1,8 @@
 <script lang="ts">
   import { firebaseHandlers } from "$lib/stores/firebaseStore";
 
+  export let onSuccessfulLogin = () => {};
+
   let email = "";
   let password = "";
   let failedLogin = false;
@@ -9,6 +11,7 @@
     try {
       failedLogin = false;
       await firebaseHandlers.login(email, password);
+      onSuccessfulLogin();
     } catch (err) {
       console.log("Login failed!");
       failedLogin = true;
