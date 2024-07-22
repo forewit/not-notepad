@@ -1,13 +1,12 @@
 {
-    "name": "Not Notepad",
-    "short_name": "Not Notepad",
-    "description": "Definitely not a notepad",
-    "start_url": "/not-notepad/",
-    "scope": "/not-notepad/",
+    "name": "Notebook",
+    "short_name": "Notebook",
+    "start_url": "/notebook/",
+    "scope": "/notebook/",
     "display": "standalone",
     "icons": [
         {
-            "src": "images/field_512.png",
+            "src": "images/notebook_512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
