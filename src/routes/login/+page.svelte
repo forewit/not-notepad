@@ -11,8 +11,16 @@
   }
 </script>
 
-{#if $firebaseStore.currentUser || $firebaseStore.isLoading}
+{#if $firebaseStore.currentUser}
   <Spinner />
+{:else if $firebaseStore.isLoading}
+<h1>Loading from Firestore</h1>
 {:else}
   <Auth />
 {/if}
+
+<style>
+  h1 {
+    margin: 0;
+  }
+</style>
