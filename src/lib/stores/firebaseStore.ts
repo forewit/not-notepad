@@ -2,6 +2,7 @@ import { signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
 import { writable, get } from "svelte/store";
 import { auth } from "$lib/firebase/firebase.client";
 import { db } from "$lib/firebase/firebase.client";
+import { doc, collection, updateDoc, setDoc, getDoc } from "firebase/firestore";
 import { type PackedTabs, tabsHandlers, metadataStore } from "$lib/stores/tabsStore";
 import { type Settings, settingsStore } from "$lib/stores/settingsStore";
 
@@ -40,8 +41,6 @@ function debounce_leading(func: Function, timeout = 300) {
 }
 
 async function loadFromFirestore() {
-    const { setDoc, doc, getDoc } = await import("firebase/firestore");
-
     const user = get(firebaseStore).currentUser;
     if (!user) return;
     firebaseStore.update((curr) => ({ ...curr, isLoading: true }));
@@ -93,8 +92,6 @@ async function loadFromFirestore() {
 const debouced_leading_loadFromFirestore = debounce_leading(loadFromFirestore, 2000);
 
 async function publishToFirestore() {
-    const { setDoc, doc, updateDoc, collection } = await import("firebase/firestore");
-
     const user = get(firebaseStore).currentUser;
     const packedTabs = tabsHandlers.packTabs();
     const userData: UserData = {
