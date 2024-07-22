@@ -65,13 +65,11 @@
     if (!canvas) return;
     gestures.enable(canvas);
     window.addEventListener("keydown", keydownHandler);
-    console.log("drawing enabled");
   }
   function disableDrawing() {
     if (!canvas) return;
     gestures.disable(canvas);
     window.removeEventListener("keydown", keydownHandler);
-    console.log("drawing disabled");
   }
 
   const dist = (x1: number, y1: number, x2: number, y2: number) => {
@@ -107,7 +105,6 @@
 
   // handle resizing
   function resize() {
-    console.log("resizing");
     if (!canvas) return;
 
     // stop drawing if you already are

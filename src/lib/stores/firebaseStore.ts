@@ -61,7 +61,11 @@ async function loadFromFirestore() {
     if (!userSnap.exists()) {
         console.log("Creating firestore user doc...");
         const userRef = doc(db, "users", user.uid);
-        await setDoc(userRef, userDataToSetStoreTo, { merge: true });
+        try {
+            await setDoc(userRef, userDataToSetStoreTo, { merge: true });
+        } catch (err) {
+            console.warn("There was an error creating the user doc!", err);
+        }
     }
     // otherwise, fetch the user doc
     else {
@@ -71,13 +75,20 @@ async function loadFromFirestore() {
 
         for (let i = 0; i < userDataToSetStoreTo.order.length; i++) {
             const tabID = userDataToSetStoreTo.order[i];
-            const tabSnap = await getDoc(doc(userRef, "tabs", tabID));
-            if (!tabSnap.exists()) {
+            try {
+                const tabSnap = await getDoc(doc(userRef, "tabs", tabID));
+                if (!tabSnap.exists()) {
+                    userDataToSetStoreTo.order.splice(i, 1);
+                    i--;
+                    continue;
+                }
+                packedTabsToSetStoreTo[tabID] = tabSnap.data() as PackedTabs[0];
+            } catch (err) {
+                console.warn("There was an error fetching the tab doc!", err);
                 userDataToSetStoreTo.order.splice(i, 1);
                 i--;
-                continue;
             }
-            packedTabsToSetStoreTo[tabID] = tabSnap.data() as PackedTabs[0];
+
         }
     }
 
@@ -147,7 +158,7 @@ export const firebaseHandlers = {
         firebaseStore.update((curr) => ({ ...curr, savingStatus: "saving" }));
         debouced_publishToFirestore()
     },
-    loadFromFirestore: ()=> {
+    loadFromFirestore: () => {
         if (get(firebaseStore).savingStatus === "saving") return;
         debouced_leading_loadFromFirestore();
     }
