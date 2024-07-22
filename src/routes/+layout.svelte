@@ -45,21 +45,13 @@
     if ($firebaseStore.savingStatus === "saving") e.preventDefault();
   }
 
-  function tryPublishingToFirestore() {
-    try {
-      firebaseHandlers.publishToFirestore();
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   onMount(() => {
     window.addEventListener("beforeunload", preventCloseIfSaving);
     screen.orientation.addEventListener("change", handleOrientationChange);
 
     // publish to firestore when settingsStore or tabsStore changes
-    tabsStore.subscribe(tryPublishingToFirestore);
-    settingsStore.subscribe(tryPublishingToFirestore);
+    tabsStore.subscribe(firebaseHandlers.publishToFirestore);
+    settingsStore.subscribe(firebaseHandlers.publishToFirestore);
 
     // update firebaseStore on authentication state changes
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
