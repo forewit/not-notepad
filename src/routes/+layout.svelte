@@ -45,13 +45,21 @@
     if ($firebaseStore.savingStatus === "saving") e.preventDefault();
   }
 
+  function tryPublishingToFirestore() {
+    try {
+      firebaseHandlers.publishToFirestore();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   onMount(() => {
     window.addEventListener("beforeunload", preventCloseIfSaving);
     screen.orientation.addEventListener("change", handleOrientationChange);
 
     // publish to firestore when settingsStore or tabsStore changes
-    tabsStore.subscribe(firebaseHandlers.publishToFirestore);
-    settingsStore.subscribe(firebaseHandlers.publishToFirestore);
+    tabsStore.subscribe(tryPublishingToFirestore);
+    settingsStore.subscribe(tryPublishingToFirestore);
 
     // update firebaseStore on authentication state changes
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
@@ -66,7 +74,12 @@
 
       // logged in
       $firebaseStore.currentUser = user;
-      firebaseHandlers.loadFromFirestore();
+
+      try {
+        firebaseHandlers.loadFromFirestore();
+      } catch (err) {
+        console.error(err);
+      }
     });
   });
 </script>
