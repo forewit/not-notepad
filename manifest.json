@@ -6,7 +6,7 @@
     "display": "standalone",
     "icons": [
         {
-            "src": "images/notebook_512.png",
+            "src": "images/notepad_512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
