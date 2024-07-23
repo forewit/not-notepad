@@ -25,11 +25,11 @@
 
     // remove most recent path and clear the canvas
     savedPaths.pop();
-    ctx.clearRect(0, 0, width, height);
+    backgroundCtx.clearRect(0, 0, width, height);
 
     // render all saved paths
     for (let i = 0; i < savedPaths.length; i++) {
-      renderPath(savedPaths[i]);
+      renderPath(savedPaths[i], backgroundCtx);
     }
   }
 
@@ -44,6 +44,8 @@
   $: strokeWidth = Math.max(stroke, 1);
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
+  let backgroundCanvas: HTMLCanvasElement;
+  let backgroundCtx: CanvasRenderingContext2D;
   let lastPoint = { x: 0, y: 0 };
   let lastLineWidth = 0;
   let height = 0;
@@ -105,7 +107,7 @@
 
   // handle resizing
   function resize() {
-    if (!canvas) return;
+    if (!canvas || !backgroundCanvas) return;
 
     // stop drawing if you already are
     dragEndHandler();
@@ -115,39 +117,43 @@
     let rect = canvas.getBoundingClientRect();
     height = rect.height * dpi;
     width = rect.width * dpi;
+
     canvas.width = width;
     canvas.height = height;
+    backgroundCanvas.width = width;
+    backgroundCanvas.height = height;
 
     // render all saved paths
     for (let i = 0; i < savedPaths.length; i++) {
-      renderPath(savedPaths[i]);
+      renderPath(savedPaths[i], backgroundCtx);
     }
   }
 
-  function renderPath(path: Path) {
+  function renderPath(path: Path, context: CanvasRenderingContext2D) {
     // set canvas properties
-    ctx.lineWidth = path.lineWidths[0];
-    ctx.lineCap = "round";
-    ctx.strokeStyle = path.color;
+    context.lineWidth = path.lineWidths[0];
+    context.lineCap = "round";
+    context.strokeStyle = path.color;
 
     // draw first point
-    ctx.beginPath();
-    ctx.moveTo(path.points[0].x, path.points[0].y);
-    ctx.stroke();
+    context.beginPath();
+    context.moveTo(path.points[0].x, path.points[0].y);
+    //ctx.stroke();
 
     // curve to each other point
     for (let i = 0; i < path.points.length; i++) {
-      ctx.lineWidth = path.lineWidths[i];
-      ctx.quadraticCurveTo(
+      context.lineWidth = path.lineWidths[i];
+      context.quadraticCurveTo(
         path.points[i].x,
         path.points[i].y,
         path.ctrlPoints[i].x,
         path.ctrlPoints[i].y
       );
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(path.ctrlPoints[i].x, path.ctrlPoints[i].y);
+      //ctx.stroke();
+      //ctx.beginPath();
+      context.moveTo(path.ctrlPoints[i].x, path.ctrlPoints[i].y);
     }
+    context.stroke();
   }
 
   function savePathsToTab() {
@@ -246,16 +252,19 @@
     }
 
     // draw path
-    ctx.lineWidth = lastLineWidth;
-    ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, xc, yc);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(xc, yc);
+    // ctx.lineWidth = lastLineWidth;
+    // ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, xc, yc);
+    // ctx.stroke();
+    // ctx.beginPath();
+    // ctx.moveTo(xc, yc);
 
     // add control point and new point to the current path
     currentPath.points.push(truncatePoint(lastPoint));
     currentPath.ctrlPoints.push(truncatePoint({ x: xc, y: yc }));
     currentPath.lineWidths.push(truncateNumber(lastLineWidth));
+
+    ctx.clearRect(0, 0, width, height);
+    renderPath(currentPath, ctx);
 
     // update last point
     lastPoint = newPoint;
@@ -264,6 +273,8 @@
   function dragEndHandler() {
     if (drawing) {
       savedPaths.push(currentPath);
+      renderPath(currentPath, backgroundCtx);
+      ctx.clearRect(0, 0, width, height);
       savePathsToTab();
     }
     drawing = false;
@@ -282,6 +293,9 @@
     // setup onscreen canvas context
     ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
+
+    backgroundCtx = backgroundCanvas.getContext("2d") as CanvasRenderingContext2D;
+    backgroundCtx.imageSmoothingEnabled = false;
 
     // setup gesture event listeners
     canvas.addEventListener("gesture", ((e: CustomEvent) => {
@@ -324,6 +338,7 @@
 
 <!-- current path -->
  <div class="canvas-container" class:hide>
+  <canvas id="currentPath" class:disabled bind:this={backgroundCanvas}></canvas>
   <canvas id="canvas" class:disabled bind:this={canvas} />
   <div class="log" bind:this={log}>LOG</div>
  </div>
@@ -335,6 +350,7 @@
     width: 100%;
   }
   canvas {
+  position: absolute;
     width: 100%;
     height: 100%;
 

@@ -5,7 +5,9 @@
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
-  import { firebaseStore } from "$lib/stores/firebaseStore";
+  import { firebaseHandlers } from "$lib/stores/firebaseStore";
+  import Toolbar from "./Toolbar.svelte";
+  import { slide } from "svelte/transition";
 
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 200; // update in css also
@@ -13,11 +15,6 @@
   const TAB_ANIMATION_DURATION = 200;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
-
-  export let refreshClicked = () => {};
-  export let pencilClicked = () => {
-    $metadataStore.activeTool = $metadataStore.activeTool === "pencil" ? undefined : "pencil";
-  };
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
@@ -193,7 +190,7 @@
 
       // Dragging outside the tabbar
       clone.style.left = `${x + offsetX}px`; // or x + offsetX
-      clone.style.top = `${y - originalRect.height/2}px`; // or y + offsetY
+      clone.style.top = `${y - originalRect.height / 2}px`; // or y + offsetY
       draggingOutside = true;
       return;
     }
@@ -326,7 +323,6 @@
     window.removeEventListener("dragend", pointerUpHandler);
     window.removeEventListener("blur", pointerUpHandler);
 
-
     startPosition = null;
     draggingOutside = false;
     draggedTabIndex = -1;
@@ -358,7 +354,7 @@
           class:placeholder={placeholderTabID == id}
           use:animateTabOpening
         >
-          <Tab 
+          <Tab
             bind:title={$tabsStore[id].title}
             active={activeTabID == id}
             {preventHover}
@@ -378,47 +374,23 @@
         ></span>
       </button>
     </div>
-    <div class="settings-container">
-      <button
-        class="close button"
-        on:click={() => closeTab(activeTabID)}
-      >
-        <span
-          class="button-icon"
-          style="-webkit-mask: url({base}/images/svg/trash.svg) no-repeat center / contain;
-      mask: url({base}/images/svg/trash.svg) no-repeat center / contain;"
-        ></span>
-      </button>
-      <button
-        class="refresh button"
-        on:click={refreshClicked}
-        disabled={$firebaseStore.savingStatus === "saving"}
-      >
-        <span
-          class="button-icon"
-          style="-webkit-mask: url({base}/images/svg/refresh.svg) no-repeat center / contain;
-      mask: url({base}/images/svg/refresh.svg) no-repeat center / contain;"
-        ></span>
-      </button>
-      <button
-        class="pencil button"
-        class:selected={$metadataStore.activeTool === "pencil"}
-        on:click={pencilClicked}
-      >
-        <span
-          class="button-icon"
-          style="-webkit-mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;
-      mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;"
-        ></span>
-      </button>
-      
-      <a class="button" href="{base}/settings">
-        <span
-          class="button-icon"
-          style="-webkit-mask: url({base}/images/svg/gear.svg) no-repeat center / contain;
+
+    <div class="buttons-container">
+      {#if !$metadataStore.toolbarVisible}
+        <button
+          class="button"
+          on:click={() => {
+            $metadataStore.toolbarVisible = true;
+          }}
+          transition:slide={{ duration: 200, axis: "x" }}
+        >
+          <span
+            class="button-icon"
+            style="-webkit-mask: url({base}/images/svg/gear.svg) no-repeat center / contain;
       mask: url({base}/images/svg/gear.svg) no-repeat center / contain;"
-        ></span>
-      </a>
+          ></span>
+        </button>
+      {/if}
     </div>
 
     <div bind:this={clone} class="clone" class:dragging>
@@ -426,6 +398,12 @@
     </div>
   </div>
   <div class="divider"></div>
+  {#if $metadataStore.toolbarVisible}
+    <Toolbar
+      refreshClicked={firebaseHandlers.loadFromFirestore}
+      onClose={() => closeTab(activeTabID)}
+    />
+  {/if}
 </div>
 
 <style>
@@ -451,13 +429,12 @@
 
   .new-tab-container {
     margin-bottom: var(--tab-gaps);
+    margin-right: var(--tab-gaps);
     display: flex;
   }
-  .settings-container {
+  .buttons-container {
     margin-bottom: var(--tab-gaps);
-    margin-inline-end: calc(14px + var(--safe-area-right));
-    display: flex;
-    margin-left: 6px;
+    margin-right: var(--tab-gaps);
   }
 
   .tabs {
@@ -495,44 +472,45 @@
   }
   .clone.dragging {
     display: block;
-    z-index: 1;
+    z-index: 2;
   }
 
   .button {
     width: 27px;
     height: 27px;
     margin: 4px;
-    border-radius: 50%;
+    border-radius: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: background-color var(--transition-speed);
     transition: opacity var(--transition-speed);
   }
-  .button:hover {
+  /* .button:hover {
     background-color: var(--text);
     color: var(--bg);
-  }
-  .button:active,
+  } */
+  /* .button:active,
   .button.selected {
     background-color: var(--main);
     color: var(--bg);
-  }
-  .button:disabled {
+  } */
+  /* .button:disabled {
     opacity: 0.5;
     pointer-events: none;
-  }
+  } */
 
   .button-icon {
     width: 14px;
     height: 14px;
-  }
+    background-color: var(--text);
+  } /*
   .button .button-icon {
     background-color: var(--text);
-  }
-  .button:hover .button-icon,
+  } */
+  /* .button:hover .button-icon,
   .button:active .button-icon,
   .button.selected .button-icon {
     background-color: var(--bg);
-  }
+  } */
 </style>

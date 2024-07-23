@@ -94,88 +94,19 @@
     color: var(--text);
     font-family: var(--ui-font);
     font-size: var(--ui-font-size);
-    display: block;
+    height: 100%;
+    display: flex;
+    align-items: center;
     margin-inline: 8px;
-    text-align: start;
     text-wrap: nowrap;
     overflow: hidden;
     pointer-events: none;
+
   }
   .tab.active .title,
   .tab:hover .title {
     color: var(--bg);
   }
-  /* .tab:not(.active) ~ .tab-wrapper .close-button {
-    display: none;
-  } 
-  .tab:not(.active) ~ .tab-wrapper input {
-    margin-inline: 0.4em;
-  }  
-  .tab-wrapper {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: var(--tab-gaps);
-    pointer-events: none;
-
-    display: grid;
-    grid-auto-flow: column;
-    align-items: center;
-    overflow: hidden;
-  }
-
-  .tab-wrapper input {
-    color: var(--text);
-    font-family: var(--ui-font);
-    font-size: var(--ui-font-size);
-    min-width: 0;
-    background-color: transparent;
-    padding: 0;
-    margin-inline: 0.4em;
-    white-space: nowrap;
-    outline: none;
-    border: none;
-    pointer-events: none;
-  }
-  .tab-wrapper input:focus {
-    pointer-events: all;
-  }
-
-  .tab.active ~ .tab-wrapper input {
-    color: var(--bg);
-  }
-
-  .close-button {
-    pointer-events: all;
-    width: 24px;
-    height: 24px;
-    margin-inline: 3px 0.4em;
-    border-radius: 50%;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color var(--transition-speed);
-  }
-  .close-button:hover {
-    background-color: var(--bg-alt);
-  }
-
-  .close-icon {
-    width: 12px;
-    height: 12px;
-  }
-  .close-icon,
-  .close-button:hover .close-icon {
-    background-color: var(--text);
-  }
-  .tab.active ~ .tab-wrapper .close-button:not(:hover) .close-icon {
-    background-color: var(--bg);
-  }
-  .tab.active ~ .tab-wrapper .close-button:hover .close-icon {
-    background-color: var(--main);
-  } */
 
   .preventHover * {
     pointer-events: none !important;

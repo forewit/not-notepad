@@ -5,18 +5,19 @@
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
   import { firebaseStore, firebaseHandlers } from "$lib/stores/firebaseStore";
   import Drawing from "$lib/components/Drawing.svelte";
+  import Toolbar from "$lib/components/Toolbar.svelte";
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
 
   let stroke = 10;
-  let radius = 3;
-  let smoothness = 2;
+  let radius = 1;
+  let smoothness = 3;
   let color = "rgba(253, 221, 77, 0.2)";
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
   <div class="page-container">
-    <Tabbar refreshClicked={firebaseHandlers.loadFromFirestore} />
+    <Tabbar />
     <div class="canvas-container">
       <div class="editor-container">
         {#each Object.keys($tabsStore) as id (id)}
@@ -51,7 +52,7 @@
     height: 100%;
     position: relative;
     display: grid;
-    grid-template-rows: min-content 1fr;
+    grid-template-rows: auto 1fr;
     grid-template-columns: 100%;
   }
   .canvas-container {

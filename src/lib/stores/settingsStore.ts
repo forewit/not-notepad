@@ -11,6 +11,6 @@ export const authRedirect = writable<string>("/");
 
 export const settingsStore = writable<Settings>({
     spellCheck: true,
-    theme: "Canvas",
+    theme: "Canvas"
 })
 

@@ -4,7 +4,6 @@
   import { settingsStore } from "$lib/stores/settingsStore";
   import { themes } from "$lib/modules/themes";
   import { base } from "$app/paths";
-  import { goto } from "$app/navigation";
 </script>
 
 {#if $firebaseStore.currentUser}
@@ -18,7 +17,7 @@
         ></span>
         Home
       </a>
-      <h1>Settings</h1>
+      <h1>Profile Settings</h1>
       <section>
         <div class="checkbox">
           <input
