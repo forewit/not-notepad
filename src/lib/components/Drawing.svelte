@@ -31,6 +31,8 @@
     for (let i = 0; i < savedPaths.length; i++) {
       renderPath(savedPaths[i], backgroundCtx);
     }
+
+    savePathsToTab();
   }
 
   type Path = {
@@ -284,7 +286,6 @@
     // listen to Ctrl + Z to undo
     if (e.ctrlKey && e.key == "z") {
       undo();
-      savePathsToTab();
     }
     e.preventDefault();
   };

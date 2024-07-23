@@ -5,14 +5,13 @@
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
   import { firebaseStore, firebaseHandlers } from "$lib/stores/firebaseStore";
   import Drawing from "$lib/components/Drawing.svelte";
-  import Toolbar from "$lib/components/Toolbar.svelte";
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
 
   let stroke = 10;
   let radius = 1;
   let smoothness = 3;
-  let color = "rgba(253, 221, 77, 0.2)";
+  let color = "rgba(253, 221, 77, 0.4)";
   let drawing: Drawing;
 </script>
 
