@@ -121,7 +121,7 @@
   }
   .button:active,
   .button.selected {
-    background-color: var(--caret);
+    background-color: var(--sub);
     color: var(--bg);
   }
   .button:disabled {
