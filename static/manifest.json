@@ -1,8 +1,8 @@
 {
-    "name": "Notebook",
-    "short_name": "Notebook",
-    "start_url": "/notebook/",
-    "scope": "/notebook/",
+    "name": "Notepad",
+    "short_name": "Notepad",
+    "start_url": "/notepad/",
+    "scope": "/notepad/",
     "display": "standalone",
     "icons": [
         {
