@@ -4,31 +4,38 @@
   import { metadataStore } from "$lib/stores/tabsStore";
   import { slide } from "svelte/transition";
 
-  export let refreshClicked = () => {};
+  export let onRefresh = () => {};
   export let onClose = () => {};
+  export let onDrawingUndo = () => {};
 </script>
 
 <div class="toolbar-container" transition:slide={{ duration: 200 }}>
-    <button
-      class="pencil button"
-      class:selected={$metadataStore.activeTool === "pencil"}
-      on:click={() => {
-        $metadataStore.activeTool =
-          $metadataStore.activeTool === "pencil" ? undefined : "pencil";
-      }}
-    >
-      <span
-        class="button-icon"
-        style="-webkit-mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;
+  <button
+    class="pencil button"
+    class:selected={$metadataStore.activeTool === "pencil"}
+    on:click={() => {
+      $metadataStore.activeTool =
+        $metadataStore.activeTool === "pencil" ? undefined : "pencil";
+    }}
+  >
+    <span
+      class="button-icon"
+      style="-webkit-mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;
   mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;"
-      ></span>
-    </button>
+    ></span>
+  </button>
 
-    {#if $metadataStore.activeTool === "pencil"}
-    <div class="pencil-tools">
-      
+  {#if $metadataStore.activeTool === "pencil"}
+    <div class="pencil-tools" transition:slide={{ duration: 200, axis: "x" }}>
+      <button class="button" on:click={onDrawingUndo}>
+        <span
+          class="button-icon"
+          style="-webkit-mask: url({base}/images/svg/undo.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/undo.svg) no-repeat center / contain;"
+        ></span>
+      </button>
     </div>
-    {/if}
+  {/if}
 
   <div class="spacer"></div>
 
@@ -41,7 +48,7 @@
   </button>
   <button
     class="refresh button"
-    on:click={refreshClicked}
+    on:click={onRefresh}
     disabled={$firebaseStore.savingStatus === "saving"}
   >
     <span
@@ -82,13 +89,17 @@
     padding-right: calc(var(--tab-gaps) + var(--safe-area-right));
   }
 
-  .pencil-tools {
-    outline: 2px solid var(--bg);
-    outline-offset: -2px;
-    border-radius: 4px;
-    width: 30px;
-    margin: 4px;
+  /* .pencil-tools {
+    position: relative;
   }
+  .pencil-tools:before {
+    content: "";
+    position:absolute;
+    bottom: 4px;
+    left: 0;
+    right:0;
+    border-bottom: 3px solid var(--caret);
+  } */
   .spacer {
     flex-grow: 1;
   }

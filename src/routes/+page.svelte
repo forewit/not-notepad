@@ -13,11 +13,12 @@
   let radius = 1;
   let smoothness = 3;
   let color = "rgba(253, 221, 77, 0.2)";
+  let drawing: Drawing;
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
   <div class="page-container">
-    <Tabbar />
+    <Tabbar onDrawingUndo={() => drawing.undo()} />
     <div class="canvas-container">
       <div class="editor-container">
         {#each Object.keys($tabsStore) as id (id)}
@@ -30,13 +31,15 @@
       >
         {#each Object.keys($tabsStore) as id (id)}
           <Drawing
+            bind:this={drawing}
             {color}
             {stroke}
             {radius}
             {smoothness}
             tabID={id}
             hide={id !== activeTabID}
-            disabled={id !== activeTabID || $metadataStore.activeTool !== "pencil"}
+            disabled={id !== activeTabID ||
+              $metadataStore.activeTool !== "pencil"}
           />
         {/each}
       </div>
