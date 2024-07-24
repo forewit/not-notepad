@@ -8,7 +8,7 @@
 
   // public variables
   export let radius = 3; // radius should usually be at least 2x smoothness
-  export let smoothness = 2; // higher smoothness means less points are generated
+  export let smoothness = 0; // higher smoothness means less points are generated
   export let stroke = 5;
   export let pressureScaler = 5;
   export let color = "#000000";
@@ -38,7 +38,6 @@
   type Path = {
     points: { x: number; y: number }[];
     lineWidths: number[];
-    ctrlPoints: { x: number; y: number }[];
     color: string;
   };
 
@@ -82,6 +81,18 @@
     return Math.sqrt(a * a + b * b);
   };
 
+  function angle(
+    A: { x: number; y: number },
+    B: { x: number; y: number },
+    C: { x: number; y: number }
+  ) {
+    var AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
+    var BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
+    var AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
+    var rad = Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
+    return rad * (180 / Math.PI);
+  }
+
   // TODO: update so that resizing isn't jittery?
   const debounce = (func: Function, timeout = 300) => {
     // @ts-ignore
@@ -96,6 +107,25 @@
       }, timeout);
     };
   };
+
+  const ANGLE_THRESHOLD = 178;
+
+  function reducePoints(path: Path) {
+    if (path.points.length < 4) return path;
+    for (let i = 1; i < path.points.length - 2; i++) {
+      const A = path.points[i - 1];
+      const B = path.points[i];
+      const C = path.points[i + 1];
+      const deg = angle(A, B, C);
+
+      if (deg > ANGLE_THRESHOLD) {
+        path.points.splice(i, 1);
+        path.lineWidths.splice(i, 1);
+        i--;
+      }
+    }
+    return path;
+  }
 
   // helper function for translating screen to canvas coordinates
   function screenToCanvas(x: number, y: number) {
@@ -131,36 +161,72 @@
     }
   }
 
-  function renderPath(path: Path, context: CanvasRenderingContext2D) {
+  async function renderPath(path: Path, context: CanvasRenderingContext2D) {
     // set canvas properties
     context.lineWidth = path.lineWidths[0];
     context.lineCap = "round";
     context.strokeStyle = path.color;
 
     // draw first point
-    context.beginPath();
-    context.moveTo(path.points[0].x, path.points[0].y);
-    //ctx.stroke();
+    // context.beginPath();
+    // context.moveTo(path.points[0].x, path.points[0].y);
+    // context.stroke();
+
+    if (path.points.length < 2) {
+      //TODO: draw a dot if only 1 point
+      context.beginPath();
+      context.moveTo(path.points[0].x, path.points[0].y);
+      context.lineTo(path.points[0].x, path.points[0].y);
+      context.lineWidth = path.lineWidths[0];
+      context.stroke();
+      return;
+    }
+    //TODO: draw a dot if only 1 or 2 points
 
     // curve to each other point
-    for (let i = 0; i < path.points.length; i++) {
+    let xc = path.points[0].x;
+    let yc = path.points[0].y;
+    for (let i = 0; i < path.points.length - 1; i++) {
+      // await new Promise((resolve) => setTimeout(resolve, 100)).then(() => {
+
+      // // draw control point
+      // context.beginPath();
+      // context.moveTo(xc, yc);
+      // context.fillStyle = "#0f0";
+      // context.arc(xc, yc, 3, 0, 2 * Math.PI);
+      // context.fill();
+
+      // // //draw circle on point
+      // context.beginPath();
+      // context.moveTo(path.points[i].x, path.points[i].y);
+      // context.fillStyle = "#f00";
+      // context.arc(path.points[i].x, path.points[i].y, 3, 0, 2 * Math.PI);
+      // context.fill();
+
+      // draw curve through control points
+      context.beginPath();
+      context.moveTo(xc, yc);
+
+      xc = (path.points[i].x + path.points[i + 1].x) / 2;
+      yc = (path.points[i].y + path.points[i + 1].y) / 2;
+
       context.lineWidth = path.lineWidths[i];
-      context.quadraticCurveTo(
-        path.points[i].x,
-        path.points[i].y,
-        path.ctrlPoints[i].x,
-        path.ctrlPoints[i].y
-      );
-      //ctx.stroke();
-      //ctx.beginPath();
-      context.moveTo(path.ctrlPoints[i].x, path.ctrlPoints[i].y);
+      context.quadraticCurveTo(path.points[i].x, path.points[i].y, xc, yc);
+
+      context.stroke();
+      // });
     }
-    context.stroke();
+    // // draw control point
+    // context.beginPath();
+    // context.moveTo(xc, yc);
+    // context.fillStyle = "#0f0";
+    // context.arc(xc, yc, 3, 0, 2 * Math.PI);
+    // context.fill();
   }
 
   function savePathsToTab() {
     if (!$tabsStore[tabID]) return;
-    $tabsStore[tabID].paths = savedPaths;
+    $tabsStore[tabID].paths = savedPaths.filter((path) => reducePoints(path));
   }
   function loadPathsFromTab() {
     if (!$tabsStore[tabID]) return;
@@ -175,7 +241,8 @@
     };
   }
   function truncateNumber(num: number) {
-    return Number(num.toFixed(DECIMAL_PRECISION));
+    const fixed = num.toFixed(DECIMAL_PRECISION);
+    return Number(fixed);
   }
 
   // custom event handlers
@@ -202,7 +269,6 @@
     // save new path
     currentPath = {
       points: [],
-      ctrlPoints: [],
       lineWidths: [],
       color: color,
     };
@@ -210,14 +276,25 @@
 
   function dragHandle(x: number, y: number, pressure: number) {
     if (!drawing) return;
+
     let newPoint = screenToCanvas(x, y);
+    if (pressure !== undefined && pressure > 0) {
+      lastLineWidth =
+        Math.log(pressure + 1) * pressureScaler * strokeWidth * 0.2 +
+        lastLineWidth * 0.8;
+    }
 
     // if using a drawing circle
     if (radius > 0) {
       // do nothing if point is inside the drawing circle
-      if (dist(newPoint.x, newPoint.y, lastPoint.x, lastPoint.y) <= radius)
+      if (dist(newPoint.x, newPoint.y, lastPoint.x, lastPoint.y) <= radius) {
+        if (currentPath.points.length === 0) {
+          currentPath.points.push(newPoint);
+          currentPath.lineWidths.push(lastLineWidth);
+          renderPath(currentPath, ctx);
+        }
         return;
-
+      }
       // draw if the point is outside the drawing circle
       // see: https://math.stackexchange.com/questions/127613/closest-point-on-circle-edge-from-point-outside-inside-the-circle
       // A = point
@@ -242,39 +319,27 @@
         return;
     }
 
-    // set control points
-    let xc = (lastPoint.x + newPoint.x) / 2;
-    let yc = (lastPoint.y + newPoint.y) / 2;
-
-    // update line width
-    if (pressure !== undefined && pressure > 0) {
-      lastLineWidth =
-        Math.log(pressure + 1) * pressureScaler * strokeWidth * 0.2 +
-        lastLineWidth * 0.8;
-    }
-
-    // draw path
-    // ctx.lineWidth = lastLineWidth;
-    // ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, xc, yc);
-    // ctx.stroke();
-    // ctx.beginPath();
-    // ctx.moveTo(xc, yc);
-
-    // add control point and new point to the current path
-    currentPath.points.push(truncatePoint(lastPoint));
-    currentPath.ctrlPoints.push(truncatePoint({ x: xc, y: yc }));
+    // add new point to the current path
+    currentPath.points.push(truncatePoint(newPoint));
     currentPath.lineWidths.push(truncateNumber(lastLineWidth));
 
     ctx.clearRect(0, 0, width, height);
     renderPath(currentPath, ctx);
-
+    // // draw the draw radius circle
+    // if (radius > 0) {
+    //   ctx.beginPath();
+    //   ctx.strokeStyle = "red";
+    //   ctx.lineWidth = 1;
+    //   ctx.arc(newPoint.x, newPoint.y, radius, 0, 2 * Math.PI);
+    //   ctx.stroke();
+    // }
     // update last point
     lastPoint = newPoint;
   }
 
   function dragEndHandler() {
     if (drawing) {
-      savedPaths.push(currentPath);
+      savedPaths.push(reducePoints(currentPath));
       renderPath(currentPath, backgroundCtx);
       ctx.clearRect(0, 0, width, height);
       savePathsToTab();
@@ -295,7 +360,9 @@
     ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
 
-    backgroundCtx = backgroundCanvas.getContext("2d") as CanvasRenderingContext2D;
+    backgroundCtx = backgroundCanvas.getContext(
+      "2d"
+    ) as CanvasRenderingContext2D;
     backgroundCtx.imageSmoothingEnabled = false;
 
     // setup gesture event listeners
@@ -338,11 +405,11 @@
 </script>
 
 <!-- current path -->
- <div class="canvas-container" class:hide>
+<div class="canvas-container" class:hide>
   <canvas id="currentPath" class:disabled bind:this={backgroundCanvas}></canvas>
   <canvas id="canvas" class:disabled bind:this={canvas} />
   <div class="log" bind:this={log}>LOG</div>
- </div>
+</div>
 
 <style>
   .canvas-container {
@@ -351,7 +418,7 @@
     width: 100%;
   }
   canvas {
-  position: absolute;
+    position: absolute;
     width: 100%;
     height: 100%;
 
@@ -359,6 +426,7 @@
     vertical-align: bottom;
   }
   .log {
+    user-select: none;
     font-family: var(--font);
     font-size: var(--font-size);
     color: var(--text);

@@ -103,6 +103,7 @@ async function loadFromFirestore() {
 const debouced_leading_loadFromFirestore = debounce_leading(loadFromFirestore, 2000);
 
 async function publishToFirestore() {
+    console.log("Publishing data to firestore...");
     const user = get(firebaseStore).currentUser;
     const packedTabs = tabsHandlers.packTabs();
     const userData: UserData = {

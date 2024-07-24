@@ -167,7 +167,6 @@ export type HistoryStack = {
 export type Path = {
     points: { x: number; y: number }[];
     lineWidths: number[];
-    ctrlPoints: { x: number; y: number }[];
     color: string;
 }
 

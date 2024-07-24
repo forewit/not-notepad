@@ -3,15 +3,14 @@
   import Editor from "$lib/components/Editor.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
-  import { firebaseStore, firebaseHandlers } from "$lib/stores/firebaseStore";
+  import { firebaseStore } from "$lib/stores/firebaseStore";
   import Drawing from "$lib/components/Drawing.svelte";
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
 
   let stroke = 10;
-  let radius = 1;
-  let smoothness = 3;
-  let color = "rgba(253, 221, 77, 0.4)";
+  let radius = 20;
+  let color = "rgba(253, 221, 77)";
   let drawing: Drawing;
 </script>
 
@@ -34,7 +33,6 @@
             {color}
             {stroke}
             {radius}
-            {smoothness}
             tabID={id}
             hide={id !== activeTabID}
             disabled={id !== activeTabID ||

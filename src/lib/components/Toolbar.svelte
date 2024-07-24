@@ -34,6 +34,7 @@
       mask: url({base}/images/svg/undo.svg) no-repeat center / contain;"
         ></span>
       </button>
+      <input type="number">
     </div>
   {/if}
 
@@ -89,9 +90,10 @@
     padding-right: calc(var(--tab-gaps) + var(--safe-area-right));
   }
 
-  /* .pencil-tools {
-    position: relative;
+  .pencil-tools {
+    display: flex;
   }
+  /*
   .pencil-tools:before {
     content: "";
     position:absolute;
@@ -115,10 +117,10 @@
     transition: background-color var(--transition-speed);
     transition: opacity var(--transition-speed);
   }
-  .button:hover {
+  /* .button:hover {
     background-color: var(--text);
     color: var(--bg);
-  }
+  } */
   .button:active,
   .button.selected {
     background-color: var(--sub);
