@@ -166,19 +166,28 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
-  background-color: transparent;
+  width: 18px;
+  height: 18px;
+  background-color: var(--bg);
+  padding: 0;
+  margin-inline: 4px;
+  border-radius: 4px;
   border: none;
   cursor: pointer;
 }
 .color-picker::-webkit-color-swatch {
+  opacity: 0.8;
   border-radius: 3px;
   border: none;
-
 }
 .color-picker::-moz-color-swatch {
-  border-radius: 2px;
+  border-radius: 3px;
   border: none;
+}
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+.color-picker::-moz-color-swatch-wrapper {
+  padding: 2px;
 }
 </style>

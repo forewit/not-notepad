@@ -21,10 +21,13 @@
   }
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
-  let themeCaretColor = themes.find((t) => t.name === $settingsStore.theme)?.caret || "#000000";
 
+  let hexPencilColor = "#000000";
+  settingsStore.subscribe(() => {
+    hexPencilColor = themes.find((t) => t.name === $settingsStore.theme)?.caret || "#000000";
+  });
   
-  $: pencilColor = hexToRGB(themeCaretColor, 0.3);
+  $: rgbaPencilColor = hexToRGB(hexPencilColor, 0.3);
   let pencilStroke = 10;
   let drawing: Drawing;
 </script>
@@ -34,7 +37,7 @@
     <Tabbar
       onDrawingUndo={() => drawing.undo()}
       bind:drawingStroke={pencilStroke}
-      bind:drawingColor={themeCaretColor}
+      bind:drawingColor={hexPencilColor}
     />
     <div class="canvas-container">
       <div class="editor-container">
@@ -49,7 +52,7 @@
         {#each Object.keys($tabsStore) as id (id)}
           <Drawing
             bind:this={drawing}
-            bind:color={pencilColor}
+            bind:color={rgbaPencilColor}
             bind:stroke={pencilStroke}
             tabID={id}
             hide={id !== activeTabID}
