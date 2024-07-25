@@ -50,8 +50,8 @@
     screen.orientation.addEventListener("change", handleOrientationChange);
 
     // publish to firestore when settingsStore or tabsStore changes
-    //tabsStore.subscribe(firebaseHandlers.publishToFirestore);
-    //settingsStore.subscribe(firebaseHandlers.publishToFirestore);
+    tabsStore.subscribe(firebaseHandlers.publishToFirestore);
+    settingsStore.subscribe(firebaseHandlers.publishToFirestore);
 
     // update firebaseStore on authentication state changes
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {

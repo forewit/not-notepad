@@ -10,13 +10,12 @@
   export let radius = 3; // radius should usually be at least 2x smoothness
   export let smoothness = 0; // higher smoothness means less points are generated
   export let stroke = 5;
-  export let pressureScaler = 5;
   export let color = "#000000";
   export let disabled = false;
   export let hide = false;
   export let tabID = "";
   export function clear() {
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width/dpi, height/dpi);
     savedPaths = [];
   }
   export function undo() {
@@ -25,7 +24,7 @@
 
     // remove most recent path and clear the canvas
     savedPaths.pop();
-    backgroundCtx.clearRect(0, 0, width, height);
+    backgroundCtx.clearRect(0, 0, width/dpi, height/dpi);
 
     // render all saved paths
     for (let i = 0; i < savedPaths.length; i++) {
@@ -37,18 +36,16 @@
 
   type Path = {
     points: { x: number; y: number }[];
-    lineWidths: number[];
+    lineWidth: number;
     color: string;
   };
 
   // internal variables
-  $: strokeWidth = Math.max(stroke, 1);
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let backgroundCanvas: HTMLCanvasElement;
   let backgroundCtx: CanvasRenderingContext2D;
   let lastPoint = { x: 0, y: 0 };
-  let lastLineWidth = 0;
   let height = 0;
   let width = 0;
   let dpi: number;
@@ -120,7 +117,6 @@
 
       if (deg > ANGLE_THRESHOLD) {
         path.points.splice(i, 1);
-        path.lineWidths.splice(i, 1);
         i--;
       }
     }
@@ -132,8 +128,8 @@
     // adjust for DPI & offset
     let rect = canvas.getBoundingClientRect();
     return {
-      x: (x - rect.left) * dpi,
-      y: (y - rect.top) * dpi,
+      x: (x - rect.left),
+      y: (y - rect.top),
     };
   }
 
@@ -155,6 +151,9 @@
     backgroundCanvas.width = width;
     backgroundCanvas.height = height;
 
+    ctx.scale(dpi, dpi);
+    backgroundCtx.scale(dpi, dpi);
+
     // render all saved paths
     for (let i = 0; i < savedPaths.length; i++) {
       renderPath(savedPaths[i], backgroundCtx);
@@ -163,7 +162,7 @@
 
   async function renderPath(path: Path, context: CanvasRenderingContext2D) {
     // set canvas properties
-    context.lineWidth = path.lineWidths[0];
+    context.lineWidth = path.lineWidth;
     context.lineCap = "round";
     context.strokeStyle = path.color;
 
@@ -173,55 +172,24 @@
     // context.stroke();
 
     if (path.points.length < 2) {
-      //TODO: draw a dot if only 1 point
       context.beginPath();
       context.moveTo(path.points[0].x, path.points[0].y);
       context.lineTo(path.points[0].x, path.points[0].y);
-      context.lineWidth = path.lineWidths[0];
       context.stroke();
       return;
     }
-    //TODO: draw a dot if only 1 or 2 points
 
-    // curve to each other point
+    context.beginPath();
     let xc = path.points[0].x;
     let yc = path.points[0].y;
+
     for (let i = 0; i < path.points.length - 1; i++) {
-      // await new Promise((resolve) => setTimeout(resolve, 100)).then(() => {
-
-      // // draw control point
-      // context.beginPath();
-      // context.moveTo(xc, yc);
-      // context.fillStyle = "#0f0";
-      // context.arc(xc, yc, 3, 0, 2 * Math.PI);
-      // context.fill();
-
-      // // //draw circle on point
-      // context.beginPath();
-      // context.moveTo(path.points[i].x, path.points[i].y);
-      // context.fillStyle = "#f00";
-      // context.arc(path.points[i].x, path.points[i].y, 3, 0, 2 * Math.PI);
-      // context.fill();
-
-      // draw curve through control points
-      context.beginPath();
       context.moveTo(xc, yc);
-
       xc = (path.points[i].x + path.points[i + 1].x) / 2;
       yc = (path.points[i].y + path.points[i + 1].y) / 2;
-
-      context.lineWidth = path.lineWidths[i];
       context.quadraticCurveTo(path.points[i].x, path.points[i].y, xc, yc);
-
-      context.stroke();
-      // });
     }
-    // // draw control point
-    // context.beginPath();
-    // context.moveTo(xc, yc);
-    // context.fillStyle = "#0f0";
-    // context.arc(xc, yc, 3, 0, 2 * Math.PI);
-    // context.fill();
+    context.stroke();
   }
 
   function savePathsToTab() {
@@ -246,18 +214,12 @@
   }
 
   // custom event handlers
-  function startHandle(x: number, y: number, pressure: number) {
+  function startHandle(x: number, y: number) {
     drawing = true;
     lastPoint = screenToCanvas(x, y);
 
-    if (pressure !== undefined && pressure > 0) {
-      lastLineWidth = Math.log(pressure + 1) * pressureScaler * strokeWidth;
-    } else {
-      lastLineWidth = strokeWidth;
-    }
-
     // set canvas properties
-    ctx.lineWidth = lastLineWidth;
+    ctx.lineWidth = stroke;
     ctx.lineCap = "round";
     ctx.strokeStyle = color;
 
@@ -269,20 +231,15 @@
     // save new path
     currentPath = {
       points: [],
-      lineWidths: [],
+      lineWidth: stroke,
       color: color,
     };
   }
 
-  function dragHandle(x: number, y: number, pressure: number) {
+  function dragHandle(x: number, y: number) {
     if (!drawing) return;
 
     let newPoint = screenToCanvas(x, y);
-    if (pressure !== undefined && pressure > 0) {
-      lastLineWidth =
-        Math.log(pressure + 1) * pressureScaler * strokeWidth * 0.2 +
-        lastLineWidth * 0.8;
-    }
 
     // if using a drawing circle
     if (radius > 0) {
@@ -290,7 +247,6 @@
       if (dist(newPoint.x, newPoint.y, lastPoint.x, lastPoint.y) <= radius) {
         if (currentPath.points.length === 0) {
           currentPath.points.push(newPoint);
-          currentPath.lineWidths.push(lastLineWidth);
           renderPath(currentPath, ctx);
         }
         return;
@@ -321,9 +277,8 @@
 
     // add new point to the current path
     currentPath.points.push(truncatePoint(newPoint));
-    currentPath.lineWidths.push(truncateNumber(lastLineWidth));
 
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width/dpi, height/dpi);
     renderPath(currentPath, ctx);
     // // draw the draw radius circle
     // if (radius > 0) {
@@ -341,7 +296,7 @@
     if (drawing) {
       savedPaths.push(reducePoints(currentPath));
       renderPath(currentPath, backgroundCtx);
-      ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, width/dpi, height/dpi);
       savePathsToTab();
     }
     drawing = false;
@@ -370,15 +325,21 @@
       switch (e.detail.name) {
         case "left-click-drag-start":
         case "touch-drag-start":
-          startHandle(e.detail.x, e.detail.y, e.detail.force);
+          startHandle(e.detail.x, e.detail.y);
           break;
         case "left-click-dragging":
         case "touch-dragging":
           if (e.detail.force > 0) log.innerHTML = e.detail.force;
-          dragHandle(e.detail.x, e.detail.y, e.detail.force);
+          dragHandle(e.detail.x, e.detail.y);
           break;
         case "left-click-drag-end":
         case "touch-drag-end":
+          dragEndHandler();
+          break;
+        case "left-click":
+        case "tap":
+          startHandle(e.detail.x, e.detail.y);
+          dragHandle(e.detail.x, e.detail.y);
           dragEndHandler();
           break;
         default:

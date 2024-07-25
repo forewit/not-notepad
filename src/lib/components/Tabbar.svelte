@@ -8,7 +8,6 @@
   import { firebaseHandlers } from "$lib/stores/firebaseStore";
   import Toolbar from "./Toolbar.svelte";
   import { slide } from "svelte/transition";
-  import Drawing from "./Drawing.svelte";
 
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 200; // update in css also
@@ -18,6 +17,8 @@
   const TAB_SCROLL_SPEED = 0.3;
 
   export let onDrawingUndo = () => {};
+  export let drawingStroke: number;
+  export let drawingColor: string;
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
@@ -403,7 +404,9 @@
   <div class="divider"></div>
   {#if $metadataStore.toolbarVisible}
     <Toolbar
-    onDrawingUndo={onDrawingUndo}
+    bind:drawingColor
+      bind:drawingStroke
+      {onDrawingUndo}
       onRefresh={firebaseHandlers.loadFromFirestore}
       onClose={() => closeTab(activeTabID)}
     />

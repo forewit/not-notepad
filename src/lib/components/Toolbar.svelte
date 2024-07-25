@@ -6,6 +6,8 @@
 
   export let onRefresh = () => {};
   export let onClose = () => {};
+  export let drawingStroke: number;
+  export let drawingColor: string;
   export let onDrawingUndo = () => {};
 </script>
 
@@ -34,7 +36,8 @@
       mask: url({base}/images/svg/undo.svg) no-repeat center / contain;"
         ></span>
       </button>
-      <input type="number">
+      <input type="range" min="2" max="20" step="2" bind:value={drawingStroke} class="slider">
+      <input type="color" bind:value={drawingColor} class="color-picker">
     </div>
   {/if}
 
@@ -84,6 +87,8 @@
   .toolbar-container {
     display: flex;
     justify-content: end;
+    gap: 4px;
+    padding-block: 2px;
     background-color: var(--main);
     margin-top: calc(-1 * var(--tabbar-divider-size));
     padding-left: calc(var(--tab-gaps) + var(--safe-area-left));
@@ -92,16 +97,9 @@
 
   .pencil-tools {
     display: flex;
+    gap: 4px;
+    align-items: center;
   }
-  /*
-  .pencil-tools:before {
-    content: "";
-    position:absolute;
-    bottom: 4px;
-    left: 0;
-    right:0;
-    border-bottom: 3px solid var(--caret);
-  } */
   .spacer {
     flex-grow: 1;
   }
@@ -109,7 +107,6 @@
   .button {
     width: 27px;
     height: 27px;
-    margin: 4px;
     border-radius: 4px;
     display: flex;
     justify-content: center;
@@ -117,10 +114,6 @@
     transition: background-color var(--transition-speed);
     transition: opacity var(--transition-speed);
   }
-  /* .button:hover {
-    background-color: var(--text);
-    color: var(--bg);
-  } */
   .button:active,
   .button.selected {
     background-color: var(--sub);
@@ -144,4 +137,48 @@
   .button.selected .button-icon {
     background-color: var(--bg);
   }
+
+  .slider {
+    appearance: none;
+    width: 60px;
+    height: 4px;
+    border-radius: 100vw;
+    background: var(--bg);
+    outline: none;
+  }
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bg-alt);
+    cursor: pointer;
+  }
+  .slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bg-alt);
+    cursor: pointer;
+  }
+
+  .color-picker {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+.color-picker::-webkit-color-swatch {
+  border-radius: 3px;
+  border: none;
+
+}
+.color-picker::-moz-color-swatch {
+  border-radius: 2px;
+  border: none;
+}
 </style>

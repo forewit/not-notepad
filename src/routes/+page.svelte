@@ -4,19 +4,38 @@
   import Spinner from "$lib/components/Spinner.svelte";
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
   import { firebaseStore } from "$lib/stores/firebaseStore";
+  import { settingsStore } from "$lib/stores/settingsStore";
   import Drawing from "$lib/components/Drawing.svelte";
+  import { themes } from "$lib/modules/themes";
+
+  function hexToRGB(hex: string, alpha: number) {
+    var r = parseInt(hex.slice(1, 3), 16),
+      g = parseInt(hex.slice(3, 5), 16),
+      b = parseInt(hex.slice(5, 7), 16);
+
+    if (alpha) {
+      return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    } else {
+      return "rgb(" + r + ", " + g + ", " + b + ")";
+    }
+  }
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
+  let themeCaretColor = themes.find((t) => t.name === $settingsStore.theme)?.caret || "#000000";
 
-  let stroke = 10;
-  let radius = 20;
-  let color = "rgba(253, 221, 77)";
+  
+  $: pencilColor = hexToRGB(themeCaretColor, 0.3);
+  let pencilStroke = 10;
   let drawing: Drawing;
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
   <div class="page-container">
-    <Tabbar onDrawingUndo={() => drawing.undo()} />
+    <Tabbar
+      onDrawingUndo={() => drawing.undo()}
+      bind:drawingStroke={pencilStroke}
+      bind:drawingColor={themeCaretColor}
+    />
     <div class="canvas-container">
       <div class="editor-container">
         {#each Object.keys($tabsStore) as id (id)}
@@ -30,9 +49,8 @@
         {#each Object.keys($tabsStore) as id (id)}
           <Drawing
             bind:this={drawing}
-            {color}
-            {stroke}
-            {radius}
+            bind:color={pencilColor}
+            bind:stroke={pencilStroke}
             tabID={id}
             hide={id !== activeTabID}
             disabled={id !== activeTabID ||
