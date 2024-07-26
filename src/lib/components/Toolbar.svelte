@@ -98,8 +98,8 @@
   >
     <span
       class="button-icon"
-      style="-webkit-mask: url({base}/images/svg/maximize.svg) no-repeat center / contain;
-      mask: url({base}/images/svg/maximize.svg) no-repeat center / contain;"
+      style="-webkit-mask: url({base}/images/svg/xmark-small.svg) no-repeat center / contain;
+      mask: url({base}/images/svg/xmark-small.svg) no-repeat center / contain;"
     ></span>
   </button>
 </div>
@@ -109,7 +109,7 @@
     display: flex;
     justify-content: end;
     gap: 4px;
-    padding-block: 2px;
+    padding-block: 4px;
     background-color: var(--main);
     margin-top: calc(-1 * var(--tabbar-divider-size));
     padding-left: calc(var(--tab-gaps) + var(--safe-area-left));
@@ -126,8 +126,8 @@
   }
 
   .button {
-    width: 27px;
-    height: 27px;
+    width: 30px;
+    height: 30px;
     border-radius: 4px;
     display: flex;
     justify-content: center;
@@ -146,8 +146,8 @@
   }
 
   .button-icon {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
   }
   .button .button-icon {
     background-color: var(--bg);
