@@ -5,9 +5,6 @@
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
-  import { firebaseHandlers } from "$lib/stores/firebaseStore";
-  import Toolbar from "./Toolbar.svelte";
-  import { slide } from "svelte/transition";
 
   const MIN_DRAG_DISTANCE = 12;
   const TAB_MAX_WIDTH = 200; // update in css also
@@ -380,13 +377,12 @@
     </div>
 
     <div class="buttons-container">
-      {#if !$metadataStore.toolbarVisible && $metadataStore.order.length > 0}
         <button
           class="button"
           on:click={() => {
-            $metadataStore.toolbarVisible = true;
+            $metadataStore.toolbarVisible = !$metadataStore.toolbarVisible;
+            if (!$metadataStore.toolbarVisible) $metadataStore.activeTool = undefined;
           }}
-          transition:slide={{ duration: 200, axis: "x" }}
         >
           <span
             class="button-icon"
@@ -394,7 +390,6 @@
       mask: url({base}/images/svg/gear.svg) no-repeat center / contain;"
           ></span>
         </button>
-      {/if}
     </div>
 
     <div bind:this={clone} class="clone" class:dragging>
@@ -474,8 +469,9 @@
   }
 
   .button {
-    width: 27px;
-    height: 27px;
+    font-size: var(--ui-font-size);
+    width: 1.7em;
+    height: 1.7em;
     margin: 4px;
     border-radius: 4px;
     display: flex;
@@ -488,27 +484,24 @@
     background-color: var(--text);
     color: var(--bg);
   } */
-  /* .button:active,
-  .button.selected {
-    background-color: var(--main);
-    color: var(--bg);
-  } */
+  .button:active {
+    background-color: var(--bg-alt);
+  }
   /* .button:disabled {
     opacity: 0.5;
     pointer-events: none;
   } */
 
   .button-icon {
-    width: 14px;
-    height: 14px;
+    width: 1em;
+    height: 1em;
     background-color: var(--text);
   } /*
   .button .button-icon {
     background-color: var(--text);
-  } */
-  /* .button:hover .button-icon,
-  .button:active .button-icon,
-  .button.selected .button-icon {
+   } */
+  /*
+  .button:active .button-icon {
     background-color: var(--bg);
   } */
 </style>

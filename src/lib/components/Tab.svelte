@@ -94,6 +94,7 @@
     color: var(--text);
     font-family: var(--ui-font);
     font-size: var(--ui-font-size);
+    font-weight: var(--ui-font-weight);
     height: 100%;
     display: flex;
     align-items: center;

@@ -89,19 +89,6 @@
   mask: url({base}/images/svg/user.svg) no-repeat center / contain;"
     ></span>
   </a>
-  <button
-    class="button"
-    on:click={() => {
-      $metadataStore.toolbarVisible = false;
-      $metadataStore.activeTool = undefined;
-    }}
-  >
-    <span
-      class="button-icon"
-      style="-webkit-mask: url({base}/images/svg/xmark-small.svg) no-repeat center / contain;
-      mask: url({base}/images/svg/xmark-small.svg) no-repeat center / contain;"
-    ></span>
-  </button>
 </div>
 
 <style>
@@ -112,8 +99,8 @@
     padding-block: 4px;
     background-color: var(--main);
     margin-top: calc(-1 * var(--tabbar-divider-size));
-    padding-left: calc(var(--tab-gaps) + var(--safe-area-left));
-    padding-right: calc(var(--tab-gaps) + var(--safe-area-right));
+    padding-left: calc(0.8em + var(--safe-area-left));
+    padding-right: calc(0.5em + var(--safe-area-right));
   }
 
   .pencil-tools {
@@ -126,8 +113,9 @@
   }
 
   .button {
-    width: 30px;
-    height: 30px;
+    font-size: var(--ui-font-size);
+    width: 1.8em;
+    height: 1.8em;
     border-radius: 4px;
     display: flex;
     justify-content: center;
@@ -146,8 +134,8 @@
   }
 
   .button-icon {
-    width: 18px;
-    height: 18px;
+    width: 0.9em;
+    height: 0.9em;
   }
   .button .button-icon {
     background-color: var(--bg);

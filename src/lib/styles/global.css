@@ -15,14 +15,14 @@
   --font-size: 14px;
   --ui-font: "Segoe UI", sans-serif;
   --ui-font-weight: 400;
-  --ui-font-size: 16px;
+  --ui-font-size: 18px;
 
   /* tabbar */
   --tabbar-divider-size: 6px;
-  --tabbar-height: 44px;
-  --tab-height: 40px;
+  --tabbar-height: 50px;
+  --tab-height: 44px;
   --tab-radius: 8px;
-  --tab-gaps: 3px;
+  --tab-gaps: 6px;
 
   /* other */
   --transition-speed: 200ms;
