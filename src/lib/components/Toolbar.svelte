@@ -6,9 +6,9 @@
 
   export let onRefresh = () => {};
   export let onClose = () => {};
-  export let drawingStroke: number;
-  export let drawingColor: string;
   export let onDrawingUndo = () => {};
+  export let stroke: number;
+  export let color: string;
 </script>
 
 <div class="toolbar-container" transition:slide={{ duration: 200 }}>
@@ -36,8 +36,8 @@
       mask: url({base}/images/svg/undo.svg) no-repeat center / contain;"
         ></span>
       </button>
-      <input type="range" min="2" max="20" step="2" bind:value={drawingStroke} class="slider">
-      <input type="color" bind:value={drawingColor} class="color-picker">
+      <input type="range" min="2" max="20" step="2" bind:value={stroke} class="slider">
+      <input type="color" bind:value={color} class="color-picker">
     </div>
   {/if}
 

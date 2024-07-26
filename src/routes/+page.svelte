@@ -3,12 +3,13 @@
   import Editor from "$lib/components/Editor.svelte";
   import Spinner from "$lib/components/Spinner.svelte";
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
-  import { firebaseStore } from "$lib/stores/firebaseStore";
+  import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { settingsStore } from "$lib/stores/settingsStore";
   import Drawing from "$lib/components/Drawing.svelte";
+  import Toolbar from "$lib/components/Toolbar.svelte";
   import { themes } from "$lib/modules/themes";
 
-  function hexToRGB(hex: string, alpha: number) {
+  function hexToRGB(hex: string, alpha?: number) {
     var r = parseInt(hex.slice(1, 3), 16),
       g = parseInt(hex.slice(3, 5), 16),
       b = parseInt(hex.slice(5, 7), 16);
@@ -24,21 +25,30 @@
 
   let hexPencilColor = "#000000";
   settingsStore.subscribe(() => {
-    hexPencilColor = themes.find((t) => t.name === $settingsStore.theme)?.caret || "#000000";
+    hexPencilColor =
+      themes.find((t) => t.name === $settingsStore.theme)?.caret || "#000000";
   });
-  
-  $: rgbaPencilColor = hexToRGB(hexPencilColor, 0.3);
+
+  $: rgbaPencilColor = hexToRGB(hexPencilColor);
   let pencilStroke = 10;
+  let tabbar: Tabbar;
   let drawings: Record<string, Drawing> = {};
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
   <div class="page-container">
-    <Tabbar
-      onDrawingUndo={() => drawings[activeTabID].undo()}
-      bind:drawingStroke={pencilStroke}
-      bind:drawingColor={hexPencilColor}
-    />
+    <Tabbar bind:this={tabbar} />
+    <div class="toolbar">
+      {#if $metadataStore.toolbarVisible && $metadataStore.order.length > 0}
+        <Toolbar
+          onClose={() => tabbar.closeActiveTab()}
+          onDrawingUndo={() => drawings[activeTabID].undo()}
+          onRefresh={() => firebaseHandlers.loadFromFirestore()}
+          bind:stroke={pencilStroke}
+          bind:color={hexPencilColor}
+        />
+      {/if}
+    </div>
     <div class="canvas-container">
       <div class="editor-container">
         {#each Object.keys($tabsStore) as id (id)}
@@ -73,7 +83,7 @@
     height: 100%;
     position: relative;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-columns: 100%;
   }
   .canvas-container {

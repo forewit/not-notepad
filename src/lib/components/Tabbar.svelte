@@ -16,9 +16,9 @@
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
-  export let onDrawingUndo = (tabID: string) => {};
-  export let drawingStroke: number;
-  export let drawingColor: string;
+  export const closeActiveTab = () => {
+    closeTab($metadataStore.order[$metadataStore.activeIndex]);
+  }
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
@@ -402,15 +402,6 @@
     </div>
   </div>
   <div class="divider"></div>
-  {#if $metadataStore.toolbarVisible && $metadataStore.order.length > 0}
-    <Toolbar
-      bind:drawingColor
-      bind:drawingStroke
-      onDrawingUndo={()=>onDrawingUndo(activeTabID)}
-      onRefresh={firebaseHandlers.loadFromFirestore}
-      onClose={() => closeTab(activeTabID)}
-    />
-  {/if}
 </div>
 
 <style>

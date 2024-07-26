@@ -15,7 +15,7 @@
   export let hide = false;
   export let tabID = "";
   export function clear() {
-    ctx.clearRect(0, 0, width/dpi, height/dpi);
+    ctx.clearRect(0, 0, width / dpi, height / dpi);
     savedPaths = [];
   }
   export function undo() {
@@ -24,7 +24,7 @@
 
     // remove most recent path and clear the canvas
     savedPaths.pop();
-    backgroundCtx.clearRect(0, 0, width/dpi, height/dpi);
+    backgroundCtx.clearRect(0, 0, width / dpi, height / dpi);
 
     // render all saved paths
     for (let i = 0; i < savedPaths.length; i++) {
@@ -128,8 +128,8 @@
     // adjust for DPI & offset
     let rect = canvas.getBoundingClientRect();
     return {
-      x: (x - rect.left),
-      y: (y - rect.top),
+      x: x - rect.left,
+      y: y - rect.top,
     };
   }
 
@@ -165,11 +165,6 @@
     context.lineWidth = path.lineWidth;
     context.lineCap = "round";
     context.strokeStyle = path.color;
-
-    // draw first point
-    // context.beginPath();
-    // context.moveTo(path.points[0].x, path.points[0].y);
-    // context.stroke();
 
     if (path.points.length < 2) {
       context.beginPath();
@@ -278,17 +273,9 @@
     // add new point to the current path
     currentPath.points.push(truncatePoint(newPoint));
 
-    ctx.clearRect(0, 0, width/dpi, height/dpi);
+    ctx.clearRect(0, 0, width / dpi, height / dpi);
     renderPath(currentPath, ctx);
-    // // draw the draw radius circle
-    // if (radius > 0) {
-    //   ctx.beginPath();
-    //   ctx.strokeStyle = "red";
-    //   ctx.lineWidth = 1;
-    //   ctx.arc(newPoint.x, newPoint.y, radius, 0, 2 * Math.PI);
-    //   ctx.stroke();
-    // }
-    // update last point
+  
     lastPoint = newPoint;
   }
 
@@ -296,7 +283,7 @@
     if (drawing) {
       savedPaths.push(reducePoints(currentPath));
       renderPath(currentPath, backgroundCtx);
-      ctx.clearRect(0, 0, width/dpi, height/dpi);
+      ctx.clearRect(0, 0, width / dpi, height / dpi);
       savePathsToTab();
     }
     drawing = false;

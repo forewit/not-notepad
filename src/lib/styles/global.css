@@ -63,6 +63,7 @@ button {
 body,
 html {
   background-color: var(--bg);
+  overscroll-behavior: none;
 }
 
 h1 {
