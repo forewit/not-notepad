@@ -15,7 +15,7 @@
 
   export const closeActiveTab = () => {
     closeTab($metadataStore.order[$metadataStore.activeIndex]);
-  }
+  };
 
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: placeholderTabID = $metadataStore.order[$metadataStore.placeholderIndex];
@@ -377,19 +377,20 @@
     </div>
 
     <div class="buttons-container">
-        <button
-          class="button"
-          on:click={() => {
-            $metadataStore.toolbarVisible = !$metadataStore.toolbarVisible;
-            if (!$metadataStore.toolbarVisible) $metadataStore.activeTool = undefined;
-          }}
-        >
-          <span
-            class="button-icon"
-            style="-webkit-mask: url({base}/images/svg/gear.svg) no-repeat center / contain;
+      <button
+        class="button"
+        on:click={() => {
+          $metadataStore.toolbarVisible = !$metadataStore.toolbarVisible;
+          if (!$metadataStore.toolbarVisible)
+            $metadataStore.activeTool = undefined;
+        }}
+      >
+        <span
+          class="button-icon"
+          style="-webkit-mask: url({base}/images/svg/gear.svg) no-repeat center / contain;
       mask: url({base}/images/svg/gear.svg) no-repeat center / contain;"
-          ></span>
-        </button>
+        ></span>
+      </button>
     </div>
 
     <div bind:this={clone} class="clone" class:dragging>
@@ -439,7 +440,7 @@
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
     gap: var(--tab-gaps);
     overflow-x: scroll;
-    padding-inline: calc(var(--tab-radius) + 8px + var(--safe-area-left))
+    padding-inline: calc(var(--tab-radius) + var(--safe-area-left))
       var(--tab-radius);
     scrollbar-width: none;
   }
@@ -480,28 +481,12 @@
     transition: background-color var(--transition-speed);
     transition: opacity var(--transition-speed);
   }
-  /* .button:hover {
-    background-color: var(--text);
-    color: var(--bg);
-  } */
   .button:active {
     background-color: var(--bg-alt);
   }
-  /* .button:disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  } */
-
   .button-icon {
     width: 1em;
     height: 1em;
     background-color: var(--text);
-  } /*
-  .button .button-icon {
-    background-color: var(--text);
-   } */
-  /*
-  .button:active .button-icon {
-    background-color: var(--bg);
-  } */
+  }
 </style>
