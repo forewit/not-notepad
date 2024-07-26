@@ -26,8 +26,22 @@
   mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;"
     ></span>
   </button>
+  <button
+    class="button"
+    class:selected={$metadataStore.activeTool === "highlighter"}
+    on:click={() => {
+      $metadataStore.activeTool =
+        $metadataStore.activeTool === "highlighter" ? undefined : "highlighter";
+    }}
+  >
+    <span
+      class="button-icon"
+      style="-webkit-mask: url({base}/images/svg/highlighter.svg) no-repeat center / contain;
+  mask: url({base}/images/svg/highlighter.svg) no-repeat center / contain;"
+    ></span>
+  </button>
 
-  {#if $metadataStore.activeTool === "pencil"}
+  {#if $metadataStore.activeTool === "pencil" || $metadataStore.activeTool === "highlighter"}
     <div class="pencil-tools" transition:slide={{ duration: 200, axis: "x" }}>
       <button class="button" on:click={onDrawingUndo}>
         <span
@@ -36,8 +50,15 @@
       mask: url({base}/images/svg/undo.svg) no-repeat center / contain;"
         ></span>
       </button>
-      <input type="range" min="2" max="20" step="2" bind:value={stroke} class="slider">
-      <input type="color" bind:value={color} class="color-picker">
+      <input
+        type="range"
+        min="2"
+        max="20"
+        step="2"
+        bind:value={stroke}
+        class="slider"
+      />
+      <input type="color" bind:value={color} class="color-picker" />
     </div>
   {/if}
 
@@ -163,31 +184,31 @@
   }
 
   .color-picker {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  background-color: var(--bg);
-  padding: 0;
-  margin-inline: 4px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-}
-.color-picker::-webkit-color-swatch {
-  opacity: 0.8;
-  border-radius: 3px;
-  border: none;
-}
-.color-picker::-moz-color-swatch {
-  border-radius: 3px;
-  border: none;
-}
-.color-picker::-webkit-color-swatch-wrapper {
-  padding: 2px;
-}
-.color-picker::-moz-color-swatch-wrapper {
-  padding: 2px;
-}
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background-color: var(--bg);
+    padding: 0;
+    margin-inline: 4px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  .color-picker::-webkit-color-swatch {
+    opacity: 0.8;
+    border-radius: 3px;
+    border: none;
+  }
+  .color-picker::-moz-color-swatch {
+    border-radius: 3px;
+    border: none;
+  }
+  .color-picker::-webkit-color-swatch-wrapper {
+    padding: 2px;
+  }
+  .color-picker::-moz-color-swatch-wrapper {
+    padding: 2px;
+  }
 </style>

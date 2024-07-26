@@ -1,13 +1,19 @@
 <script lang="ts">
   import Tabbar from "$lib/components/Tabbar.svelte";
   import Editor from "$lib/components/Editor.svelte";
-  import Spinner from "$lib/components/Spinner.svelte";
+  import ProgressBar from "$lib/components/ProgressBar.svelte";
   import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { settingsStore } from "$lib/stores/settingsStore";
   import Drawing from "$lib/components/Drawing.svelte";
   import Toolbar from "$lib/components/Toolbar.svelte";
   import { themes } from "$lib/modules/themes";
+
+  let hexPencilColor = "#000000";
+  let rgbaPencilColor = "rgba(0, 0, 0, 1)";
+  let pencilStroke = 10;
+  let tabbar: Tabbar;
+  let drawings: Record<string, Drawing> = {};
 
   function hexToRGB(hex: string, alpha?: number) {
     var r = parseInt(hex.slice(1, 3), 16),
@@ -21,34 +27,38 @@
     }
   }
 
-  $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
-
-  let hexPencilColor = "#000000";
-  settingsStore.subscribe(() => {
-    hexPencilColor =
-      themes.find((t) => t.name === $settingsStore.theme)?.caret || "#000000";
+  metadataStore.subscribe((curr) => {
+    if (curr.activeTool === "highlighter") {
+      hexPencilColor = "#ffdd33";
+    } else if (curr.activeTool === "pencil") {
+      const theme = themes.find((t) => t.name === $settingsStore.theme);
+      if (theme) {
+        hexPencilColor = theme.caret;
+      }
+    }
   });
 
-  $: rgbaPencilColor = hexToRGB(hexPencilColor);
-  let pencilStroke = 10;
-  let tabbar: Tabbar;
-  let drawings: Record<string, Drawing> = {};
+  $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
+  $: rgbaPencilColor =
+    $metadataStore.activeTool === "highlighter"
+      ? hexToRGB(hexPencilColor, 0.3)
+      : hexPencilColor;
 </script>
 
-{#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
-  <div class="page-container">
-    <Tabbar bind:this={tabbar} />
-    <div class="toolbar">
-      {#if $metadataStore.toolbarVisible && $metadataStore.order.length > 0}
-        <Toolbar
-          onClose={() => tabbar.closeActiveTab()}
-          onDrawingUndo={() => drawings[activeTabID].undo()}
-          onRefresh={() => firebaseHandlers.loadFromFirestore()}
-          bind:stroke={pencilStroke}
-          bind:color={hexPencilColor}
-        />
-      {/if}
-    </div>
+<div class="page-container">
+  <Tabbar bind:this={tabbar} />
+  <div class="toolbar">
+    {#if $metadataStore.toolbarVisible && $metadataStore.order.length > 0}
+      <Toolbar
+        onClose={() => tabbar.closeActiveTab()}
+        onDrawingUndo={() => drawings[activeTabID].undo()}
+        onRefresh={() => firebaseHandlers.loadFromFirestore()}
+        bind:stroke={pencilStroke}
+        bind:color={hexPencilColor}
+      />
+    {/if}
+  </div>
+  {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
     <div class="canvas-container">
       <div class="editor-container">
         {#each Object.keys($tabsStore) as id (id)}
@@ -57,7 +67,7 @@
       </div>
       <div
         class="drawing-container"
-        class:disabled={$metadataStore.activeTool !== "pencil"}
+        class:disabled={$metadataStore.activeTool === undefined}
       >
         {#each Object.keys($tabsStore) as id (id)}
           <Drawing
@@ -67,15 +77,15 @@
             tabID={id}
             hide={id !== activeTabID}
             disabled={id !== activeTabID ||
-              $metadataStore.activeTool !== "pencil"}
+              $metadataStore.activeTool === undefined}
           />
         {/each}
       </div>
     </div>
-  </div>
-{:else}
-  <Spinner />
-{/if}
+  {:else}
+    <ProgressBar />
+  {/if}
+</div>
 
 <style>
   .page-container {

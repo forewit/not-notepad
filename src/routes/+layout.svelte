@@ -54,7 +54,7 @@
     settingsStore.subscribe(firebaseHandlers.publishToFirestore);
 
     // update firebaseStore on authentication state changes
-    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user: any) => {
       // logged out
       if (!user) {
         $firebaseStore.currentUser = user;
