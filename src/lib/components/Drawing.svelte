@@ -387,7 +387,6 @@
     vertical-align: bottom;
   }
   .log {
-    user-select: none;
     font-family: var(--font);
     font-size: var(--font-size);
     color: var(--text);

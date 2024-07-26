@@ -29,13 +29,13 @@
   
   $: rgbaPencilColor = hexToRGB(hexPencilColor, 0.3);
   let pencilStroke = 10;
-  let drawing: Drawing;
+  let drawings: Record<string, Drawing> = {};
 </script>
 
 {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
   <div class="page-container">
     <Tabbar
-      onDrawingUndo={() => drawing.undo()}
+      onDrawingUndo={() => drawings[activeTabID].undo()}
       bind:drawingStroke={pencilStroke}
       bind:drawingColor={hexPencilColor}
     />
@@ -51,7 +51,7 @@
       >
         {#each Object.keys($tabsStore) as id (id)}
           <Drawing
-            bind:this={drawing}
+            bind:this={drawings[id]}
             bind:color={rgbaPencilColor}
             bind:stroke={pencilStroke}
             tabID={id}

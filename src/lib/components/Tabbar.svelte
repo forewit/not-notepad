@@ -16,7 +16,7 @@
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
 
-  export let onDrawingUndo = () => {};
+  export let onDrawingUndo = (tabID: string) => {};
   export let drawingStroke: number;
   export let drawingColor: string;
 
@@ -380,7 +380,7 @@
     </div>
 
     <div class="buttons-container">
-      {#if !$metadataStore.toolbarVisible}
+      {#if !$metadataStore.toolbarVisible && $metadataStore.order.length > 0}
         <button
           class="button"
           on:click={() => {
@@ -402,11 +402,11 @@
     </div>
   </div>
   <div class="divider"></div>
-  {#if $metadataStore.toolbarVisible}
+  {#if $metadataStore.toolbarVisible && $metadataStore.order.length > 0}
     <Toolbar
-    bind:drawingColor
+      bind:drawingColor
       bind:drawingStroke
-      {onDrawingUndo}
+      onDrawingUndo={()=>onDrawingUndo(activeTabID)}
       onRefresh={firebaseHandlers.loadFromFirestore}
       onClose={() => closeTab(activeTabID)}
     />

@@ -52,6 +52,14 @@
   color: var(--bg);
 }
 
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body,
 html {
   background-color: var(--bg);
