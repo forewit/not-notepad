@@ -194,7 +194,5 @@
     font-size: var(--font-size);
     font-family: var(--font);
     color: var(--text);
-    margin-left: var(--safe-area-left);
-    margin-right: var(--safe-area-right);
   }
 </style>

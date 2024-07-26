@@ -98,6 +98,8 @@
   }
   .canvas-container {
     position: relative;
+    margin-left: var(--safe-area-left);
+    margin-right: var(--safe-area-right);
   }
   .drawing-container,
   .editor-container {

@@ -1,18 +1,21 @@
 <script>
   import Auth from "$lib/components/Auth.svelte";
-  import Spinner from "$lib/components/Spinner.svelte";
   import { firebaseStore } from "$lib/stores/firebaseStore";
   import { authRedirect } from "$lib/stores/settingsStore";
   import { base } from "$app/paths";
   import { goto } from "$app/navigation";
+  import ProgressBar from "$lib/components/ProgressBar.svelte";
 
-  $: if ($firebaseStore.currentUser) {
+  function redirect() {
+    if ($authRedirect === "/login/") $authRedirect = "/";
     goto(base+$authRedirect);
   }
+
+  $: if ($firebaseStore.currentUser) redirect();
 </script>
 
 {#if $firebaseStore.currentUser}
-  <Spinner />
+  <ProgressBar />
 {:else}
-  <Auth onSuccessfulLogin={() => goto(base+$authRedirect)} />
+  <Auth onSuccessfulLogin={redirect} />
 {/if}

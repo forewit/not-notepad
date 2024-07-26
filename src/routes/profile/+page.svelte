@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Spinner from "$lib/components/Spinner.svelte";
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { settingsStore } from "$lib/stores/settingsStore";
   import { themes } from "$lib/modules/themes";
   import { base } from "$app/paths";
+  import ProgressBar from "$lib/components/ProgressBar.svelte";
 </script>
 
 {#if $firebaseStore.currentUser}
@@ -59,7 +59,7 @@
     </form>
   </div>
 {:else}
-  <Spinner />
+  <ProgressBar />
 {/if}
 
 <style>
