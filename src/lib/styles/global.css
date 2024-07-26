@@ -2,14 +2,14 @@
 
 @font-face {
   font-family: "Cascadia Code";
-  src: url("/fonts/Cascadia.ttf") format("truetype");
+  src: url("/fonts/cascadia-code/Cascadia.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Selawik";
-  src: url("/fonts/Selawik.ttf") format("truetype");
+  src: url("/fonts/selawik/selawk.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -28,7 +28,7 @@
   --font: "Cascadia Code", monospace;
   --font-size: 14px;
   --ui-font: "Selawik", sans-serif;
-  --ui-font-weight: 400;
+  --ui-font-weight: nomral;
   --ui-font-size: 18px;
 
   /* tabbar */
