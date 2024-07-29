@@ -332,7 +332,7 @@
     }) as EventListener);
 
     // setup resize observer
-    resizeObserver = new ResizeObserver(debounce(resize, 0));
+    resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
     loadPathsFromTab();
 
@@ -350,14 +350,16 @@
 </script>
 
 <!-- current path -->
-<div class="canvas-container" class:hide>
-  <canvas id="currentPath" class:disabled bind:this={backgroundCanvas}></canvas>
-  <canvas id="canvas" class:disabled bind:this={canvas} />
+<div class="drawing-container" class:hide class:disabled>
+  <canvas id="currentPath" bind:this={backgroundCanvas}></canvas>
+  <canvas id="canvas" bind:this={canvas} />
 </div>
 
 <style>
-  .canvas-container {
-    position: relative;
+  .drawing-container {
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
     width: 100%;
   }

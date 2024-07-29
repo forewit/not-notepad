@@ -173,7 +173,7 @@
 </script>
 
 <div class="quill-editor-container" class:disabled>
-  <div bind:this={editorDiv} />
+  <div class="quill-editor" bind:this={editorDiv} />
 </div>
 
 <style>
@@ -182,12 +182,5 @@
   }
   .quill-editor-container {
     background-color: var(--bg);
-    overflow-y: hidden;
-    height: 100%;
-    width: 100%;
-
-    display: grid;
-    grid-template-rows: 1fr auto;
-    grid-template-columns: 100%;
   }
 </style>

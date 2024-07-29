@@ -2,7 +2,7 @@
   import Tabbar from "$lib/components/Tabbar.svelte";
   import Editor from "$lib/components/Editor.svelte";
   import ProgressBar from "$lib/components/ProgressBar.svelte";
-  import { tabsStore, metadataStore } from "$lib/stores/tabsStore";
+  import { metadataStore } from "$lib/stores/tabsStore";
   import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
   import { settingsStore } from "$lib/stores/settingsStore";
   import Drawing from "$lib/components/Drawing.svelte";
@@ -13,7 +13,7 @@
   let rgbaPencilColor = "rgba(0, 0, 0, 1)";
   let pencilStroke = 10;
   let tabbar: Tabbar;
-  let drawings: Record<string, Drawing> = {};
+  let drawing: Drawing;
 
   function hexToRGB(hex: string, alpha?: number) {
     var r = parseInt(hex.slice(1, 3), 16),
@@ -43,6 +43,15 @@
     $metadataStore.activeTool === "highlighter"
       ? hexToRGB(hexPencilColor, 0.3)
       : hexPencilColor;
+
+      
+  let canvasHeight = 0;
+  $: if (canvasHeight > 0) {
+    document.documentElement.style.setProperty(
+      "--canvas-height",
+      canvasHeight + "px"
+    );
+  }
 </script>
 
 <div class="page-container">
@@ -51,7 +60,7 @@
     {#if $metadataStore.toolbarVisible && $metadataStore.order.length > 0}
       <Toolbar
         onClose={() => tabbar.closeActiveTab()}
-        onDrawingUndo={() => drawings[activeTabID].undo()}
+        onDrawingUndo={() => drawing.undo()}
         onRefresh={() => firebaseHandlers.loadFromFirestore()}
         bind:stroke={pencilStroke}
         bind:color={hexPencilColor}
@@ -59,27 +68,20 @@
     {/if}
   </div>
   {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
-    <div class="canvas-container">
-      <div class="editor-container">
-        {#each Object.keys($tabsStore) as id (id)}
-          <Editor disabled={id !== activeTabID} tabID={id} />
-        {/each}
-      </div>
+    <div class="scrollable-canvas" bind:clientHeight={canvasHeight}>
       <div
-        class="drawing-container"
-        class:disabled={$metadataStore.activeTool === undefined}
+        class="editor-container"
       >
-        {#each Object.keys($tabsStore) as id (id)}
+        {#key activeTabID}
+          <Editor tabID={activeTabID} />
           <Drawing
-            bind:this={drawings[id]}
+            bind:this={drawing}
             bind:color={rgbaPencilColor}
             bind:stroke={pencilStroke}
-            tabID={id}
-            hide={id !== activeTabID}
-            disabled={id !== activeTabID ||
-              $metadataStore.activeTool === undefined}
+            tabID={activeTabID}
+            disabled={$metadataStore.activeTool === undefined}
           />
-        {/each}
+        {/key}
       </div>
     </div>
   {:else}
@@ -96,21 +98,16 @@
     grid-template-rows: auto auto 1fr;
     grid-template-columns: 100%;
   }
-  .canvas-container {
-    position: relative;
+  .scrollable-canvas {
     margin-left: var(--safe-area-left);
     margin-right: var(--safe-area-right);
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
   }
-  .drawing-container,
   .editor-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    z-index: 1;
-  }
-  .disabled {
-    pointer-events: none;
+    position: relative;
+    overflow: hidden;
   }
 </style>

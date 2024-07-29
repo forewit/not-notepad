@@ -350,18 +350,18 @@ const mouseupHandler = (e: MouseEvent) => {
 }
 
 const touchstartHandler = (e: TouchEvent) => {
-    // prevent pinch-zoom
-    if (e.touches.length > 1) {
-        //e.preventDefault();
-        //e.stopPropagation();
-    }
+    //// prevent pinch-zoom
+    // if (e.touches.length > 1) {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+    // }
 
     // return if touch is not on active element
     if (document.activeElement === e.target) return;
 
     // prevent default
-    //e.preventDefault();
-    //e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
 
     // don't handle multiple touches at once
     if (e.touches.length > 1) {

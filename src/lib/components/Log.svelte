@@ -7,7 +7,7 @@
     const log = console.log;
     console.log = function (e) {
       log.apply(console, [].slice.call(arguments));
-      
+
       // Custom logging
       logs.push(e);
       logs = logs;
@@ -21,7 +21,7 @@
 </script>
 
 {#each logs as log}
-  <p>{JSON.stringify(log)}</p>
+  <p>{log}</p>
 {/each}
 
 <style>
@@ -29,5 +29,7 @@
     font-size: 12px;
     opacity: 0.8;
     color: var(--text);
+    pointer-events: none;
+    user-select: none;
   }
 </style>

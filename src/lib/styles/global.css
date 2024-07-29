@@ -27,6 +27,7 @@
   /* fonts */
   --font: "Cascadia Code", monospace;
   --font-size: 14px;
+  --line-height: 1.42;
   --ui-font: "Selawik", sans-serif;
   --ui-font-weight: nomral;
   --ui-font-size: 18px;
@@ -101,7 +102,7 @@ a,
 label {
   font-family: var(--font);
   font-size: var(--font-size);
-  line-height: 1.42;
+  line-height: var(--line-height);
   color: var(--text);
 }
 
