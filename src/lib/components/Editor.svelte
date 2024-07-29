@@ -172,15 +172,15 @@
   });
 </script>
 
-<div class="quill-editor-wrapper" class:disabled>
-  <div class="quill-editor" bind:this={editorDiv} />
+<div class="quill-editor-container" class:disabled>
+  <div bind:this={editorDiv} />
 </div>
 
 <style>
   .disabled {
     display: none !important;
   }
-  .quill-editor-wrapper {
+  .quill-editor-container {
     background-color: var(--bg);
     overflow-y: hidden;
     height: 100%;
@@ -189,10 +189,5 @@
     display: grid;
     grid-template-rows: 1fr auto;
     grid-template-columns: 100%;
-  }
-  .quill-editor {
-    font-size: var(--font-size);
-    font-family: var(--font);
-    color: var(--text);
   }
 </style>

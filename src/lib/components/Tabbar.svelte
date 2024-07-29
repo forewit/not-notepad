@@ -428,7 +428,7 @@
   }
   .buttons-container {
     margin-bottom: var(--tab-gaps);
-    margin-right: var(--tab-gaps);
+    margin-right: calc(var(--tab-gaps) + var(--safe-area-inline));
   }
 
   .tabs {
@@ -440,7 +440,7 @@
     grid-auto-columns: minmax(var(--tab-min-width), var(--tab-max-width));
     gap: var(--tab-gaps);
     overflow-x: scroll;
-    padding-inline: calc(var(--tab-radius) + var(--safe-area-left))
+    padding-inline: calc(var(--tab-radius) + var(--safe-area-inline))
       var(--tab-radius);
     scrollbar-width: none;
   }

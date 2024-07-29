@@ -27,6 +27,7 @@
   /* fonts */
   --font: "Cascadia Code", monospace;
   --font-size: 14px;
+  --font-line-height: 1.42;
   --ui-font: "Selawik", sans-serif;
   --ui-font-weight: nomral;
   --ui-font-size: 18px;
@@ -40,6 +41,7 @@
 
   /* other */
   --transition-speed: 200ms;
+  --safe-area-inline: max(var(--safe-area-left), var(--safe-area-right));
   --safe-area-left: 0px; /* overwritten in +layout by env("safe-area-inset-left") */
   --safe-area-right: 0px; /* overwritten in +layout by env("safe-area-inset-right") */
   --safe-area-top: 0px; /* overwritten in +layout by env("safe-area-inset-top") */
@@ -99,6 +101,7 @@ a,
 label {
   font-family: var(--font);
   font-size: var(--font-size);
+  line-height: var(--font-line-height);
   color: var(--text);
 }
 

@@ -20,7 +20,6 @@
   }
   export function undo() {
     if (savedPaths.length == 0) return;
-    log.innerHTML = "Undo";
 
     // remove most recent path and clear the canvas
     savedPaths.pop();
@@ -50,7 +49,6 @@
   let width = 0;
   let dpi: number;
   let drawing = false;
-  let log: HTMLDivElement;
   let currentPath: Path;
   let resizeObserver: ResizeObserver;
   let savedPaths: Path[] = []; // used to re-draw the paths if needed
@@ -316,7 +314,6 @@
           break;
         case "left-click-dragging":
         case "touch-dragging":
-          if (e.detail.force > 0) log.innerHTML = e.detail.force;
           dragHandle(e.detail.x, e.detail.y);
           break;
         case "left-click-drag-end":
@@ -356,7 +353,6 @@
 <div class="canvas-container" class:hide>
   <canvas id="currentPath" class:disabled bind:this={backgroundCanvas}></canvas>
   <canvas id="canvas" class:disabled bind:this={canvas} />
-  <div class="log" bind:this={log}>LOG</div>
 </div>
 
 <style>
@@ -372,16 +368,6 @@
 
     /* fix ghost margin below html5 canvas: https://stackoverflow.com/questions/9878090/eliminate-ghost-margin-below-html5-canvas-element */
     vertical-align: bottom;
-  }
-  .log {
-    font-family: var(--font);
-    font-size: var(--font-size);
-    color: var(--text);
-
-    pointer-events: none;
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
   }
   .disabled {
     pointer-events: none;

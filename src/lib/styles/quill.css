@@ -29,3 +29,10 @@
 .ql-editor.ql-blank:focus::before {
   content: "";
 }
+
+.ql-editor {
+  font-size: var(--font-size);
+  line-height: var(--font-line-height);
+  font-family: var(--font);
+  color: var(--text);
+}
