@@ -11,6 +11,7 @@
   import { base } from "$app/paths";
   import ThemeWrapper from "$lib/components/ThemeWrapper.svelte";
   import SyncStatus from "$lib/components/SyncStatus.svelte";
+  import Log from "$lib/components/Log.svelte";
 
   function handleOrientationChange() {
     switch (screen.orientation.type) {
@@ -92,17 +93,18 @@
         <SyncStatus></SyncStatus>
       </div>
     {/if}
+    <div class="logs">
+      <Log />
+    </div>
   </div>
 </ThemeWrapper>
 
 <style>
   .layout-container {
     background-color: var(--bg);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
+    height: 100%;
+    width: 100%;
   }
 
   .sync-status {
@@ -111,5 +113,12 @@
     bottom: 1.2rem;
     right: calc(1.2rem + var(--safe-area-right));
     z-index: 1;
+  }
+
+  .logs {
+    position: absolute;
+    bottom: 1.2rem;
+    left: calc(1.2rem + var(--safe-area-right));
+    z-index: 999;
   }
 </style>
