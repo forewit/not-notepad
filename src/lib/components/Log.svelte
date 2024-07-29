@@ -7,19 +7,21 @@
     const log = console.log;
     console.log = function (e) {
       log.apply(console, [].slice.call(arguments));
-      logs.push(e); //custom code
-
+      
+      // Custom logging
+      logs.push(e);
+      logs = logs;
       setTimeout(() => {
         logs = logs.slice(1);
-      }, 5000);
+      }, 10000);
 
-      logs = logs;
+      
     };
   });
 </script>
 
 {#each logs as log}
-  <p>{log}</p>
+  <p>{JSON.stringify(log)}</p>
 {/each}
 
 <style>
