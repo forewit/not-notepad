@@ -11,6 +11,7 @@
   import Drawing from "$lib/components/Drawing.svelte";
   import Toolbar from "$lib/components/Toolbar.svelte";
   import Trashcan from "$lib/components/Trashcan.svelte";
+  import { draw } from "svelte/transition";
 
   let hexPencilColor = "#000000";
   let rgbaPencilColor = "rgba(0, 0, 0, 1)";
@@ -89,6 +90,14 @@
       e.preventDefault();
       e.stopPropagation();
       console.log("undo");
+
+      if (
+        $metadataStore.tool === "pen" ||
+        $metadataStore.tool === "highlighter" ||
+        $metadataStore.tool === "eraser"
+      ) {
+        drawing.undo();
+      }
     }
     // ctrl + Z
     else if (e.ctrlKey && e.key === "Z") {
@@ -103,7 +112,7 @@
 
     switch (curr.tool) {
       case "pen":
-        cursorCSS = `cursor: url(${base}/images/svg/pen.svg) 1 17, auto;`;
+        cursorCSS = `cursor: url(${base}/images/svg/pen.svg) 1 20, auto;`;
         drawingTool = "pen";
         const theme = themes.find((t) => t.name === $settingsStore.theme);
         if (theme) hexPencilColor = theme.caret;
