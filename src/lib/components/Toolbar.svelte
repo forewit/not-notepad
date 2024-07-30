@@ -13,10 +13,9 @@
 <div class="toolbar-container" transition:slide={{ duration: 200 }}>
   <button
     class="pencil button"
-    class:selected={$metadataStore.activeTool === "pencil"}
+    class:selected={$metadataStore.tool === "pen"}
     on:click={() => {
-      $metadataStore.activeTool =
-        $metadataStore.activeTool === "pencil" ? undefined : "pencil";
+      $metadataStore.tool = $metadataStore.tool === "pen" ? undefined : "pen";
     }}
   >
     <span
@@ -27,10 +26,10 @@
   </button>
   <button
     class="button"
-    class:selected={$metadataStore.activeTool === "highlighter"}
+    class:selected={$metadataStore.tool === "highlighter"}
     on:click={() => {
-      $metadataStore.activeTool =
-        $metadataStore.activeTool === "highlighter" ? undefined : "highlighter";
+      $metadataStore.tool =
+        $metadataStore.tool === "highlighter" ? undefined : "highlighter";
     }}
   >
     <span
@@ -39,8 +38,22 @@
   mask: url({base}/images/svg/highlighter.svg) no-repeat center / contain;"
     ></span>
   </button>
+  <button
+    class="button"
+    class:selected={$metadataStore.tool === "eraser"}
+    on:click={() => {
+      $metadataStore.tool =
+        $metadataStore.tool === "eraser" ? undefined : "eraser";
+    }}
+  >
+    <span
+      class="button-icon"
+      style="-webkit-mask: url({base}/images/svg/eraser.svg) no-repeat center / contain;
+  mask: url({base}/images/svg/eraser.svg) no-repeat center / contain;"
+    ></span>
+  </button>
 
-  {#if $metadataStore.activeTool === "pencil" || $metadataStore.activeTool === "highlighter"}
+  {#if $metadataStore.tool === "pen" || $metadataStore.tool === "highlighter"}
     <div class="pencil-tools" transition:slide={{ duration: 200, axis: "x" }}>
       <button class="button" on:click={onDrawingUndo}>
         <span

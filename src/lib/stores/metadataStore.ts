@@ -4,7 +4,7 @@ export const metadataStore = writable({
     order: [] as string[],
     activeIndex: 0,
     placeholderIndex: -1,
-    activeTool: undefined as "pencil" | "highlighter" | undefined,
+    tool: undefined as "pen" | "highlighter" | "eraser" | undefined,
     toolbarVisible: false,
     trashcanVisible: false,
 });

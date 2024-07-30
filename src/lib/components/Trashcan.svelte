@@ -55,11 +55,11 @@
 <div
   transition:scale={{ duration: 200 }}
   class="trashcan"
+  class:overTrashcan
   bind:this={trashcanElm}
 >
   <div
     class="trashcan-icon"
-    class:overTrashcan
     style="-webkit-mask: url({base}/images/svg/trash.svg) no-repeat center / contain;
         mask: url({base}/images/svg/trash.svg) no-repeat center / contain;"
   ></div>
@@ -75,16 +75,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color var(--transition-speed);
+    transition:
+      background-color var(--transition-speed),
+      scale var(--transition-speed);
+  }
+  .trashcan.overTrashcan {
+    scale: 1.2;
   }
   .trashcan-icon {
     height: 30px;
     width: 30px;
     background-color: var(--bg-alt);
-    transition: scale var(--transition-speed);
   }
 
-  .trashcan-icon.overTrashcan {
-    scale: 1.2;
-  }
 </style>

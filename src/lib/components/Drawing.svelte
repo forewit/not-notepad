@@ -2,22 +2,22 @@
   import { onDestroy, onMount } from "svelte";
   import * as gestures from "$lib/modules/gestures.js";
   import { tabsStore } from "$lib/stores/tabsStore";
+  import { base } from "$app/paths";
 
   // reduces storage needed to render a path
   const DECIMAL_PRECISION = 2;
 
   // public variables
-  export let radius = 3; // radius should usually be at least 2x smoothness
+  export let radius = 4; // radius should usually be at least 2x smoothness
   export let smoothness = 0; // higher smoothness means less points are generated
   export let stroke = 5;
   export let color = "#000000";
-  export let disabled = false;
-  export let hide = false;
+  export let tool: "pen" | "eraser" | undefined = undefined;
   export let tabID = "";
   export const clear = () => {
     ctx.clearRect(0, 0, width / dpi, height / dpi);
     savedPaths = [];
-  }
+  };
   export const undo = () => {
     if (savedPaths.length == 0) return;
 
@@ -31,7 +31,7 @@
     }
 
     savePathsToTab();
-  }
+  };
 
   type Path = {
     points: { x: number; y: number }[];
@@ -53,21 +53,27 @@
   let resizeObserver: ResizeObserver;
   let savedPaths: Path[] = []; // used to re-draw the paths if needed
 
-  $: if (disabled) {
-    disableDrawing();
-  } else {
-    enableDrawing();
-  }
+  $: tool, setupTool();
 
-  function enableDrawing() {
+  function setupTool() {
     if (!canvas) return;
+
+    if (!tool) {
+      canvas.removeEventListener("gesture", eraserGestureHandler);
+      canvas.removeEventListener("gesture", defaultGestureHandler);
+      gestures.disable(canvas);
+      return;
+    }
+
+    if (tool === "pen") {
+      canvas.removeEventListener("gesture", eraserGestureHandler);
+      canvas.addEventListener("gesture", defaultGestureHandler);
+    } else if (tool === "eraser") {
+      canvas.removeEventListener("gesture", defaultGestureHandler);
+      canvas.addEventListener("gesture", eraserGestureHandler);
+    }
+
     gestures.enable(canvas);
-    window.addEventListener("keydown", keydownHandler);
-  }
-  function disableDrawing() {
-    if (!canvas) return;
-    gestures.disable(canvas);
-    window.removeEventListener("keydown", keydownHandler);
   }
 
   const dist = (x1: number, y1: number, x2: number, y2: number) => {
@@ -211,16 +217,6 @@
     drawing = true;
     lastPoint = screenToCanvas(x, y);
 
-    // set canvas properties
-    ctx.lineWidth = stroke;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = color;
-
-    // draw path
-    ctx.beginPath();
-    ctx.moveTo(lastPoint.x, lastPoint.y);
-    ctx.stroke();
-
     // save new path
     currentPath = {
       points: [],
@@ -273,7 +269,7 @@
 
     ctx.clearRect(0, 0, width / dpi, height / dpi);
     renderPath(currentPath, ctx);
-  
+
     lastPoint = newPoint;
   }
 
@@ -287,70 +283,121 @@
     drawing = false;
   }
 
-  const keydownHandler = function (e: KeyboardEvent) {
-    // listen to Ctrl + Z to undo
-    if (e.ctrlKey && e.key == "z") {
-      undo();
+  function eraserStartHandler(x: number, y: number) {
+    drawing = true;
+    currentPath = {
+      points: [],
+      lineWidth: 10,
+      color: "rgba(0,0,0,0.2)",
+    };
+  }
+  function eraserDragHandler(x: number, y: number) {
+    if (!drawing) return;
+
+    const newPoint = screenToCanvas(x, y);
+    currentPath.points.push(truncatePoint(newPoint));
+
+    setTimeout(() => {
+      ctx.clearRect(0, 0, width / dpi, height / dpi);
+      renderPath(currentPath, ctx);
+      currentPath.points.shift();
+
+      if (currentPath.points.length <= 1 && !drawing) {
+        ctx.clearRect(0, 0, width / dpi, height / dpi);
+      }
+    }, 100);
+
+    // check if point is on any path
+    savedPaths.forEach((path, j) => {
+      for (let i = 0; i < path.points.length - 1; i++) {
+        if (
+          dist(path.points[i].x, path.points[i].y, newPoint.x, newPoint.y) <=
+          path.lineWidth
+        ) {
+          savedPaths.splice(j, 1);
+          backgroundCtx.clearRect(0, 0, width / dpi, height / dpi);
+          for (let i = 0; i < savedPaths.length; i++) {
+            renderPath(savedPaths[i], backgroundCtx);
+          }
+          savePathsToTab();
+          break;
+        }
+      }
+    });
+  }
+  function eraserEndHandler() {
+    //ctx.clearRect(0, 0, width / dpi, height / dpi);
+    drawing = false;
+  }
+
+  const eraserGestureHandler = function (e: CustomEvent) {
+    switch (e.detail.name) {
+      case "left-click-drag-start":
+      case "touch-drag-start":
+        eraserStartHandler(e.detail.x, e.detail.y);
+        break;
+      case "left-click-dragging":
+      case "touch-dragging":
+        eraserDragHandler(e.detail.x, e.detail.y);
+        break;
+      case "left-click-drag-end":
+      case "touch-drag-end":
+        eraserEndHandler();
+        break;
+      default:
+        break;
     }
-    e.preventDefault();
-  };
+  } as EventListener;
+
+  const defaultGestureHandler = function (e: CustomEvent) {
+    switch (e.detail.name) {
+      case "left-click-drag-start":
+      case "touch-drag-start":
+        startHandle(e.detail.x, e.detail.y);
+        break;
+      case "left-click-dragging":
+      case "touch-dragging":
+        dragHandle(e.detail.x, e.detail.y);
+        break;
+      case "left-click-drag-end":
+      case "touch-drag-end":
+        dragEndHandler();
+        break;
+      default:
+        break;
+    }
+  } as EventListener;
 
   onMount(() => {
-    // setup onscreen canvas context
     ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
-
     backgroundCtx = backgroundCanvas.getContext(
       "2d"
     ) as CanvasRenderingContext2D;
     backgroundCtx.imageSmoothingEnabled = false;
 
-    // setup gesture event listeners
-    canvas.addEventListener("gesture", ((e: CustomEvent) => {
-      switch (e.detail.name) {
-        case "left-click-drag-start":
-        case "touch-drag-start":
-          startHandle(e.detail.x, e.detail.y);
-          break;
-        case "left-click-dragging":
-        case "touch-dragging":
-          dragHandle(e.detail.x, e.detail.y);
-          break;
-        case "left-click-drag-end":
-        case "touch-drag-end":
-          dragEndHandler();
-          break;
-        case "left-click":
-        case "tap":
-          startHandle(e.detail.x, e.detail.y);
-          dragHandle(e.detail.x, e.detail.y);
-          dragEndHandler();
-          break;
-        default:
-          break;
-      }
-    }) as EventListener);
-
-    // setup resize observer
     resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
-    loadPathsFromTab();
 
-    if (disabled) {
-      disableDrawing();
-    } else {
-      enableDrawing();
-    }
+    loadPathsFromTab();
+    setupTool();
   });
 
   onDestroy(() => {
     if (resizeObserver) resizeObserver.disconnect();
-    disableDrawing();
+    tool = undefined;
+    setupTool();
   });
 </script>
 
 <!-- current path -->
-<div class="drawing-container" class:hide class:disabled>
+<div
+  class="drawing-container"
+  class:disabled={tool === undefined}
+  style={tool === "eraser"
+    ? `cursor: url(${base}/images/svg/eraser.svg) 5 18, auto;`
+    : ""}
+>
   <canvas id="currentPath" bind:this={backgroundCanvas}></canvas>
   <canvas id="canvas" bind:this={canvas} />
 </div>
@@ -373,8 +420,5 @@
   }
   .disabled {
     pointer-events: none;
-  }
-  .hide {
-    display: none;
   }
 </style>

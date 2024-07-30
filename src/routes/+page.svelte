@@ -15,6 +15,8 @@
   let pencilStroke = 10;
   let tabbar: Tabbar;
   let drawing: Drawing;
+  let canvasHeight = 0;
+
 
   function hexToRGB(hex: string, alpha?: number) {
     var r = parseInt(hex.slice(1, 3), 16),
@@ -29,9 +31,9 @@
   }
 
   metadataStore.subscribe((curr) => {
-    if (curr.activeTool === "highlighter") {
+    if (curr.tool === "highlighter") {
       hexPencilColor = "#ffdd33";
-    } else if (curr.activeTool === "pencil") {
+    } else if (curr.tool === "pen") {
       const theme = themes.find((t) => t.name === $settingsStore.theme);
       if (theme) {
         hexPencilColor = theme.caret;
@@ -39,13 +41,13 @@
     }
   });
 
+
+  $: drawingTool = $metadataStore.tool === "highlighter" ? "pen" : $metadataStore.tool;
   $: activeTabID = $metadataStore.order[$metadataStore.activeIndex];
   $: rgbaPencilColor =
-    $metadataStore.activeTool === "highlighter"
+    $metadataStore.tool === "highlighter"
       ? hexToRGB(hexPencilColor, 0.3)
       : hexPencilColor;
-
-  let canvasHeight = 0;
   $: if (canvasHeight > 0) {
     document.documentElement.style.setProperty(
       "--canvas-height",
@@ -76,7 +78,7 @@
             bind:color={rgbaPencilColor}
             bind:stroke={pencilStroke}
             tabID={activeTabID}
-            disabled={$metadataStore.activeTool === undefined}
+            tool={drawingTool}
           />
         {/key}
 

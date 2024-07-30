@@ -393,7 +393,7 @@
         on:click={() => {
           $metadataStore.toolbarVisible = !$metadataStore.toolbarVisible;
           if (!$metadataStore.toolbarVisible)
-            $metadataStore.activeTool = undefined;
+            $metadataStore.tool = undefined;
         }}
       >
         <span
@@ -404,7 +404,7 @@
       </button>
     </div>
 
-    <div bind:this={clone} class="clone" class:dragging>
+    <div bind:this={clone} class="clone" class:draggingOutside class:dragging>
       <Tab title={draggedTabTitle} active={!draggingOutside} preventHover />
     </div>
   </div>
@@ -478,6 +478,9 @@
   .clone.dragging {
     display: block;
     z-index: 2;
+  }
+  .clone.draggingOutside {
+    opacity: 0.7;
   }
 
   .button {
