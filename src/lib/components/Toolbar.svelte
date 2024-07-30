@@ -12,6 +12,7 @@
 
 <div class="toolbar-container" transition:slide={{ duration: 200 }}>
   <button
+  tabindex="0"
     class="pencil button"
     class:selected={$metadataStore.tool === "pen"}
     on:click={() => {
@@ -20,8 +21,8 @@
   >
     <span
       class="button-icon"
-      style="-webkit-mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;
-  mask: url({base}/images/svg/pencil.svg) no-repeat center / contain;"
+      style="-webkit-mask: url({base}/images/svg/pen.svg) no-repeat center / contain;
+  mask: url({base}/images/svg/pen.svg) no-repeat center / contain;"
     ></span>
   </button>
   <button
@@ -158,7 +159,6 @@
     height: 4px;
     border-radius: 100vw;
     background: var(--bg);
-    outline: none;
   }
   .slider::-webkit-slider-thumb {
     appearance: none;

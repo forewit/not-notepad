@@ -11,6 +11,12 @@
 
   export let tabID: string;
   export let disabled = false;
+  export const focus = () => {
+    if (quillEditor) quillEditor.setSelection(quillEditor.getLength(), 0);
+  }
+  export const blur = () => {
+    if (quillEditor) quillEditor.blur();
+  }
 
   let quillEditor: Quill;
   let editorDiv: HTMLElement;

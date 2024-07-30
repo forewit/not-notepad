@@ -52,6 +52,7 @@
   let currentPath: Path;
   let resizeObserver: ResizeObserver;
   let savedPaths: Path[] = []; // used to re-draw the paths if needed
+  let cursorCSS = "";
 
   $: tool, setupTool();
 
@@ -59,6 +60,7 @@
     if (!canvas) return;
 
     if (!tool) {
+      cursorCSS = "";
       canvas.removeEventListener("gesture", eraserGestureHandler);
       canvas.removeEventListener("gesture", defaultGestureHandler);
       gestures.disable(canvas);
@@ -326,7 +328,9 @@
     });
   }
   function eraserEndHandler() {
-    //ctx.clearRect(0, 0, width / dpi, height / dpi);
+    if (currentPath.points.length <= 1) {
+      ctx.clearRect(0, 0, width / dpi, height / dpi);
+    }
     drawing = false;
   }
 
@@ -391,13 +395,7 @@
 </script>
 
 <!-- current path -->
-<div
-  class="drawing-container"
-  class:disabled={tool === undefined}
-  style={tool === "eraser"
-    ? `cursor: url(${base}/images/svg/eraser.svg) 5 18, auto;`
-    : ""}
->
+<div class="drawing-container" class:disabled={tool === undefined}>
   <canvas id="currentPath" bind:this={backgroundCanvas}></canvas>
   <canvas id="canvas" bind:this={canvas} />
 </div>
