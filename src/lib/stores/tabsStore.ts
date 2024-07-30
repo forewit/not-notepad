@@ -1,6 +1,7 @@
 import { writable, get } from "svelte/store";
 import type { Op } from "quill/core";
 import type { StackItem } from "quill/modules/history";
+import { metadataStore } from "$lib/stores/metadataStore";
 
 const replacementMap = {
     '{"retain":': "⒜",
@@ -182,10 +183,3 @@ export type PackedTabs = Record<string, { title: string, ops: string, history: s
 
 export const tabsStore = writable({} as Record<string, TabData>);
 
-export const metadataStore = writable({
-    order: [] as string[],
-    activeIndex: 0,
-    placeholderIndex: -1,
-    activeTool: undefined as "pencil" | "highlighter" | undefined,
-    toolbarVisible: false
-});

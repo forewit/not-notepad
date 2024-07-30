@@ -1,14 +1,15 @@
 <script lang="ts">
   import { base } from "$app/paths";
   import Tab from "$lib/components/Tab.svelte";
-  import { tabsStore, tabsHandlers, metadataStore } from "../stores/tabsStore";
+  import { tabsStore, tabsHandlers } from "$lib/stores/tabsStore";
+  import { metadataStore } from "$lib/stores/metadataStore";
   import { cubicInOut } from "svelte/easing";
   import { onMount } from "svelte";
   import { animateCSS, animateSimple } from "$lib/modules/animate";
 
   const MIN_DRAG_DISTANCE = 12;
-  const TAB_MAX_WIDTH = 200; // update in css also
-  const TAB_MIN_WIDTH = 32; // update in css also
+  const TAB_MAX_WIDTH = 200; // if you change this, update in css also
+  const TAB_MIN_WIDTH = 32; // if you change this, update in css also
   const TAB_ANIMATION_DURATION = 200;
   const TAB_RESIZE_DELAY = 1600;
   const TAB_SCROLL_SPEED = 0.3;
@@ -258,7 +259,7 @@
     if (e instanceof TouchEvent) {
       x = e.touches[0].clientX;
       y = e.touches[0].clientY;
-      //e.preventDefault();
+      e.preventDefault();
     } else {
       x = e.clientX;
       y = e.clientY;
@@ -295,7 +296,7 @@
     if (e instanceof TouchEvent) {
       x = e.touches[0].clientX;
       y = e.touches[0].clientY;
-      e.preventDefault();
+      //e.preventDefault();
     } else {
       x = e.clientX;
       y = e.clientY;
@@ -333,10 +334,20 @@
     dragging = false;
   }
 
-  // Reactive statement for hover prevention
-  $: if (!dragging) {
-    setTimeout(() => (preventHover = false), 20);
-  } else preventHover = true;
+  $: if (dragging) {
+    preventHover = true;
+  } else {
+    // Reset hover prevention after 20ms to prevent flickering
+    setTimeout(() => {
+      preventHover = false;
+    }, 20);
+  }
+
+  $: if (draggingOutside) {
+    $metadataStore.trashcanVisible = true;
+  } else {
+    $metadataStore.trashcanVisible = false;
+  }
 
   // On mount setup
   onMount(() => {

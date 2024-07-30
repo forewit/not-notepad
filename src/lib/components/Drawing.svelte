@@ -14,11 +14,11 @@
   export let disabled = false;
   export let hide = false;
   export let tabID = "";
-  export function clear() {
+  export const clear = () => {
     ctx.clearRect(0, 0, width / dpi, height / dpi);
     savedPaths = [];
   }
-  export function undo() {
+  export const undo = () => {
     if (savedPaths.length == 0) return;
 
     // remove most recent path and clear the canvas

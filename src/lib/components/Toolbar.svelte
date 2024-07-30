@@ -1,11 +1,10 @@
 <script lang="ts">
   import { base } from "$app/paths";
   import { firebaseStore } from "$lib/stores/firebaseStore";
-  import { metadataStore } from "$lib/stores/tabsStore";
+  import { metadataStore } from "$lib/stores/metadataStore";
   import { slide } from "svelte/transition";
 
   export let onRefresh = () => {};
-  export let onClose = () => {};
   export let onDrawingUndo = () => {};
   export let stroke: number;
   export let color: string;
@@ -64,13 +63,6 @@
 
   <div class="spacer"></div>
 
-  <button class="close button" on:click={onClose}>
-    <span
-      class="button-icon"
-      style="-webkit-mask: url({base}/images/svg/trash.svg) no-repeat center / contain;
-        mask: url({base}/images/svg/trash.svg) no-repeat center / contain;"
-    ></span>
-  </button>
   <button
     class="refresh button"
     on:click={onRefresh}

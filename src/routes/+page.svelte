@@ -1,13 +1,14 @@
 <script lang="ts">
+  import { themes } from "$lib/modules/themes";
+  import { metadataStore } from "$lib/stores/metadataStore";
+  import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
+  import { settingsStore } from "$lib/stores/settingsStore";
   import Tabbar from "$lib/components/Tabbar.svelte";
   import Editor from "$lib/components/Editor.svelte";
   import ProgressBar from "$lib/components/ProgressBar.svelte";
-  import { metadataStore } from "$lib/stores/tabsStore";
-  import { firebaseHandlers, firebaseStore } from "$lib/stores/firebaseStore";
-  import { settingsStore } from "$lib/stores/settingsStore";
   import Drawing from "$lib/components/Drawing.svelte";
   import Toolbar from "$lib/components/Toolbar.svelte";
-  import { themes } from "$lib/modules/themes";
+  import Trashcan from "$lib/components/Trashcan.svelte";
 
   let hexPencilColor = "#000000";
   let rgbaPencilColor = "rgba(0, 0, 0, 1)";
@@ -44,7 +45,6 @@
       ? hexToRGB(hexPencilColor, 0.3)
       : hexPencilColor;
 
-      
   let canvasHeight = 0;
   $: if (canvasHeight > 0) {
     document.documentElement.style.setProperty(
@@ -59,7 +59,6 @@
   <div class="toolbar">
     {#if $metadataStore.toolbarVisible && $metadataStore.order.length > 0}
       <Toolbar
-        onClose={() => tabbar.closeActiveTab()}
         onDrawingUndo={() => drawing.undo()}
         onRefresh={() => firebaseHandlers.loadFromFirestore()}
         bind:stroke={pencilStroke}
@@ -69,9 +68,7 @@
   </div>
   {#if $firebaseStore.currentUser && !$firebaseStore.isLoading}
     <div class="scrollable-canvas" bind:clientHeight={canvasHeight}>
-      <div
-        class="editor-container"
-      >
+      <div class="editor-container">
         {#key activeTabID}
           <Editor tabID={activeTabID} />
           <Drawing
@@ -82,7 +79,14 @@
             disabled={$metadataStore.activeTool === undefined}
           />
         {/key}
+
+        
       </div>
+      {#if $metadataStore.trashcanVisible}
+          <div class="trashcan-container">
+            <Trashcan throwAway={tabbar.closeActiveTab} />
+          </div>
+        {/if}
     </div>
   {:else}
     <ProgressBar />
@@ -97,17 +101,25 @@
     display: grid;
     grid-template-rows: auto auto 1fr;
     grid-template-columns: 100%;
+    
   }
   .scrollable-canvas {
+    position: relative;
     margin-left: var(--safe-area-left);
     margin-right: var(--safe-area-right);
     overflow: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-
+    scrollbar-width: none;
+    /* scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent; */
   }
   .editor-container {
     position: relative;
     overflow: hidden;
+  }
+  .trashcan-container {
+    position: absolute;
+    bottom: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
   }
 </style>

@@ -3,7 +3,8 @@ import { writable, get } from "svelte/store";
 import { auth } from "$lib/firebase/firebase.client";
 import { db } from "$lib/firebase/firebase.client";
 import { doc, collection, updateDoc, setDoc, getDoc } from "firebase/firestore";
-import { type PackedTabs, tabsHandlers, metadataStore } from "$lib/stores/tabsStore";
+import { type PackedTabs, tabsHandlers } from "$lib/stores/tabsStore";
+import { metadataStore } from "$lib/stores/metadataStore";
 import { type Settings, settingsStore } from "$lib/stores/settingsStore";
 
 
