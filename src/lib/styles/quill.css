@@ -3,8 +3,6 @@
   color: var(--text) !important;
 }
 
-
-
 .ql-editor code {
   font-size: 85%;
   padding: 2px 4px;
@@ -27,6 +25,9 @@
   line-height: var(--font-line-height);
   font-family: var(--font);
   color: var(--text);
+
   /* --canvas-height is set programatically in the main +page.svelte */
-  padding-bottom: calc(var(--canvas-height) - var(--line-height) * var(--font-size));
+  padding-bottom: calc(var(--canvas-height) - var(--line-height) * var(--font-size) - 2px);
+  padding-top: 12px;
+  padding-inline: 10px
 }
