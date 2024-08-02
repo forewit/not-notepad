@@ -2,12 +2,11 @@
   import { onDestroy, onMount } from "svelte";
   import * as gestures from "$lib/modules/gestures.js";
   import { tabsStore } from "$lib/stores/tabsStore";
-  import { base } from "$app/paths";
+  import {
+    checkCurveIntersection,
+    checkLineIntersection,
+  } from "$lib/modules/curves";
 
-  // reduces storage needed to render a path
-  const DECIMAL_PRECISION = 2;
-
-  // public variables
   export let radius = 4; // radius should usually be at least 2x smoothness
   export let smoothness = 0; // higher smoothness means less points are generated
   export let stroke = 5;
@@ -33,8 +32,12 @@
     savePathsToTab();
   };
 
+  type Point = {
+    x: number;
+    y: number;
+  };
   type Path = {
-    points: { x: number; y: number }[];
+    points: Point[];
     lineWidth: number;
     color: string;
   };
@@ -44,7 +47,7 @@
   let ctx: CanvasRenderingContext2D;
   let backgroundCanvas: HTMLCanvasElement;
   let backgroundCtx: CanvasRenderingContext2D;
-  let lastPoint = { x: 0, y: 0 };
+  let lastPoint: Point = { x: 0, y: 0 };
   let height = 0;
   let width = 0;
   let dpi: number;
@@ -52,7 +55,6 @@
   let currentPath: Path;
   let resizeObserver: ResizeObserver;
   let savedPaths: Path[] = []; // used to re-draw the paths if needed
-  let cursorCSS = "";
 
   $: tool, setupTool();
 
@@ -60,7 +62,6 @@
     if (!canvas) return;
 
     if (!tool) {
-      cursorCSS = "";
       canvas.removeEventListener("gesture", eraserGestureHandler);
       canvas.removeEventListener("gesture", defaultGestureHandler);
       gestures.disable(canvas);
@@ -78,17 +79,13 @@
     gestures.enable(canvas);
   }
 
-  const dist = (x1: number, y1: number, x2: number, y2: number) => {
-    var a = x2 - x1;
-    var b = y2 - y1;
+  const dist = (p1: Point, p2: Point) => {
+    var a = p2.x - p1.x;
+    var b = p2.y - p1.y;
     return Math.sqrt(a * a + b * b);
   };
 
-  function angle(
-    A: { x: number; y: number },
-    B: { x: number; y: number },
-    C: { x: number; y: number }
-  ) {
+  function angle(A: Point, B: Point, C: Point) {
     var AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
     var BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
     var AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
@@ -111,31 +108,38 @@
     };
   };
 
+  function midpoint(p1: Point, p2: Point) {
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+  }
+
   const ANGLE_THRESHOLD = 178;
 
   function reducePoints(path: Path) {
-    if (path.points.length < 4) return path;
-    for (let i = 1; i < path.points.length - 2; i++) {
-      const A = path.points[i - 1];
-      const B = path.points[i];
-      const C = path.points[i + 1];
-      const deg = angle(A, B, C);
+    if (path.points.length < 5) return path;
 
+    let p0 = midpoint(path.points[1], path.points[2]);
+    for (let j = 2; j < path.points.length - 3; j++) {
+      let p1 = path.points[j];
+      let p2 = midpoint(path.points[j], path.points[j + 1]);
+
+      let deg = angle(p0, p1, p2);
       if (deg > ANGLE_THRESHOLD) {
-        path.points.splice(i, 1);
-        i--;
+        path.points.splice(j, 1);
+        j--;
       }
+      p0 = p2;
     }
+
     return path;
   }
 
   // helper function for translating screen to canvas coordinates
-  function screenToCanvas(x: number, y: number) {
+  function screenToCanvas(p: Point): Point {
     // adjust for DPI & offset
     let rect = canvas.getBoundingClientRect();
     return {
-      x: x - rect.left,
-      y: y - rect.top,
+      x: Math.round(p.x - rect.left),
+      y: Math.round(p.y - rect.top),
     };
   }
 
@@ -143,8 +147,8 @@
   function resize() {
     if (!canvas || !backgroundCanvas) return;
 
-    // stop drawing if you already are
-    dragEndHandler();
+    ctx.resetTransform();
+    backgroundCtx.resetTransform();
 
     // step 1: resize the onScreenCanvas
     dpi = window.devicePixelRatio;
@@ -160,19 +164,27 @@
     ctx.scale(dpi, dpi);
     backgroundCtx.scale(dpi, dpi);
 
-    // render all saved paths
+    renderSavedPaths();
+  }
+
+  function renderSavedPaths() {
+    backgroundCtx.clearRect(0, 0, width / dpi, height / dpi);
     for (let i = 0; i < savedPaths.length; i++) {
       renderPath(savedPaths[i], backgroundCtx);
     }
   }
 
-  async function renderPath(path: Path, context: CanvasRenderingContext2D) {
+  function renderPath(path: Path, context: CanvasRenderingContext2D) {
+    const length = path.points.length;
+    if (length < 1) return;
+
     // set canvas properties
     context.lineWidth = path.lineWidth;
     context.lineCap = "round";
     context.strokeStyle = path.color;
+    context.fillStyle = path.color;
 
-    if (path.points.length < 2) {
+    if (length === 1) {
       context.beginPath();
       context.moveTo(path.points[0].x, path.points[0].y);
       context.lineTo(path.points[0].x, path.points[0].y);
@@ -180,46 +192,52 @@
       return;
     }
 
-    context.beginPath();
-    let xc = path.points[0].x;
-    let yc = path.points[0].y;
+    if (length === 2) {
+      context.beginPath();
+      context.moveTo(path.points[0].x, path.points[0].y);
+      context.lineTo(path.points[1].x, path.points[1].y);
+      context.stroke();
+      return;
+    }
 
-    for (let i = 0; i < path.points.length - 1; i++) {
-      context.moveTo(xc, yc);
-      xc = (path.points[i].x + path.points[i + 1].x) / 2;
-      yc = (path.points[i].y + path.points[i + 1].y) / 2;
-      context.quadraticCurveTo(path.points[i].x, path.points[i].y, xc, yc);
+    context.beginPath();
+    context.moveTo(path.points[0].x, path.points[0].y);
+    let mid = midpoint(path.points[0], path.points[1]);
+    context.lineTo(mid.x, mid.y);
+    for (let i = 1; i < length - 2; i++) {
+      mid = midpoint(path.points[i], path.points[i + 1]);
+      context.quadraticCurveTo(
+        path.points[i].x,
+        path.points[i].y,
+        mid.x,
+        mid.y
+      );
     }
     context.stroke();
   }
 
   function savePathsToTab() {
     if (!$tabsStore[tabID]) return;
-    $tabsStore[tabID].paths = savedPaths.filter((path) => reducePoints(path));
+
+    tabsStore.update((curr) => {
+      curr[tabID].paths = [];
+      savedPaths.forEach((path) => {
+        curr[tabID].paths.push(reducePoints(path));
+      });
+      return curr;
+    });
   }
+
   function loadPathsFromTab() {
     if (!$tabsStore[tabID]) return;
     savedPaths = $tabsStore[tabID].paths;
-    resize();
-  }
-
-  function truncatePoint(point: { x: number; y: number }) {
-    return {
-      x: truncateNumber(point.x),
-      y: truncateNumber(point.y),
-    };
-  }
-  function truncateNumber(num: number) {
-    const fixed = num.toFixed(DECIMAL_PRECISION);
-    return Number(fixed);
+    renderSavedPaths();
   }
 
   // custom event handlers
   function startHandle(x: number, y: number) {
     drawing = true;
-    lastPoint = screenToCanvas(x, y);
-
-    // save new path
+    lastPoint = screenToCanvas({ x, y });
     currentPath = {
       points: [],
       lineWidth: stroke,
@@ -230,12 +248,12 @@
   function dragHandle(x: number, y: number) {
     if (!drawing) return;
 
-    let newPoint = screenToCanvas(x, y);
+    let newPoint = screenToCanvas({ x, y });
 
     // if using a drawing circle
     if (radius > 0) {
       // do nothing if point is inside the drawing circle
-      if (dist(newPoint.x, newPoint.y, lastPoint.x, lastPoint.y) <= radius) {
+      if (dist(newPoint, lastPoint) <= radius) {
         if (currentPath.points.length === 0) {
           currentPath.points.push(newPoint);
           renderPath(currentPath, ctx);
@@ -262,12 +280,11 @@
       newPoint = temp;
 
       // prevent jagged lines by making sure new points aren't too close together
-      if (dist(lastPoint.x, lastPoint.y, newPoint.x, newPoint.y) <= smoothness)
-        return;
+      if (dist(lastPoint, newPoint) <= smoothness) return;
     }
 
     // add new point to the current path
-    currentPath.points.push(truncatePoint(newPoint));
+    currentPath.points.push(newPoint);
 
     ctx.clearRect(0, 0, width / dpi, height / dpi);
     renderPath(currentPath, ctx);
@@ -277,16 +294,17 @@
 
   function dragEndHandler() {
     if (drawing) {
-      savedPaths.push(reducePoints(currentPath));
-      renderPath(currentPath, backgroundCtx);
+      savedPaths.push(currentPath);
       ctx.clearRect(0, 0, width / dpi, height / dpi);
       savePathsToTab();
+      renderSavedPaths();
     }
     drawing = false;
   }
 
   function eraserStartHandler(x: number, y: number) {
     drawing = true;
+    lastPoint = screenToCanvas({ x, y });
     currentPath = {
       points: [],
       lineWidth: 10,
@@ -296,8 +314,8 @@
   function eraserDragHandler(x: number, y: number) {
     if (!drawing) return;
 
-    const newPoint = screenToCanvas(x, y);
-    currentPath.points.push(truncatePoint(newPoint));
+    const newPoint = screenToCanvas({ x, y });
+    currentPath.points.push(newPoint);
 
     setTimeout(() => {
       ctx.clearRect(0, 0, width / dpi, height / dpi);
@@ -310,22 +328,50 @@
     }, 100);
 
     // check if point is on any path
-    savedPaths.forEach((path, j) => {
-      for (let i = 0; i < path.points.length - 1; i++) {
-        if (
-          dist(path.points[i].x, path.points[i].y, newPoint.x, newPoint.y) <=
-          path.lineWidth
-        ) {
-          savedPaths.splice(j, 1);
-          backgroundCtx.clearRect(0, 0, width / dpi, height / dpi);
-          for (let i = 0; i < savedPaths.length; i++) {
-            renderPath(savedPaths[i], backgroundCtx);
+    for (let i = 0; i < savedPaths.length; i++) {
+      const path = savedPaths[i];
+      const length = path.points.length;
+
+      if (length < 1) return;
+
+      let intersection = false;
+      if (length === 1) {
+        intersection =
+          dist(path.points[0], newPoint) <
+          (path.lineWidth + currentPath.lineWidth) / 2;
+      } else {
+        intersection = checkLineIntersection(
+          lastPoint,
+          newPoint,
+          path.points[0],
+          path.points[1]
+        );
+        if (intersection) break;
+
+        let p0 = midpoint(path.points[0], path.points[1]);
+        for (let j = 1; j < length - 2; j++) {
+          let p1 = path.points[j];
+          let p2 = midpoint(path.points[j], path.points[j + 1]);
+
+          let l0 = lastPoint;
+          let l1 = newPoint;
+
+          if (checkCurveIntersection(p0, p1, p2, l0, l1)) {
+            intersection = true;
+            break;
           }
-          savePathsToTab();
-          break;
+          p0 = p2;
         }
       }
-    });
+
+      if (intersection) {
+        savedPaths.splice(i, 1);
+        savePathsToTab();
+        renderSavedPaths();
+      }
+    }
+
+    lastPoint = newPoint;
   }
   function eraserEndHandler() {
     if (currentPath.points.length <= 1) {
